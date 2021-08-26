@@ -1,0 +1,3 @@
+spring:
+  server:
+    port: 18000

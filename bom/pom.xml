@@ -48,6 +48,11 @@
                 <artifactId>teamide-toolbox-kafka</artifactId>
                 <version>${teamide-toolbox.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.teamide</groupId>
+                <artifactId>teamide-toolbox-start</artifactId>
+                <version>${teamide-toolbox.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
