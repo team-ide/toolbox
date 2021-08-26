@@ -1,3 +1,2 @@
-spring:
-  server:
-    port: 18000
+server:
+  port: 18000
