@@ -11,28 +11,8 @@
     <artifactId>teamide-toolbox-start</artifactId>
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.teamide</groupId>
-            <artifactId>teamide-toolbox-database</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.teamide</groupId>
-            <artifactId>teamide-toolbox-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.teamide</groupId>
-            <artifactId>teamide-toolbox-zookeeper</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.teamide</groupId>
-            <artifactId>teamide-toolbox-elasticsearch</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.teamide</groupId>
-            <artifactId>teamide-toolbox-kafka</artifactId>
+            <artifactId>teamide-toolbox-web</artifactId>
         </dependency>
     </dependencies>
     <build>

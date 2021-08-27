@@ -15,6 +15,7 @@
         <module>zookeeper</module>
         <module>kafka</module>
         <module>elasticsearch</module>
+        <module>web</module>
         <module>start</module>
     </modules>
     <properties>
