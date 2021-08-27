@@ -1,5 +1,6 @@
 package com.teamide.toolbox.zookeeper;
 
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -10,5 +11,6 @@ import org.springframework.context.annotation.Configuration;
  * @createTime 2021年08月26日 16:59:00
  */
 @Configuration
+@ComponentScan
 public class ZookeeperAutoConfiguration {
 }

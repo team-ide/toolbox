@@ -1,0 +1,7 @@
+#日志配置
+logging:
+  level:
+    root: ERROR
+    com.teamide: DEBUG
+  pattern:
+    console: '[:%d:] [:%-5level:] [:%thread:] [:%c:%M:] [:%m:]%n'

@@ -8,17 +8,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author 朱亮
- * @version 1.0.0
- * @ClassName ServerController.java
- * @Description TODO
- * @createTime 2021年08月27日 14:20:00
- */
 @RestController
 @RequestMapping("/server")
 public class ServerController {
 
+    /**
+     * @description:
+     * @param: * @param:
+     * @return: java.lang.Object
+     * @throws:
+     * @author: 朱亮
+     * @date: 2021/8/27 15:22
+     */
     @RequestMapping(path = "/open", method = RequestMethod.POST)
     public Object open() {
         Map<String,Object> data = new HashMap<>();

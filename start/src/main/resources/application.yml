@@ -16,11 +16,3 @@ spring:
 #数据目录
 data:
   dir: ${teamide-toolbox-data:./data}
-
-#日志配置
-logging:
-  level:
-    root: ERROR
-    com.teamide: INFO
-  pattern:
-    console: '[:%d:] [:%-5level:] [:%thread:] [:%c:%M:] [:%m:]%n'
