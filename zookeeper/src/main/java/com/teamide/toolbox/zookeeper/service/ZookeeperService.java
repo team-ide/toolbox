@@ -1,74 +1,76 @@
 package com.teamide.toolbox.zookeeper.service;
 
-import com.teamide.toolbox.zookeeper.bean.ZookeeperContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
+
 /**
- * @description: TODO 类描述
- * @author: 朱亮
- * @date: 2021/8/27 15:44
- **/
+ * Zookeeper服务
+ *
+ * @author 朱亮
+ * @date 2021/08/29
+ */
 @Service
+@Slf4j
 public class ZookeeperService {
 
-    private final Map<String, ZookeeperListener> context_listener_cache = new ConcurrentHashMap<>();
 
-    private final Executor executor = createExecutor();
+    private final Map<String, ZookeeperCurator> url_curator_cache = new HashMap<>();
 
+    public ZookeeperCurator curator(String url) throws Exception {
 
-    public ZookeeperListener listen(ZookeeperContext context) throws Exception {
-        ZookeeperListener listener = context_listener_cache.get(context.getUrl());
-        if (listener == null) {
-            listener = context_listener_cache.computeIfAbsent(context.getUrl(), ZookeeperListener::new);
+        ZookeeperCurator curator = url_curator_cache.get(url);
+        if (curator == null || !curator.isStarted()) {
+            synchronized (url_curator_cache) {
+                curator = url_curator_cache.get(url);
+                if (curator == null || !curator.isStarted()) {
+                    if (curator == null) {
+                        log.debug("curator url [" + url + "] is null,now create curator");
+                    } else {
+                        log.warn("curator url [" + url + "] is closed,now recreate curator");
+                    }
+                    curator = new ZookeeperCurator(url, 5);
+                    url_curator_cache.put(url, curator);
+                }
+            }
         }
-        listener.addContext(context);
-        listener.start(executor);
-        return listener;
+        return curator;
     }
 
 
     /**
-     * 根据配置获取线程池
+     * 创建线程池
      * <p>
      * ThreadPoolExecutor + LinkedBlockingQueue
      * <p>
      * 阻塞队列
      *
-     * @return Executor
+     * @return Executor 线程池
      */
     public Executor createExecutor() {
         // 核心工作线程数量
-        int workeCore = Runtime.getRuntime().availableProcessors();
+        int workerCore = Runtime.getRuntime().availableProcessors();
         // 最大工作线程数量
-        int workeMax = workeCore + 2;
-        // 队列大小
-        int queueSize = workeMax;
-        // 每次拉取多少数据
-        int maxPollRecords = 30;
+        int workerMax = workerCore + 2;
 
         // 空闲时长
         long keepAliveTime = 60;
         TimeUnit timeUnit = TimeUnit.SECONDS;
 
         // 如果队列大小小于0 则配置无界队列
-        BlockingQueue<Runnable> queue = null;
-        if (queueSize >= 0) {
-            queue = new LinkedBlockingQueue<Runnable>(queueSize);
-        } else {
-            queue = new LinkedBlockingQueue<Runnable>();
-        }
-        ThreadPoolExecutor pool = new ThreadPoolExecutor(
-                workeCore,
-                workeMax,
+        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(workerMax);
+
+        return new ThreadPoolExecutor(
+                workerCore,
+                workerMax,
                 keepAliveTime, timeUnit,
                 queue,
                 Executors.defaultThreadFactory(),
                 new CustomRejectedExecutionHandler());
-
-        return pool;
     }
 
     /**

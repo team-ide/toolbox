@@ -2,15 +2,11 @@ package com.teamide.toolbox.zookeeper.test;
 
 import com.teamide.toolbox.zookeeper.ZookeeperAutoConfiguration;
 import com.teamide.toolbox.zookeeper.bean.ZookeeperContext;
-import com.teamide.toolbox.zookeeper.service.ZookeeperListener;
+import com.teamide.toolbox.zookeeper.service.ZookeeperCurator;
 import com.teamide.toolbox.zookeeper.service.ZookeeperService;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @description: TODO 类描述
@@ -20,10 +16,38 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = {ZookeeperAutoConfiguration.class})
 public class ZookeeperTest {
 
+    static final String url = "127.0.0.1:2181";
+
     @Autowired
     private ZookeeperService zookeeperService;
 
+
     @Test
+    public void testCurator() throws Exception {
+        new Thread(() -> {
+            try {
+                ZookeeperCurator curator = zookeeperService.curator(url);
+                curator.createNotExists("/data", "s");
+                Thread.sleep(1000 * 3);
+
+                curator = zookeeperService.curator(url);
+                curator.delete("/data");
+
+                Thread.sleep(1000 * 6);
+                curator = zookeeperService.curator(url);
+                curator.createNotExists("/data", "s");
+
+                Thread.sleep(1000 * 5);
+                curator = zookeeperService.curator(url);
+                curator.delete("/data");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        Thread.sleep(1000 * 60 * 10);
+    }
+
+    //    @Test
     public void test() throws Exception {
         ZookeeperContext context = new ZookeeperContext();
         context.setUrl("127.0.0.1:2181");
