@@ -1,0 +1,13 @@
+teamide-toolbox-port: 18000
+teamide-toolbox-context: /toolbox
+teamide-toolbox-data: ./data
+
+#日志配置
+logging:
+  level:
+    root: ERROR
+    com.teamide: INFO
+  file:
+    name: ./logs/toolbox.log
+  pattern:
+    file: '[:%d:] [:%-5level:] [:%thread:] [:%c:%M:] [:%m:]%n'

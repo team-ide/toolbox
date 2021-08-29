@@ -1,0 +1,18 @@
+#server
+server:
+  port: ${teamide-toolbox-port:18000}
+  servlet:
+    context-path: ${teamide-toolbox-context:/toolbox}
+    session:
+      timeout: 7200
+
+#spring配置
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+#数据目录
+data:
+  dir: ${teamide-toolbox-data:./data}
