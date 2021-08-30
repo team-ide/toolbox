@@ -1,5 +1,9 @@
 package com.teamide.toolbox.zookeeper;
 
+import com.teamide.toolbox.worker.ToolboxWorkerCache;
+import com.teamide.toolbox.zookeeper.worker.ZookeeperWorker;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,4 +17,17 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan
 public class ZookeeperAutoConfiguration {
+
+    @Autowired
+    private ToolboxWorkerCache cache;
+
+    @Autowired
+    private ZookeeperWorker worker;
+
+    @Bean
+    public ZookeeperWorker getWorker() {
+        cache.add(worker);
+        return worker;
+    }
+
 }
