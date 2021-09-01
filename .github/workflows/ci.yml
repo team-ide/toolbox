@@ -25,7 +25,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }} # (tag)标签名称
+          tag_name: toolbox-release-${{ github.ref }} # (tag)标签名称
           release_name: Release ${{ github.ref }}
           draft: false # 是否是草稿
           prerelease: false # 是否是预发布
