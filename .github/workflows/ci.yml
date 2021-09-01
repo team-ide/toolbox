@@ -1,36 +1,43 @@
 name: Java CI
 on:
   push:
-    # 添加tag时候触发
-    tags:
-      - v*          # 添加vxx时候触发，如：”v1.0“，”v1.1“
+    tags: # 当我们提交代码为tag 是以'v'开头的时候才会触发自动部署到服务端 如 git push tag v0.1.0
+      - 'v*'
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      # 下载源码
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set up JDK 8
+      # 打包构建
+      - name: Build
         uses: actions/setup-java@v2
         with:
           java-version: '8'
           distribution: 'adopt'
-      - name: Get version
-        id: get_version
-        run: |
-          TAG=$(basename ${GITHUB_REF})
-          VERSION=${TAG/v/}
-          echo "::set-output name=TAG::$TAG"
-          echo "::set-output name=VERSION::$VERSION"
-      - name: Maven Install
-        run: mvn clean install
+      - run: mvn clean install
+      - run: tar -zcvf release.tgz release/
+      # 发布
       - name: Create Release
         id: create_release
-        uses: release-drafter/release-drafter@v5
+        uses: actions/create-release@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          config-name: release-config.yml
-          version: ${{ steps.get_version.outputs.TAG }}
-          tag: ${{ steps.get_version.outputs.TAG }}
+          tag_name: ${{ github.ref }} # (tag)标签名称
+          release_name: Release ${{ github.ref }}
+          draft: false # 是否是草稿
+          prerelease: false # 是否是预发布
+      # 上传构建结果到 Release（把打包的tgz上传到Release）
+      - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # 上传地址，通过创建Release获取到的
+        asset_path: ./release.tgz # 要上传文件
+        asset_name: release.tgz # 上传后的文件名
+        asset_content_type: application/x-tgz
 
