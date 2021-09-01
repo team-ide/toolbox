@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>com.teamide</groupId>
-            <artifactId>teamide-toolbox-datasource</artifactId>
+            <artifactId>teamide-toolbox-worker</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>

@@ -1,7 +1,8 @@
 package com.teamide.toolbox.zookeeper.test;
 
+import com.teamide.toolbox.worker.ToolboxWorkerCache;
+import com.teamide.toolbox.worker.WorkerAutoConfiguration;
 import com.teamide.toolbox.zookeeper.ZookeeperAutoConfiguration;
-import com.teamide.toolbox.zookeeper.bean.ZookeeperContext;
 import com.teamide.toolbox.zookeeper.service.ZookeeperCurator;
 import com.teamide.toolbox.zookeeper.service.ZookeeperService;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author: 朱亮
  * @date: 2021/8/27 17:04
  **/
-@SpringBootTest(classes = {ZookeeperAutoConfiguration.class})
+@SpringBootTest(classes = {WorkerAutoConfiguration.class, ZookeeperAutoConfiguration.class})
 public class ZookeeperTest {
 
     static final String url = "127.0.0.1:2181";
@@ -21,9 +22,13 @@ public class ZookeeperTest {
     @Autowired
     private ZookeeperService zookeeperService;
 
+    @Autowired
+    private ToolboxWorkerCache workerCache;
+
 
     @Test
     public void testCurator() throws Exception {
+        System.out.println(workerCache.getWorkers().size());
         new Thread(() -> {
             try {
                 ZookeeperCurator curator = zookeeperService.curator(url);
@@ -47,25 +52,4 @@ public class ZookeeperTest {
         Thread.sleep(1000 * 60 * 10);
     }
 
-    //    @Test
-    public void test() throws Exception {
-        ZookeeperContext context = new ZookeeperContext();
-        context.setUrl("127.0.0.1:2181");
-        ZookeeperListener listener = zookeeperService.listen(context);
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000 * 5);
-                listener.createNotExists("/data", "s");
-                Thread.sleep(1000 * 5);
-                listener.delete("/data");
-                Thread.sleep(1000 * 5);
-                listener.createNotExists("/data", "s");
-                Thread.sleep(1000 * 5);
-                listener.delete("/data");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-        Thread.sleep(1000 * 60 * 10);
-    }
 }
