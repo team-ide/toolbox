@@ -1,18 +1,36 @@
 name: Java CI
 on:
-  pull_request:
   push:
-    branches: # array of glob patterns matching against refs/heads. Optional; defaults to all
-      - main          # triggers on pushes that contain changes in main
+    # 添加tag时候触发
+    tags:
+      - v*          # 添加vxx时候触发，如：”v1.0“，”v1.1“
 jobs:
-  test:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Set up JDK 8
         uses: actions/setup-java@v2
         with:
           java-version: '8'
           distribution: 'adopt'
-      - name: Install
+      - name: Get version
+        id: get_version
+        run: |
+          TAG=$(basename ${GITHUB_REF})
+          VERSION=${TAG/v/}
+          echo "::set-output name=TAG::$TAG"
+          echo "::set-output name=VERSION::$VERSION"
+      - name: Maven Install
         run: mvn clean install
+      - name: Create Release
+        id: create_release
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          config-name: release-config.yml
+          version: ${{ steps.get_version.outputs.TAG }}
+          tag: ${{ steps.get_version.outputs.TAG }}
+
