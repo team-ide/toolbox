@@ -20,6 +20,10 @@ public class ZookeeperWorkSave implements ToolboxWork<ZookeeperWorkSave.Zookeepe
     @Autowired
     private ZookeeperService zookeeperService;
 
+    public Class<ZookeeperSaveRequest> getRequestClass() {
+        return ZookeeperSaveRequest.class;
+    }
+
     /**
      * 工作
      *
@@ -29,7 +33,7 @@ public class ZookeeperWorkSave implements ToolboxWork<ZookeeperWorkSave.Zookeepe
      */
     @Override
     public ZookeeperSaveResponse work(ZookeeperSaveRequest request) throws Exception {
-        ZookeeperSaveResponse response = ZookeeperSaveResponse.builder().build();
+        ZookeeperSaveResponse response = new ZookeeperSaveResponse();
         ZookeeperCurator curator = zookeeperService.curator(request.getUrl());
         if (StringUtils.isNoneEmpty(request.getPath())) {
             final String path = request.getPath();
@@ -52,7 +56,6 @@ public class ZookeeperWorkSave implements ToolboxWork<ZookeeperWorkSave.Zookeepe
      * @date 2021/08/30
      */
     @Data
-    @Builder
     public static class ZookeeperSaveRequest extends ZookeeperRequestBase {
         /**
          * 路径
@@ -75,7 +78,6 @@ public class ZookeeperWorkSave implements ToolboxWork<ZookeeperWorkSave.Zookeepe
      * @date 2021/08/30
      */
     @Data
-    @Builder
     public static class ZookeeperSaveResponse extends ZookeeperResponseBase {
 
     }

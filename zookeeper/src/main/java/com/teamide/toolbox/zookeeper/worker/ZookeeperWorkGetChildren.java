@@ -9,37 +9,38 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author 朱亮
  * @date 2021/08/30
  */
 @Service
-public class ZookeeperWorkGet implements ToolboxWork<ZookeeperWorkGet.ZookeeperGetRequest, ZookeeperWorkGet.ZookeeperGetResponse> {
+public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChildren.ZookeeperGetChildrenRequest, ZookeeperWorkGetChildren.ZookeeperGetChildrenResponse> {
 
     @Autowired
     private ZookeeperService zookeeperService;
 
-    public Class<ZookeeperGetRequest> getRequestClass() {
-        return ZookeeperGetRequest.class;
+    public Class<ZookeeperGetChildrenRequest> getRequestClass() {
+        return ZookeeperGetChildrenRequest.class;
     }
 
     /**
      * 工作
      *
      * @param request 请求
-     * @return {@link ZookeeperGetResponse}
+     * @return {@link ZookeeperGetChildrenRequest}
      * @throws Exception 异常
      */
     @Override
-    public ZookeeperGetResponse work(ZookeeperGetRequest request) throws Exception {
-        ZookeeperGetResponse response = new ZookeeperGetResponse();
+    public ZookeeperGetChildrenResponse work(ZookeeperGetChildrenRequest request) throws Exception {
+        ZookeeperGetChildrenResponse response = new ZookeeperGetChildrenResponse();
         ZookeeperCurator curator = zookeeperService.curator(request.getUrl());
         if (StringUtils.isNoneEmpty(request.getPath())) {
             final String path = request.getPath();
             if (curator.checkExists(path)) {
-                String data = curator.getData(path);
-                response.setPath(path);
-                response.setData(data);
+                List<String> children = curator.getChildren(path);
+                response.setChildren(children);
             }
         }
         return response;
@@ -51,10 +52,10 @@ public class ZookeeperWorkGet implements ToolboxWork<ZookeeperWorkGet.ZookeeperG
      * @date 2021/08/30
      */
     @Data
-    public static class ZookeeperGetRequest extends ZookeeperRequestBase {
+    public static class ZookeeperGetChildrenRequest extends ZookeeperRequestBase {
 
         /**
-         * 需要查询数据的路径
+         * 需要查询的路径
          */
         private String path;
     }
@@ -64,17 +65,12 @@ public class ZookeeperWorkGet implements ToolboxWork<ZookeeperWorkGet.ZookeeperG
      * @date 2021/08/30
      */
     @Data
-    public static class ZookeeperGetResponse extends ZookeeperResponseBase {
+    public static class ZookeeperGetChildrenResponse extends ZookeeperResponseBase {
 
         /**
-         * 路径
+         * 子列表
          */
-        private String path;
-
-        /**
-         * 路径数据
-         */
-        private String data;
+        private List<String> children;
 
     }
 }

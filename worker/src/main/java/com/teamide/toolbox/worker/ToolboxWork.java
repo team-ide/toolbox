@@ -1,6 +1,11 @@
 package com.teamide.toolbox.worker;
 
 
+import com.teamide.toolbox.util.BeanMapUtil;
+
+import java.lang.reflect.ParameterizedType;
+import java.util.Map;
+
 /**
  * 工具箱的工作者工作
  *
@@ -8,6 +13,24 @@ package com.teamide.toolbox.worker;
  * @date 2021/08/30
  */
 public interface ToolboxWork<P extends ToolboxWorkRequest, R extends ToolboxWorkResponse> {
+
+
+    public Class<P> getRequestClass();
+
+    public default P getRequest(Map<String, Object> data) throws Exception {
+        P p = null;
+        if (data == null) {
+            p = getRequestClass().newInstance();
+        } else {
+            p = BeanMapUtil.toBean(data, getRequestClass());
+        }
+        return p;
+    }
+
+    public default Class<R> getResponseClass() {
+        Class<R> rClass = (Class<R>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+        return rClass;
+    }
 
     /**
      * 工作

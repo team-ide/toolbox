@@ -19,6 +19,10 @@ public class ZookeeperWorkDelete implements ToolboxWork<ZookeeperWorkDelete.Zook
     @Autowired
     private ZookeeperService zookeeperService;
 
+    public Class<ZookeeperDeleteRequest> getRequestClass() {
+        return ZookeeperDeleteRequest.class;
+    }
+
     /**
      * 工作
      *
@@ -28,7 +32,7 @@ public class ZookeeperWorkDelete implements ToolboxWork<ZookeeperWorkDelete.Zook
      */
     @Override
     public ZookeeperDeleteResponse work(ZookeeperDeleteRequest request) throws Exception {
-        ZookeeperDeleteResponse response = ZookeeperDeleteResponse.builder().build();
+        ZookeeperDeleteResponse response = new ZookeeperDeleteResponse();
         ZookeeperCurator curator = zookeeperService.curator(request.getUrl());
         if (StringUtils.isNoneEmpty(request.getPath())) {
             curator.delete(request.getPath());
@@ -47,7 +51,6 @@ public class ZookeeperWorkDelete implements ToolboxWork<ZookeeperWorkDelete.Zook
      * @date 2021/08/30
      */
     @Data
-    @Builder
     public static class ZookeeperDeleteRequest extends ZookeeperRequestBase {
 
         /**
@@ -66,7 +69,6 @@ public class ZookeeperWorkDelete implements ToolboxWork<ZookeeperWorkDelete.Zook
      * @date 2021/08/30
      */
     @Data
-    @Builder
     public static class ZookeeperDeleteResponse extends ZookeeperResponseBase {
 
     }

@@ -1,7 +1,5 @@
 <template>
-  <div class="index-page">
-    <WorkerBox></WorkerBox>
-  </div>
+  <div class="body-right-wrap"></div>
 </template>
 
 <script>
@@ -9,9 +7,8 @@ import server from "@/server";
 import tool from "@/tool";
 import source from "@/source";
 
-import WorkerBox from "@/views/WorkerBox";
 export default {
-  components: { WorkerBox },
+  components: {},
   data() {
     return {
       tool,
@@ -19,7 +16,11 @@ export default {
     };
   },
   watch: {},
-  computed: {},
+  computed: {
+    treeStyleObject: function () {
+      return {};
+    },
+  },
   methods: {
     init() {},
   },
@@ -30,7 +31,7 @@ export default {
 </script>
 
 <style>
-.index-page {
+.body-right-wrap {
   height: 100%;
   width: 100%;
   margin: 0px;

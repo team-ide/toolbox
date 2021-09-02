@@ -17,6 +17,10 @@ public class ZookeeperWorkQueryList implements ToolboxWork<ZookeeperWorkQueryLis
     @Autowired
     private ZookeeperService zookeeperService;
 
+    public Class<ZookeeperQueryListRequest> getRequestClass() {
+        return ZookeeperQueryListRequest.class;
+    }
+
     /**
      * 工作
      *
@@ -35,7 +39,6 @@ public class ZookeeperWorkQueryList implements ToolboxWork<ZookeeperWorkQueryLis
      * @date 2021/08/30
      */
     @Data
-    @Builder
     public static class ZookeeperQueryListRequest extends ZookeeperRequestBase {
 
         /**
@@ -49,7 +52,6 @@ public class ZookeeperWorkQueryList implements ToolboxWork<ZookeeperWorkQueryLis
      * @date 2021/08/30
      */
     @Data
-    @Builder
     public static class ZookeeperQueryListResponse extends ZookeeperResponseBase {
 
     }

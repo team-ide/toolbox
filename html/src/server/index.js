@@ -100,6 +100,26 @@ let server = {
             headers: {}
         });
     },
+    workerWork(worker, work, param) {
+        return http.post('server/worker/' + worker + '/' + work, param, {
+            headers: {}
+        });
+    },
+    initWorkers(workers) {
+        workers = workers || [];
+        workers.forEach(worker => {
+            worker.works = worker.works || [];
+            worker.works.forEach(work => {
+                server[worker.name] = server[worker.name] || {};
+                server[worker.name][work.name] = (param) => {
+                    return server.workerWork(worker.name, work.name, param, {
+                        headers: {}
+                    });
+                };
+
+            });
+        });
+    },
 };
 
 
