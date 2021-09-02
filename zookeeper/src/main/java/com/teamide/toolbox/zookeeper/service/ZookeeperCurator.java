@@ -10,6 +10,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -285,6 +286,30 @@ public class ZookeeperCurator {
             log.debug("zk [" + url + "] setData node [" + path + "] data [" + data + "] end ");
         } catch (Exception e) {
             log.error("zk [" + url + "] setData node [" + path + "] data [" + data + "] error {} ", e);
+            err = e;
+            throw e;
+        } finally {
+            userEnd(err);
+        }
+    }
+
+    /**
+     * 查询子节点
+     *
+     * @param path 路径
+     * @throws Exception 异常
+     */
+    public List<String> getChildren(String path) throws Exception {
+        Exception err = null;
+        userStart();
+        try {
+            log.debug("zk [" + url + "] getChildren node [" + path + "] start ");
+            List<String> children = this.curator.getChildren().forPath(path);
+            log.debug("zk [" + url + "] getChildren node [" + path + "] end ");
+
+            return children;
+        } catch (Exception e) {
+            log.error("zk [" + url + "] getData node [" + path + "] error {} ", e);
             err = e;
             throw e;
         } finally {

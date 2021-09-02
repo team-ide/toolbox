@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app">
     <template v-if="source.served">
       <router-view></router-view>
     </template>
@@ -40,4 +40,19 @@ export default {
 </script>
 
 <style>
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  position: relative;
+}
+.app {
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  position: relative;
+}
 </style>

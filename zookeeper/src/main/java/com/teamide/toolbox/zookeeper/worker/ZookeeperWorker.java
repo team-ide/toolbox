@@ -43,6 +43,9 @@ public class ZookeeperWorker implements ToolboxWorker {
     private ZookeeperWorkGet get;
 
     @Autowired
+    private ZookeeperWorkGetChildren getChildren;
+
+    @Autowired
     private ZookeeperWorkSave save;
 
     @Autowired
@@ -53,6 +56,7 @@ public class ZookeeperWorker implements ToolboxWorker {
         Map<String, ToolboxWork> workMap = new HashMap<>();
         workMap.put("queryList", queryList);
         workMap.put("get", get);
+        workMap.put("getChildren", getChildren);
         workMap.put("save", save);
         workMap.put("delete", delete);
         return workMap;

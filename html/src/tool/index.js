@@ -11,6 +11,7 @@ for (let key in coos) {
 
 tool.open = function () {
     server.open().then(res => {
+        console.log(res)
         let value = res.value;
         tool.setSource(value);
         if (value) {
@@ -34,6 +35,7 @@ tool.setSource = function (value) {
     if (value != null) {
         tool.TIMESTAMP = value.TIMESTAMP;
         source.ENUM_MAP = value.ENUM_MAP || {};
+        server.initWorkers(value.workers);
     } else {
         source.served = false;
         source.inited = true;
