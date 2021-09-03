@@ -33,7 +33,7 @@ public class ZookeeperWorkGet implements ToolboxWork<ZookeeperWorkGet.ZookeeperG
     @Override
     public ZookeeperGetResponse work(ZookeeperGetRequest request) throws Exception {
         ZookeeperGetResponse response = new ZookeeperGetResponse();
-        ZookeeperCurator curator = zookeeperService.curator(request.getUrl());
+        ZookeeperCurator curator = zookeeperService.curator(request.getUrl(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getPath())) {
             final String path = request.getPath();
             if (curator.checkExists(path)) {

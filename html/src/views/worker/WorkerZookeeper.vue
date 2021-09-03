@@ -22,10 +22,16 @@
         :default-expanded-keys="expands"
         node-key="key"
         @node-click="nodeClick"
+        @current-change="currentChange"
         :expand-on-click-node="false"
       >
         <span class="worker-zookeeper-node" slot-scope="{ node, data }">
-          <span>{{ node.label }}</span>
+          <template v-if="data.path == '/' && connect.form != null">
+            <span>{{ connect.form.url }}</span>
+          </template>
+          <template v-else>
+            <span>{{ node.label }}</span>
+          </template>
           <span>
             <a
               class="coos-link color-grey ft-12 mgl-5"
@@ -42,13 +48,6 @@
               新增
             </a>
             <a
-              class="coos-link color-green ft-12 mgl-5"
-              size="mini"
-              @click="toUpdate(data)"
-            >
-              修改
-            </a>
-            <a
               class="coos-link color-red ft-12 mgl-5"
               size="mini"
               @click="toDelete(data)"
@@ -60,6 +59,15 @@
       </el-tree>
     </div>
     <div class="worker-zookeeper-form">
+      <template v-if="readonlyOne">
+        <h3>查看节点</h3>
+      </template>
+      <template v-else-if="insertOne">
+        <h3>新增节点</h3>
+      </template>
+      <template v-else-if="updateOne">
+        <h3>修改节点</h3>
+      </template>
       <el-form :model="oneForm" size="mini">
         <el-form-item label="路径">
           <el-input
@@ -118,6 +126,8 @@ export default {
         form: null,
       },
       readonlyOne: true,
+      insertOne: true,
+      updateOne: true,
       oneForm: {
         path: null,
         data: null,
@@ -191,12 +201,57 @@ export default {
             if (!key.startsWith("/")) {
               key = "/" + key;
             }
-            this.toReloadChildren(key);
+            this.reloadChildren(key);
           }
         }
       });
     },
-    toReloadChildren(key) {
+    toDelete(one) {
+      if (window.event) {
+        window.event.stopPropagation && window.event.stopPropagation();
+      }
+      let data = {};
+      Object.assign(data, this.connect.form);
+      data.path = one.path;
+      if (tool.isEmpty(data.path)) {
+        tool.error("路径不能为空！");
+        return;
+      }
+      tool
+        .confirm("将删除节点[" + data.path + "]和子节点，确认删除？")
+        .then(() => {
+          server.zookeeper.delete(data).then((res) => {
+            if (res.code != 0) {
+              tool.error(res.msg);
+            } else {
+              tool.success("删除成功");
+              let path = data.path;
+              if (path.lastIndexOf("/") < path.length - 1) {
+                let key = path.substring(0, path.lastIndexOf("/"));
+                if (!key.startsWith("/")) {
+                  key = "/" + key;
+                }
+                this.reloadChildren(key);
+              }
+            }
+          });
+        })
+        .catch(() => {});
+      if (data.path.indexOf("//") >= 0 || data.path.endsWith("/")) {
+        tool.error("路径格式有误，请检查路径格式！");
+        return;
+      }
+    },
+    toReloadChildren(data) {
+      if (window.event) {
+        window.event.stopPropagation && window.event.stopPropagation();
+      }
+      this.reloadChildren(data);
+    },
+    reloadChildren(key) {
+      if (window.event) {
+        window.event.stopPropagation && window.event.stopPropagation();
+      }
       let node = this.$refs.tree.getNode(key);
       if (node) {
         node.loaded = false;
@@ -268,6 +323,9 @@ export default {
       return "teamide-toolbox-" + this.workerKey;
     },
     toInsert(parent) {
+      if (window.event) {
+        window.event.stopPropagation && window.event.stopPropagation();
+      }
       this.oneForm.path = "/";
       if (parent != null && parent.path != "/") {
         this.oneForm.path = parent.path + "/";
@@ -276,6 +334,9 @@ export default {
       this.updateOne = false;
       this.insertOne = true;
       this.readonlyOne = false;
+    },
+    currentChange(data) {
+      this.toUpdate(data);
     },
     toUpdate(data) {
       this.oneForm.path = data.path;
@@ -289,8 +350,8 @@ export default {
         } else {
           let value = res.value || {};
           this.oneForm.data = value.data;
-          this.updateOne = true;
           this.readonlyOne = false;
+          this.updateOne = true;
         }
       });
     },
@@ -325,10 +386,9 @@ export default {
   margin: 0px;
   padding: 0px;
   position: relative;
-  background: white;
 }
 .worker-zookeeper-wrap .worker-zookeeper-list {
-  height: calc(100% - 100px);
+  height: calc(100% - 150px);
   width: calc(100% - 500px);
   max-width: 600px;
   min-width: 300px;
@@ -353,16 +413,15 @@ export default {
   margin: 0px;
   padding: 0px;
   position: relative;
-  background: white;
   float: left;
   padding: 10px;
   overflow: auto;
 }
 .worker-zookeeper-wrap .el-tree {
-  border: 1px solid #f3f3f3;
+  /* border: 1px solid #f3f3f3; */
   border-bottom: 0px;
 }
 .worker-zookeeper-wrap .el-tree-node__content {
-  border-bottom: 1px solid #f3f3f3;
+  border-bottom: 1px dotted #696969;
 }
 </style>

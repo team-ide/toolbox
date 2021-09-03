@@ -14,4 +14,9 @@ public class ZookeeperRequestBase extends ToolboxWorkRequest {
      * Zookeeper连接地址
      */
     private String url;
+
+    /**
+     * 自动关闭
+     */
+    private Long automaticShutdown;
 }

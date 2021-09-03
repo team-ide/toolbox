@@ -33,7 +33,7 @@ public class ZookeeperWorkDelete implements ToolboxWork<ZookeeperWorkDelete.Zook
     @Override
     public ZookeeperDeleteResponse work(ZookeeperDeleteRequest request) throws Exception {
         ZookeeperDeleteResponse response = new ZookeeperDeleteResponse();
-        ZookeeperCurator curator = zookeeperService.curator(request.getUrl());
+        ZookeeperCurator curator = zookeeperService.curator(request.getUrl(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getPath())) {
             curator.delete(request.getPath());
         }

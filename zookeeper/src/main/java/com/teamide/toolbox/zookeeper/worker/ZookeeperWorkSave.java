@@ -34,7 +34,7 @@ public class ZookeeperWorkSave implements ToolboxWork<ZookeeperWorkSave.Zookeepe
     @Override
     public ZookeeperSaveResponse work(ZookeeperSaveRequest request) throws Exception {
         ZookeeperSaveResponse response = new ZookeeperSaveResponse();
-        ZookeeperCurator curator = zookeeperService.curator(request.getUrl());
+        ZookeeperCurator curator = zookeeperService.curator(request.getUrl(), request.getAutomaticShutdown()  );
         if (StringUtils.isNoneEmpty(request.getPath())) {
             final String path = request.getPath();
             if (curator.checkExists(path)) {
