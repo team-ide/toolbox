@@ -33,7 +33,7 @@ export default {
       source,
       style: {
         backgroundColor: "#2d2d2d",
-        color: "#ffffff",
+        color: "#adadad",
         header: {
           height: "29px",
           borderBottom: "0px solid #6f6f6f",
@@ -183,5 +183,29 @@ export default {
   padding: 0px;
   float: right;
   position: relative;
+}
+.worker-box .el-tree {
+  background-color: transparent;
+  color: unset;
+}
+
+.worker-box .el-tree .el-tree-node.is-current > .el-tree-node__content {
+  background-color: #636363 !important;
+}
+.worker-box .el-tree .el-tree-node:focus > .el-tree-node__content {
+  background-color: #545454;
+}
+.worker-box .el-tree .el-tree-node > .el-tree-node__content:hover {
+  background-color: #545454;
+}
+.worker-box .el-form-item__label {
+  color: #adadad;
+}
+.worker-box .el-input__inner,
+.worker-box .el-textarea__inner,
+.worker-box .el-select__inner {
+  background-color: transparent;
+  color: #adadad;
+  border-style: dotted;
 }
 </style>

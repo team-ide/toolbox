@@ -110,18 +110,4 @@ export default {
   padding: 0px;
   position: relative;
 }
-.worker-tree .el-tree {
-  background-color: transparent;
-  color: unset;
-}
-
-.worker-tree .el-tree .el-tree-node.is-current > .el-tree-node__content {
-  background-color: #636363 !important;
-}
-.worker-tree .el-tree .el-tree-node:focus > .el-tree-node__content {
-  background-color: #545454;
-}
-.worker-tree .el-tree .el-tree-node > .el-tree-node__content:hover {
-  background-color: #545454;
-}
 </style>

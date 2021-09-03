@@ -35,7 +35,7 @@ public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChi
     @Override
     public ZookeeperGetChildrenResponse work(ZookeeperGetChildrenRequest request) throws Exception {
         ZookeeperGetChildrenResponse response = new ZookeeperGetChildrenResponse();
-        ZookeeperCurator curator = zookeeperService.curator(request.getUrl());
+        ZookeeperCurator curator = zookeeperService.curator(request.getUrl(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getPath())) {
             final String path = request.getPath();
             if (curator.checkExists(path)) {
