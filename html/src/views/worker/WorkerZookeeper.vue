@@ -196,6 +196,39 @@ export default {
         }
       });
     },
+    toDelete(one) {
+      let data = {};
+      Object.assign(data, this.connect.form);
+      data.path = one.path;
+      if (tool.isEmpty(data.path)) {
+        tool.error("路径不能为空！");
+        return;
+      }
+      tool
+        .confirm("将删除节点[" + data.path + "]和子节点，确认删除？")
+        .then(() => {
+          server.zookeeper.delete(data).then((res) => {
+            if (res.code != 0) {
+              tool.error(res.msg);
+            } else {
+              tool.success("删除成功");
+              let path = data.path;
+              if (path.lastIndexOf("/") < path.length - 1) {
+                let key = path.substring(0, path.lastIndexOf("/"));
+                if (!key.startsWith("/")) {
+                  key = "/" + key;
+                }
+                this.toReloadChildren(key);
+              }
+            }
+          });
+        })
+        .catch(() => {});
+      if (data.path.indexOf("//") >= 0 || data.path.endsWith("/")) {
+        tool.error("路径格式有误，请检查路径格式！");
+        return;
+      }
+    },
     toReloadChildren(key) {
       let node = this.$refs.tree.getNode(key);
       if (node) {
