@@ -60,8 +60,8 @@ public class ZookeeperCurator {
 
         log.info("zk [" + url + "] curator connect to [" + this.url + "] start");
         this.curator = CuratorFrameworkFactory.builder().connectString(this.url)// zkClint连接地址
-                .connectionTimeoutMs(30 * 1000)// 连接超时时间
-                .sessionTimeoutMs(30 * 1000)// 会话超时时间
+                .connectionTimeoutMs(60 * 1000)// 连接超时时间
+                .sessionTimeoutMs(60 * 1000)// 会话超时时间
                 .retryPolicy(retry)
                 .build();
         this.curator.start();

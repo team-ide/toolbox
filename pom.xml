@@ -145,6 +145,11 @@
                 <version>3.6.3</version>
             </dependency>
             <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>3.16.2</version>
+            </dependency>
+            <dependency>
                 <groupId>javax.persistence</groupId>
                 <artifactId>persistence-api</artifactId>
                 <version>${persistence.version}</version>

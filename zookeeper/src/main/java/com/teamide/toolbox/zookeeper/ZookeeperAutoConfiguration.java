@@ -25,7 +25,7 @@ public class ZookeeperAutoConfiguration {
     private ZookeeperWorker worker;
 
     @Bean
-    public ZookeeperWorker getWorker() {
+    public ZookeeperWorker getZookeeperWorker() {
         cache.add(worker);
         return worker;
     }

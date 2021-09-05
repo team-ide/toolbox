@@ -6,7 +6,7 @@
           <el-input v-model="configForm.url" placeholder="连接地址"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="mini" @click="doConnect">
+          <el-button type="primary" plain size="mini" @click="doConnect">
             连接
           </el-button>
         </el-form-item>
@@ -94,14 +94,15 @@
           ></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button
+          <a
             v-if="!readonlyOne"
-            type="primary"
+            class="coos-btn coos-link color-green "
+            plain
             size="mini"
             @click="doSave"
           >
             保存
-          </el-button>
+          </a>
         </el-form-item>
       </el-form>
     </div>

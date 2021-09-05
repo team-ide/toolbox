@@ -19,25 +19,9 @@ import java.util.concurrent.*;
 public class ZookeeperService {
 
 
-    private final Map<String, ZookeeperCurator> url_curator_cache = new HashMap<>();
+    private final Map<String, ZookeeperCurator> cache = new HashMap<>();
 
     public ZookeeperCurator curator(String url) throws Exception {
-
-        ZookeeperCurator curator = url_curator_cache.get(url);
-        if (curator == null || !curator.isStarted()) {
-            synchronized (url_curator_cache) {
-                curator = url_curator_cache.get(url);
-                if (curator == null || !curator.isStarted()) {
-                    if (curator == null) {
-                        log.debug("curator url [" + url + "] is null,now create curator");
-                    } else {
-                        log.warn("curator url [" + url + "] is closed,now recreate curator");
-                    }
-                    curator = new ZookeeperCurator(url, 5);
-                    url_curator_cache.put(url, curator);
-                }
-            }
-        }
         return curator(url, null);
     }
 
@@ -46,10 +30,10 @@ public class ZookeeperService {
             automaticShutdown = 60 * 10L; // 默认10分钟自动关闭
         }
 
-        ZookeeperCurator curator = url_curator_cache.get(url);
+        ZookeeperCurator curator = cache.get(url);
         if (curator == null || !curator.isStarted()) {
-            synchronized (url_curator_cache) {
-                curator = url_curator_cache.get(url);
+            synchronized (cache) {
+                curator = cache.get(url);
                 if (curator == null || !curator.isStarted()) {
                     if (curator == null) {
                         log.debug("curator url [" + url + "] is null,now create curator");
@@ -57,7 +41,9 @@ public class ZookeeperService {
                         log.warn("curator url [" + url + "] is closed,now recreate curator");
                     }
                     curator = new ZookeeperCurator(url, automaticShutdown);
-                    url_curator_cache.put(url, curator);
+                    // 先检查某个节点，确定能连接成功
+                    curator.checkExists("/");
+                    cache.put(url, curator);
                 }
             }
         }
