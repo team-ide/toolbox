@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>com.teamide</groupId>
-            <artifactId>teamide-toolbox-mongodb</artifactId>
+            <artifactId>teamide-toolbox-mongo</artifactId>
         </dependency>
         <dependency>
             <groupId>com.teamide</groupId>

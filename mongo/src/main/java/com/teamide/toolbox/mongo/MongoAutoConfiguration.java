@@ -1,4 +1,4 @@
-package com.teamide.toolbox.mongodb;
+package com.teamide.toolbox.mongo;
 
 import org.springframework.context.annotation.Configuration;
 
@@ -10,5 +10,5 @@ import org.springframework.context.annotation.Configuration;
  * @createTime 2021年08月26日 17:01:00
  */
 @Configuration
-public class MongodbAutoConfiguration {
+public class MongoAutoConfiguration {
 }

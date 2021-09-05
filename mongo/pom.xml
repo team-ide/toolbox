@@ -8,7 +8,7 @@
         <artifactId>teamide-toolbox</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>teamide-toolbox-mongodb</artifactId>
+    <artifactId>teamide-toolbox-mongo</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
