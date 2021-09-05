@@ -25,7 +25,7 @@ public class RedisService {
         String key = host + "-" + port + "-auth";
         RedisJedis redis = cache.get(key);
         if (redis == null || !redis.isStarted()) {
-            synchronized (redis) {
+            synchronized (cache) {
                 redis = cache.get(key);
                 if (redis == null || !redis.isStarted()) {
                     if (redis == null) {
