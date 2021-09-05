@@ -2,7 +2,11 @@
   <div class="body-main-wrap">
     <el-tabs v-model="activeKey" @tab-click="tabClick">
       <template v-for="(tab, index) in tabs">
-        <el-tab-pane :key="index" :label="tab.name" :name="tab.key">
+        <el-tab-pane
+          :key="index"
+          :label="tab.title || tab.name"
+          :name="tab.key"
+        >
           <template v-if="tab.workerType == 'zookeeper'">
             <WorkerZookeeper :workerKey="tab.key"></WorkerZookeeper>
           </template>
@@ -104,8 +108,7 @@ export default {
 }
 .body-main-wrap .el-tabs__header {
   height: 30px;
-  width: 100%;
-  margin: 0px;
+  margin: 0px 10px;
   padding: 0px;
   position: relative;
 }

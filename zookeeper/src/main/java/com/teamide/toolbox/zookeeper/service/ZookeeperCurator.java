@@ -4,11 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.CreateBuilder;
+import org.apache.curator.framework.api.CuratorEvent;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
+import java.net.ConnectException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Timer;
@@ -52,19 +55,29 @@ public class ZookeeperCurator {
      * @param url               Zookeeper地址
      * @param automaticShutdown 自动关闭时长，单位S，超出该时间不再操作，则关闭该连接
      */
-    public ZookeeperCurator(String url, long automaticShutdown) {
+    public ZookeeperCurator(String url, long automaticShutdown) throws Exception {
         this.url = url;
         this.automaticShutdown = automaticShutdown;
         // 重试策略
         ExponentialBackoffRetry retry = new ExponentialBackoffRetry(1000, 10);
 
         log.info("zk [" + url + "] curator connect to [" + this.url + "] start");
+
+
         this.curator = CuratorFrameworkFactory.builder().connectString(this.url)// zkClint连接地址
                 .connectionTimeoutMs(60 * 1000)// 连接超时时间
                 .sessionTimeoutMs(60 * 1000)// 会话超时时间
                 .retryPolicy(retry)
                 .build();
         this.curator.start();
+        try {
+
+            this.curator.getZookeeperClient().getZooKeeper().exists("/", false);
+        } catch (Exception e) {
+            log.info("zk [" + url + "] curator connect to [" + this.url + "] error {}", e);
+            this.stop();
+            throw e;
+        }
         log.info("zk [" + url + "] curator connect to [" + this.url + "] end");
         if (this.automaticShutdown > 0) {
             timer = new Timer();
@@ -111,6 +124,10 @@ public class ZookeeperCurator {
             if (exception instanceof KeeperException.SessionExpiredException) {
                 shouldClose = true;
             } else if (exception instanceof KeeperException.SessionClosedRequireAuthException) {
+                shouldClose = true;
+            } else if (exception instanceof KeeperException.ConnectionLossException) {
+                shouldClose = true;
+            } else if (exception instanceof ConnectException) {
                 shouldClose = true;
             }
             if (shouldClose) {

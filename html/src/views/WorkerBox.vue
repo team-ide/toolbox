@@ -208,4 +208,22 @@ export default {
   color: #adadad;
   border-style: dotted;
 }
+.worker-box input::-webkit-input-placeholder {
+  color: #575757;
+}
+.worker-box input::-moz-input-placeholder {
+  color: #575757;
+}
+.worker-box input::-ms-input-placeholder {
+  color: #575757;
+}
+.worker-box textarea::-webkit-input-placeholder {
+  color: #575757;
+}
+.worker-box textarea::-moz-input-placeholder {
+  color: #575757;
+}
+.worker-box textarea::-ms-input-placeholder {
+  color: #575757;
+}
 </style>

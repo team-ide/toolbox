@@ -1,14 +1,12 @@
 <template>
   <div class="worker-zookeeper-wrap">
     <div class="worker-zookeeper-config pd-10">
-      <el-form :inline="true" :model="configForm" size="mini">
+      <el-form :inline="true" :model="configForm">
         <el-form-item label="连接地址">
           <el-input v-model="configForm.url" placeholder="连接地址"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" plain size="mini" @click="doConnect">
-            连接
-          </el-button>
+          <a class="tm-btn color-green" @click="doConnect"> 连接 </a>
         </el-form-item>
       </el-form>
     </div>
@@ -34,21 +32,21 @@
           </template>
           <span>
             <a
-              class="coos-link color-grey ft-12 mgl-5"
+              class="tm-link color-grey ft-12 mgl-5"
               size="mini"
               @click="toReloadChildren(data)"
             >
               刷新
             </a>
             <a
-              class="coos-link color-blue ft-12 mgl-5"
+              class="tm-link color-blue ft-12 mgl-5"
               size="mini"
               @click="toInsert(data)"
             >
               新增
             </a>
             <a
-              class="coos-link color-red ft-12 mgl-5"
+              class="tm-link color-red ft-12 mgl-5"
               size="mini"
               @click="toDelete(data)"
             >
@@ -68,7 +66,7 @@
       <template v-else-if="updateOne">
         <h3>修改节点</h3>
       </template>
-      <el-form :model="oneForm" size="mini">
+      <el-form :model="oneForm" size="lg">
         <el-form-item label="路径">
           <el-input
             v-model="oneForm.path"
@@ -94,13 +92,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item>
-          <a
-            v-if="!readonlyOne"
-            class="coos-btn coos-link color-green "
-            plain
-            size="mini"
-            @click="doSave"
-          >
+          <a v-if="!readonlyOne" class="tm-btn color-green" @click="doSave">
             保存
           </a>
         </el-form-item>
