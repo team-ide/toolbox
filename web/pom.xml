@@ -32,6 +32,10 @@
         </dependency>
         <dependency>
             <groupId>com.teamide</groupId>
+            <artifactId>teamide-toolbox-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.teamide</groupId>
             <artifactId>teamide-toolbox-kafka</artifactId>
         </dependency>
     </dependencies>
