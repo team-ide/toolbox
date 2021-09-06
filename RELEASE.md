@@ -3,8 +3,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.0.0 -m "release version v1.0.0"
+git tag -a v1.0.8 -m "完成Zookeeper、Redis的Worker，可以在页面简单操作Zookeeper、Redis"
 
 # 推送标签
-git push origin v1.0.0
+git push origin v1.0.8
 ```
