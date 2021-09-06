@@ -10,6 +10,9 @@
           <template v-if="tab.workerType == 'zookeeper'">
             <WorkerZookeeper :workerKey="tab.key"></WorkerZookeeper>
           </template>
+          <template v-if="tab.workerType == 'redis'">
+            <WorkerRedis :workerKey="tab.key"></WorkerRedis>
+          </template>
         </el-tab-pane>
       </template>
     </el-tabs>
@@ -22,9 +25,9 @@ import tool from "@/tool";
 import source from "@/source";
 
 import WorkerZookeeper from "@/views/worker/WorkerZookeeper";
-import { on } from "element-ui/lib/utils/dom";
+import WorkerRedis from "@/views/worker/WorkerRedis";
 export default {
-  components: { WorkerZookeeper },
+  components: { WorkerZookeeper, WorkerRedis },
   data() {
     return {
       tool,

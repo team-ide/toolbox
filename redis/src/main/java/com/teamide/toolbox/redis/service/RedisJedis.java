@@ -1,10 +1,13 @@
 package com.teamide.toolbox.redis.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -57,6 +60,9 @@ public class RedisJedis {
     public RedisJedis(String host, int port, String auth, long automaticShutdown) {
         this.host = host;
         this.port = port;
+        if (StringUtils.isEmpty(auth)) {
+            auth = null;
+        }
         this.auth = auth;
         this.name = host + ":" + port;
         this.automaticShutdown = automaticShutdown;
@@ -159,6 +165,33 @@ public class RedisJedis {
             return code;
         } catch (Exception e) {
             log.error("redis [" + name + "] set key [" + key + "] value [" + value + "] error {} ", e);
+            err = e;
+            throw e;
+        } finally {
+            pool.returnResource(jedis);
+            userEnd(err);
+        }
+    }
+
+    /**
+     * 查keys
+     *
+     * @param pattern pattern
+     * @throws Exception 异常
+     */
+    public Set<String> keys(String pattern) throws Exception {
+        Exception err = null;
+        Jedis jedis = null;
+        userStart();
+        Set<String> keys = null;
+        try {
+            log.debug("redis [" + name + "] keys pattern [" + pattern + "] start ");
+            jedis = pool.getResource();
+            keys = jedis.keys(pattern);
+            log.debug("redis [" + name + "] keys pattern [" + pattern + "] end ");
+            return keys;
+        } catch (Exception e) {
+            log.error("redis [" + name + "] keys pattern [" + pattern + "] error {} ", e);
             err = e;
             throw e;
         } finally {

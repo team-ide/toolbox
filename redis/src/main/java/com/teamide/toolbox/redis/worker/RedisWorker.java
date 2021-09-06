@@ -18,12 +18,12 @@ public class RedisWorker implements ToolboxWorker {
 
     @Override
     public String name() {
-        return "zookeeper";
+        return "redis";
     }
 
     @Override
     public String text() {
-        return "Zookeeper";
+        return "Redis";
     }
 
     @Override
@@ -38,8 +38,10 @@ public class RedisWorker implements ToolboxWorker {
 
 
     @Autowired
-    private RedisWorkGet get;
+    private RedisWorkKeys keys;
 
+    @Autowired
+    private RedisWorkGet get;
 
     @Autowired
     private RedisWorkSave save;
@@ -50,6 +52,7 @@ public class RedisWorker implements ToolboxWorker {
     @Override
     public Map<String, ToolboxWork> workMap() {
         Map<String, ToolboxWork> workMap = new HashMap<>();
+        workMap.put("keys", keys);
         workMap.put("get", get);
         workMap.put("save", save);
         workMap.put("delete", delete);
