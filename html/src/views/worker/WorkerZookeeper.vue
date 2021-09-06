@@ -1,7 +1,12 @@
 <template>
   <div class="worker-zookeeper-wrap">
     <div class="worker-zookeeper-config pd-10 pdb-0">
-      <el-form :inline="true" :model="configForm" size="mini">
+      <el-form
+        :inline="true"
+        :model="configForm"
+        size="mini"
+        @submit.native.prevent
+      >
         <el-form-item label="连接地址">
           <el-input v-model="configForm.url" placeholder="连接地址"></el-input>
         </el-form-item>
@@ -65,7 +70,7 @@
       <template v-else-if="updateOne">
         <h3>修改节点</h3>
       </template>
-      <el-form :model="oneForm" size="lg">
+      <el-form :model="oneForm" size="lg" @submit.native.prevent>
         <el-form-item label="路径">
           <el-input
             v-model="oneForm.path"

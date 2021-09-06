@@ -1,12 +1,23 @@
 <template>
   <div class="worker-redis-wrap">
     <div class="worker-redis-config pd-10 pdb-0">
-      <el-form :inline="true" :model="configForm" size="mini">
-        <el-form-item label="host">
-          <el-input v-model="configForm.host" placeholder="host"></el-input>
+      <el-form
+        :inline="true"
+        :model="configForm"
+        size="mini"
+        @submit.native.prevent
+      >
+        <el-form-item label="集群">
+          <el-switch
+            v-model="configForm.cluster"
+            placeholder="cluster"
+          ></el-switch>
         </el-form-item>
-        <el-form-item label="port">
-          <el-input v-model="configForm.port" placeholder="port"></el-input>
+        <el-form-item label="address">
+          <el-input
+            v-model="configForm.address"
+            placeholder="address"
+          ></el-input>
         </el-form-item>
         <el-form-item label="auth">
           <el-input v-model="configForm.auth" placeholder="auth"></el-input>
@@ -15,8 +26,13 @@
           <a class="tm-btn tm-btn-sm color-green" @click="doConnect"> 连接 </a>
         </el-form-item>
       </el-form>
-      <el-form :inline="true" :model="searchForm" size="mini">
-        <el-form-item label="pattern">
+      <el-form
+        :inline="true"
+        :model="searchForm"
+        size="mini"
+        @submit.native.prevent
+      >
+        <el-form-item label="搜索（*模糊匹配）">
           <el-input
             v-model="searchForm.pattern"
             placeholder="pattern"
@@ -65,7 +81,7 @@
       <template v-else-if="updateOne">
         <h3>修改</h3>
       </template>
-      <el-form :model="oneForm" size="lg">
+      <el-form :model="oneForm" size="lg" @submit.native.prevent>
         <el-form-item label="key">
           <el-input
             v-model="oneForm.key"
@@ -78,7 +94,7 @@
             type="textarea"
             v-model="oneForm.value"
             placeholder="value"
-            :autosize="{ minRows: 3, maxRows: 10 }"
+            :autosize="{ minRows: 3, maxRows: 3 }"
             :readonly="readonlyOne"
           ></el-input>
         </el-form-item>
@@ -87,7 +103,7 @@
             type="textarea"
             v-model="oneForm.json"
             placeholder="格式化JSON"
-            :autosize="{ minRows: 6, maxRows: 10 }"
+            :autosize="{ minRows: 6, maxRows: 6 }"
           ></el-input>
         </el-form-item>
         <el-form-item>
@@ -112,12 +128,16 @@ export default {
     return {
       tool,
       source,
-      configForm: { host: "127.0.0.1", port: 6379, auth: "" },
+      configForm: {
+        address: "127.0.0.1:6379",
+        cluster: false,
+        auth: "",
+      },
       connect: {
         open: false,
         form: null,
       },
-      searchForm: { pattern: "*" },
+      searchForm: { pattern: "" },
       readonlyOne: true,
       insertOne: true,
       updateOne: true,
@@ -137,7 +157,7 @@ export default {
     };
   },
   watch: {
-    "oneForm.data"(value) {
+    "oneForm.value"(value) {
       this.oneForm.json = null;
       if (tool.isNotEmpty(value)) {
         try {
@@ -258,7 +278,9 @@ export default {
       let value = tool.getCache(this.getCacheKey());
       if (tool.isNotEmpty(value)) {
         let data = JSON.parse(value);
-        Object.assign(this.configForm, data);
+        for (var key in this.configForm) {
+          this.configForm[key] = data[key];
+        }
         this.doConnect();
       }
     },

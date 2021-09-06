@@ -1,6 +1,6 @@
 package com.teamide.toolbox.redis.worker;
 
-import com.teamide.toolbox.redis.service.RedisJedis;
+import com.teamide.toolbox.redis.service.RedisDo;
 import com.teamide.toolbox.redis.service.RedisService;
 import com.teamide.toolbox.worker.ToolboxWork;
 import lombok.Data;
@@ -32,7 +32,7 @@ public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.RedisDeleteR
     @Override
     public RedisDeleteResponse work(RedisDeleteRequest request) throws Exception {
         RedisDeleteResponse response = new RedisDeleteResponse();
-        RedisJedis redis = redisService.redis(request.getHost(), request.getPort(), request.getAuth(), request.getAutomaticShutdown());
+        RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.isCluster(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getKey())) {
             redis.delete(request.getKey());
         }

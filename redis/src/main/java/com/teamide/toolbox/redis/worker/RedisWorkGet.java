@@ -1,6 +1,6 @@
 package com.teamide.toolbox.redis.worker;
 
-import com.teamide.toolbox.redis.service.RedisJedis;
+import com.teamide.toolbox.redis.service.RedisDo;
 import com.teamide.toolbox.redis.service.RedisService;
 import com.teamide.toolbox.worker.ToolboxWork;
 import lombok.Data;
@@ -32,7 +32,7 @@ public class RedisWorkGet implements ToolboxWork<RedisWorkGet.RedisGetRequest, R
     @Override
     public RedisGetResponse work(RedisGetRequest request) throws Exception {
         RedisGetResponse response = new RedisGetResponse();
-        RedisJedis redis = redisService.redis(request.getHost(), request.getPort(), request.getAuth(), request.getAutomaticShutdown());
+        RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.isCluster(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getKey())) {
             String value = redis.get(request.getKey());
             response.setValue(value);

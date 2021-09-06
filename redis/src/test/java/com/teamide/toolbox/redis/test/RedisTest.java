@@ -1,13 +1,16 @@
 package com.teamide.toolbox.redis.test;
 
 import com.teamide.toolbox.redis.RedisAutoConfiguration;
-import com.teamide.toolbox.redis.service.RedisJedis;
+import com.teamide.toolbox.redis.service.RedisDo;
 import com.teamide.toolbox.redis.service.RedisService;
 import com.teamide.toolbox.worker.ToolboxWorkerCache;
 import com.teamide.toolbox.worker.WorkerAutoConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @description: TODO 类描述
@@ -33,22 +36,24 @@ public class RedisTest {
     @Test
     public void testRedis() throws Exception {
         System.out.println(workerCache.getWorkers().size());
+        String address = "127.0.0.1:6379";
+
         new Thread(() -> {
             try {
-                RedisJedis redis = redisService.redis(host, port, auth);
+                RedisDo redis = redisService.redis(address, null, false);
                 String code = redis.set("test-1", "111111");
                 System.out.println("code:" + code);
                 Thread.sleep(1000 * 3);
 
-                redis = redisService.redis(host, port, auth);
+                redis = redisService.redis(address, null, false);
                 String value = redis.get("test-1");
                 Thread.sleep(1000 * 6);
 
-                redis = redisService.redis(host, port, auth);
+                redis = redisService.redis(address, null, false);
                 redis.delete("test-1");
 
                 Thread.sleep(1000 * 6);
-                redis = redisService.redis(host, port, auth);
+                redis = redisService.redis(address, null, false);
                 value = redis.get("test-1");
                 System.out.println("value:" + value);
 

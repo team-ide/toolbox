@@ -2,19 +2,17 @@ package com.teamide.toolbox.redis.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
-import java.util.List;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 
 @Slf4j
-public class RedisJedis implements RedisDo {
+public class RedisCluster implements RedisDo {
 
     // Redis name
     private final String name;
@@ -31,8 +29,8 @@ public class RedisJedis implements RedisDo {
     // 最后使用时间戳
     private long lastUseTime = System.currentTimeMillis();
 
-    // jedis 连接池 客户端管理工具
-    private final JedisPool pool;
+    // jedis cluster 客户端管理工具
+    private final JedisCluster cluster;
 
     // 已启动标识
     private boolean started = true;
@@ -43,37 +41,29 @@ public class RedisJedis implements RedisDo {
     //
     private Timer timer;
 
-    //可用连接实例的最大数目，默认值为8；
-    //如果赋值为-1，则表示不限制；如果pool已经分配了maxActive个jedis实例，则此时pool的状态为exhausted(耗尽)。
-    private static int MAX_TOTAL = 10;
-
-    //控制一个pool最多有多少个状态为idle(空闲的)的jedis实例，默认值也是8。
-    private static int MAX_IDLE = 5;
-
-    //在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的；
-    private static boolean TEST_ON_BORROW = true;
-
-    private static int TIMEOUT = 10000;
-
-    public RedisJedis(String address, String auth, long automaticShutdown) {
-        this.address = address;
+    public RedisCluster(String address, String auth, long automaticShutdown) throws Exception {
         if (StringUtils.isEmpty(auth)) {
             auth = null;
         }
+        StringBuffer name = new StringBuffer();
+
+        Set<HostAndPort> hostAndPortSet = new HashSet<>();
+
+        Arrays.stream(address.split(";")).forEach(one -> {
+            HostAndPort hostAndPort = HostAndPort.from(one);
+            hostAndPortSet.add(hostAndPort);
+        });
+        this.address = address;
         this.auth = auth;
         this.name = address;
         this.automaticShutdown = automaticShutdown;
 
-        JedisPoolConfig config = new JedisPoolConfig();
-        config.setMaxIdle(MAX_IDLE);
-        config.setMaxTotal(MAX_TOTAL);
-        config.setTestOnBorrow(TEST_ON_BORROW);
-
-        log.info("redis [" + this.name + "] create pool start");
-        HostAndPort hostAndPort = HostAndPort.from(address);
-        this.pool = new JedisPool(config, hostAndPort.getHost(), hostAndPort.getPort(), TIMEOUT, auth);
-
-        log.info("redis [" + this.name + "] create pool end");
+        int connectionTimeout = 1000 * 10;
+        int soTimeout = 1000 * 10;
+        int maxAttempts = 10;
+        log.info("redis [" + this.name + "] create cluster start");
+        this.cluster = new JedisCluster(hostAndPortSet, connectionTimeout, soTimeout, maxAttempts, auth, new GenericObjectPoolConfig());
+        log.info("redis [" + this.name + "] create cluster end");
 
         if (this.automaticShutdown > 0) {
             timer = new Timer();
@@ -139,7 +129,7 @@ public class RedisJedis implements RedisDo {
             }
             log.debug("redis [" + name + "] curator close ");
             this.started = false;
-            this.pool.close();
+            this.cluster.close();
         }
     }
 
@@ -152,12 +142,10 @@ public class RedisJedis implements RedisDo {
      */
     public String set(String key, String value) throws Exception {
         Exception err = null;
-        Jedis jedis = null;
         userStart();
         try {
             log.debug("redis [" + name + "] set key [" + key + "] value [" + value + "] start ");
-            jedis = pool.getResource();
-            String code = jedis.set(key, value);
+            String code = cluster.set(key, value);
             log.debug("redis [" + name + "] set key [" + key + "] value [" + value + "] code [" + code + "] end ");
             return code;
         } catch (Exception e) {
@@ -165,7 +153,6 @@ public class RedisJedis implements RedisDo {
             err = e;
             throw e;
         } finally {
-            pool.returnResource(jedis);
             userEnd(err);
         }
     }
@@ -178,13 +165,24 @@ public class RedisJedis implements RedisDo {
      */
     public Set<String> keys(String pattern) throws Exception {
         Exception err = null;
-        Jedis jedis = null;
         userStart();
-        Set<String> keys = null;
+        Set<String> keys = new HashSet<>();
         try {
             log.debug("redis [" + name + "] keys pattern [" + pattern + "] start ");
-            jedis = pool.getResource();
-            keys = jedis.keys(pattern);
+
+            Map<String, JedisPool> clusterNodes = cluster.getClusterNodes();
+
+            for (Map.Entry<String, JedisPool> entry : clusterNodes.entrySet()) {
+                Jedis jedis = entry.getValue().getResource();
+                // 判断非从节点(因为若主从复制，从节点会跟随主节点的变化而变化)
+                if (!jedis.info("replication").contains("role:slave")) {
+                    Set<String> ks = jedis.keys(pattern);
+                    if (ks.size() > 0) {
+                        keys.addAll(ks);
+                    }
+                }
+                entry.getValue().returnResource(jedis);
+            }
             log.debug("redis [" + name + "] keys pattern [" + pattern + "] end ");
             return keys;
         } catch (Exception e) {
@@ -192,7 +190,6 @@ public class RedisJedis implements RedisDo {
             err = e;
             throw e;
         } finally {
-            pool.returnResource(jedis);
             userEnd(err);
         }
     }
@@ -205,12 +202,10 @@ public class RedisJedis implements RedisDo {
      */
     public String get(String key) throws Exception {
         Exception err = null;
-        Jedis jedis = null;
         userStart();
         try {
             log.debug("redis [" + name + "] get key [" + key + "] start ");
-            jedis = pool.getResource();
-            String value = jedis.get(key);
+            String value = cluster.get(key);
             log.debug("redis [" + name + "] get key [" + key + "] end ");
             return value;
         } catch (Exception e) {
@@ -218,7 +213,6 @@ public class RedisJedis implements RedisDo {
             err = e;
             throw e;
         } finally {
-            pool.returnResource(jedis);
             userEnd(err);
         }
     }
@@ -231,19 +225,16 @@ public class RedisJedis implements RedisDo {
      */
     public void delete(String key) throws Exception {
         Exception err = null;
-        Jedis jedis = null;
         userStart();
         try {
             log.debug("redis [" + name + "] delete key [" + key + "] start ");
-            jedis = pool.getResource();
-            jedis.del(key);
+            cluster.del(key);
             log.debug("redis [" + name + "] delete key [" + key + "] end ");
         } catch (Exception e) {
             log.error("redis [" + name + "] delete key [" + key + "] error {} ", e);
             err = e;
             throw e;
         } finally {
-            pool.returnResource(jedis);
             userEnd(err);
         }
     }

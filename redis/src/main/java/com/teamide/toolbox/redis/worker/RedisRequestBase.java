@@ -10,14 +10,14 @@ import lombok.Data;
 @Data
 public class RedisRequestBase extends ToolboxWorkRequest {
 
-    // Redis host
-    private String host;
-
-    // Redis port
-    private int port;
+    // Redis address
+    private String address;
 
     // Redis auth
     private String auth;
+
+    // Redis cluster
+    private boolean cluster;
 
     /**
      * 自动关闭

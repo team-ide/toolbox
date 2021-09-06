@@ -20,7 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 public class ControllerExceptionHandleAdvice {
 
     @ExceptionHandler
-    public Object handler(HttpServletRequest req, HttpServletResponse res, Throwable e) {
+    public Object error(HttpServletRequest req, HttpServletResponse res, Throwable e) {
+        log.error("request path [" + req.getPathInfo() + "] error {}", e);
         ResponseBean result = toResult(e);
         return result;
     }
