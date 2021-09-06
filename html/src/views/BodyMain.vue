@@ -2,9 +2,16 @@
   <div class="body-main-wrap">
     <el-tabs v-model="activeKey" @tab-click="tabClick">
       <template v-for="(tab, index) in tabs">
-        <el-tab-pane :key="index" :label="tab.name" :name="tab.key">
+        <el-tab-pane
+          :key="index"
+          :label="tab.title || tab.name"
+          :name="tab.key"
+        >
           <template v-if="tab.workerType == 'zookeeper'">
             <WorkerZookeeper :workerKey="tab.key"></WorkerZookeeper>
+          </template>
+          <template v-if="tab.workerType == 'redis'">
+            <WorkerRedis :workerKey="tab.key"></WorkerRedis>
           </template>
         </el-tab-pane>
       </template>
@@ -18,9 +25,9 @@ import tool from "@/tool";
 import source from "@/source";
 
 import WorkerZookeeper from "@/views/worker/WorkerZookeeper";
-import { on } from "element-ui/lib/utils/dom";
+import WorkerRedis from "@/views/worker/WorkerRedis";
 export default {
-  components: { WorkerZookeeper },
+  components: { WorkerZookeeper, WorkerRedis },
   data() {
     return {
       tool,
@@ -104,8 +111,7 @@ export default {
 }
 .body-main-wrap .el-tabs__header {
   height: 30px;
-  width: 100%;
-  margin: 0px;
+  margin: 0px 10px;
   padding: 0px;
   position: relative;
 }

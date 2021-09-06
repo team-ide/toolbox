@@ -12,14 +12,14 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 Vue.use(ElementUI)
 
-import CoosUI from 'coos-ui'
-Vue.use(CoosUI)
+import teamide from 'teamide-ui'
+Vue.use(teamide)
 
 import {
   PopupManager
 } from 'element-ui/lib/utils/popup'
 
-CoosUI.getNextZIndex = function () {
+teamide.getNextZIndex = function () {
   return PopupManager.nextZIndex();
 };
 

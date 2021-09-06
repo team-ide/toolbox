@@ -1,49 +1,49 @@
 <template>
-  <div class="worker-zookeeper-wrap">
-    <div class="worker-zookeeper-config pd-10 pdb-0">
+  <div class="worker-redis-wrap">
+    <div class="worker-redis-config pd-10 pdb-0">
       <el-form :inline="true" :model="configForm" size="mini">
-        <el-form-item label="连接地址">
-          <el-input v-model="configForm.url" placeholder="连接地址"></el-input>
+        <el-form-item label="host">
+          <el-input v-model="configForm.host" placeholder="host"></el-input>
+        </el-form-item>
+        <el-form-item label="port">
+          <el-input v-model="configForm.port" placeholder="port"></el-input>
+        </el-form-item>
+        <el-form-item label="auth">
+          <el-input v-model="configForm.auth" placeholder="auth"></el-input>
         </el-form-item>
         <el-form-item>
           <a class="tm-btn tm-btn-sm color-green" @click="doConnect"> 连接 </a>
         </el-form-item>
       </el-form>
+      <el-form :inline="true" :model="searchForm" size="mini">
+        <el-form-item label="pattern">
+          <el-input
+            v-model="searchForm.pattern"
+            placeholder="pattern"
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <a class="tm-btn tm-btn-sm color-green" @click="doSearch"> 搜索 </a>
+          <a class="tm-btn tm-btn-sm color-blue mgl-5" @click="toInsert">
+            新增
+          </a>
+        </el-form-item>
+      </el-form>
     </div>
-    <div class="worker-zookeeper-list" v-if="connect.open">
+    <div class="worker-redis-list" v-if="connect.open">
       <el-tree
         ref="tree"
-        :load="loadNode"
-        lazy
         :props="defaultProps"
+        :data="data"
         :default-expanded-keys="expands"
         node-key="key"
         @node-click="nodeClick"
         @current-change="currentChange"
         :expand-on-click-node="false"
       >
-        <span class="worker-zookeeper-node" slot-scope="{ node, data }">
-          <template v-if="data.path == '/' && connect.form != null">
-            <span>{{ connect.form.url }}</span>
-          </template>
-          <template v-else>
-            <span>{{ node.label }}</span>
-          </template>
+        <span class="worker-redis-node" slot-scope="{ node, data }">
+          <span>{{ node.label }}</span>
           <span>
-            <a
-              class="tm-link color-grey ft-12 mgl-5"
-              size="mini"
-              @click="toReloadChildren(data)"
-            >
-              刷新
-            </a>
-            <a
-              class="tm-link color-blue ft-12 mgl-5"
-              size="mini"
-              @click="toInsert(data)"
-            >
-              新增
-            </a>
             <a
               class="tm-link color-red ft-12 mgl-5"
               size="mini"
@@ -55,29 +55,29 @@
         </span>
       </el-tree>
     </div>
-    <div class="worker-zookeeper-form" v-if="connect.open">
+    <div class="worker-redis-form" v-if="connect.open">
       <template v-if="readonlyOne">
-        <h3>查看节点</h3>
+        <h3>查看</h3>
       </template>
       <template v-else-if="insertOne">
-        <h3>新增节点</h3>
+        <h3>新增</h3>
       </template>
       <template v-else-if="updateOne">
-        <h3>修改节点</h3>
+        <h3>修改</h3>
       </template>
       <el-form :model="oneForm" size="lg">
-        <el-form-item label="路径">
+        <el-form-item label="key">
           <el-input
-            v-model="oneForm.path"
-            placeholder="路径"
+            v-model="oneForm.key"
+            placeholder="key"
             :readonly="readonlyOne || updateOne"
           ></el-input>
         </el-form-item>
-        <el-form-item label="数据">
+        <el-form-item label="value">
           <el-input
             type="textarea"
-            v-model="oneForm.data"
-            placeholder="数据"
+            v-model="oneForm.value"
+            placeholder="value"
             :autosize="{ minRows: 3, maxRows: 10 }"
             :readonly="readonlyOne"
           ></el-input>
@@ -112,21 +112,23 @@ export default {
     return {
       tool,
       source,
-      configForm: { url: "127.0.0.1:2181" },
+      configForm: { host: "127.0.0.1", port: 6379, auth: "" },
       connect: {
         open: false,
         form: null,
       },
+      searchForm: { pattern: "*" },
       readonlyOne: true,
       insertOne: true,
       updateOne: true,
       oneForm: {
-        path: null,
-        data: null,
+        key: null,
+        value: null,
         json: null,
       },
       expands: [],
       opens: [],
+      data: null,
       defaultProps: {
         children: "children",
         label: "name",
@@ -158,43 +160,32 @@ export default {
     },
   },
   methods: {
-    loadChildren(path) {
+    keys(pattern) {
       let data = {};
       Object.assign(data, this.connect.form);
-      data.path = path;
-      return server.zookeeper.getChildren(data);
+      data.pattern = pattern;
+      return server.redis.keys(data);
     },
-    get(path) {
+    get(key) {
       let data = {};
       Object.assign(data, this.connect.form);
-      data.path = path;
-      return server.zookeeper.get(data);
+      data.key = key;
+      return server.redis.get(data);
     },
     doSave() {
       let data = {};
       Object.assign(data, this.connect.form);
       Object.assign(data, this.oneForm);
-      if (tool.isEmpty(data.path)) {
-        tool.error("路径不能为空！");
+      if (tool.isEmpty(data.key)) {
+        tool.error("Key不能为空！");
         return;
       }
-      if (data.path.indexOf("//") >= 0 || data.path.endsWith("/")) {
-        tool.error("路径格式有误，请检查路径格式！");
-        return;
-      }
-      server.zookeeper.save(data).then((res) => {
+      server.redis.save(data).then((res) => {
         if (res.code != 0) {
           tool.error(res.msg);
         } else {
           tool.success("保存成功");
-          let path = data.path;
-          if (path.lastIndexOf("/") < path.length - 1) {
-            let key = path.substring(0, path.lastIndexOf("/"));
-            if (!key.startsWith("/")) {
-              key = "/" + key;
-            }
-            this.reloadChildren(key);
-          }
+          this.reload();
         }
       });
     },
@@ -204,92 +195,51 @@ export default {
       }
       let data = {};
       Object.assign(data, this.connect.form);
-      data.path = one.path;
-      if (tool.isEmpty(data.path)) {
-        tool.error("路径不能为空！");
+      data.key = one.key;
+      if (tool.isEmpty(data.key)) {
+        tool.error("Key不能为空！");
         return;
       }
       tool
-        .confirm("将删除节点[" + data.path + "]和子节点，确认删除？")
+        .confirm("将删除[" + data.key + "]，确认删除？")
         .then(() => {
-          server.zookeeper.delete(data).then((res) => {
+          server.redis.delete(data).then((res) => {
             if (res.code != 0) {
               tool.error(res.msg);
             } else {
               tool.success("删除成功");
-              let path = data.path;
-              if (path.lastIndexOf("/") < path.length - 1) {
-                let key = path.substring(0, path.lastIndexOf("/"));
-                if (!key.startsWith("/")) {
-                  key = "/" + key;
-                }
-                this.reloadChildren(key);
-              }
+              this.reload();
             }
           });
         })
         .catch(() => {});
-      if (data.path.indexOf("//") >= 0 || data.path.endsWith("/")) {
-        tool.error("路径格式有误，请检查路径格式！");
-        return;
-      }
     },
-    toReloadChildren(data) {
-      if (window.event) {
-        window.event.stopPropagation && window.event.stopPropagation();
-      }
-      this.reloadChildren(data);
+    nodeClick() {},
+    doSearch() {
+      this.load();
     },
-    reloadChildren(key) {
-      if (window.event) {
-        window.event.stopPropagation && window.event.stopPropagation();
-      }
-      let node = this.$refs.tree.getNode(key);
-      if (node) {
-        node.loaded = false;
-        node.expand();
-      }
+    reload(key) {
+      this.load();
     },
-    loadNode(node, resolve) {
-      if (node.level === 0) {
-        resolve([{ name: "/", path: "/", key: "/" }]);
-        this.$nextTick(() => {
-          let node = this.$refs.tree.getNode("/");
-          node.expand();
-        });
-        return;
-      }
-      let parent = node.data;
-      let path = parent.path;
-      this.loadChildren(path).then((res) => {
+    load() {
+      let data = {};
+      Object.assign(data, this.searchForm);
+      this.data = null;
+      this.keys(data.pattern).then((res) => {
         if (res.code != 0) {
           tool.error(res.msg);
         } else {
           let value = res.value || {};
-          let list = value.children || [];
+          let keys = value.keys || [];
           let datas = [];
-          list.forEach((name) => {
-            datas.push({ name: name });
+
+          keys.forEach((name) => {
+            datas.push({ key: name, name: name });
           });
-          this.formatDatas(parent, datas);
-          resolve(datas);
+          this.data = datas;
         }
       });
     },
-    formatDatas(parent, datas) {
-      datas = datas || [];
-      datas.forEach((data) => {
-        this.formatData(parent, data);
-      });
-    },
-    formatData(parent, data) {
-      data.path = "/" + data.name;
-      if (parent != null && parent.path != "/") {
-        data.path = parent.path + "/" + data.name;
-      }
-      data.key = data.path;
-    },
-    nodeClick() {},
     doConnect() {
       this.connect.open = false;
       tool.trimList(this.expands);
@@ -300,6 +250,7 @@ export default {
       this.$nextTick(() => {
         this.connect.form = Object.assign({}, this.configForm);
         this.connect.open = true;
+        this.load();
         tool.setCache(this.getCacheKey(), JSON.stringify(this.connect.form));
       });
     },
@@ -314,15 +265,12 @@ export default {
     getCacheKey() {
       return "teamide-toolbox-" + this.workerKey;
     },
-    toInsert(parent) {
+    toInsert() {
       if (window.event) {
         window.event.stopPropagation && window.event.stopPropagation();
       }
-      this.oneForm.path = "/";
-      if (parent != null && parent.path != "/") {
-        this.oneForm.path = parent.path + "/";
-      }
-      this.oneForm.data = "";
+      this.oneForm.key = "";
+      this.oneForm.value = "";
       this.updateOne = false;
       this.insertOne = true;
       this.readonlyOne = false;
@@ -331,33 +279,33 @@ export default {
       this.toUpdate(data);
     },
     toUpdate(data) {
-      this.oneForm.path = data.path;
+      this.oneForm.key = data.key;
       this.insertOne = false;
       this.updateOne = false;
       this.readonlyOne = true;
 
-      this.get(this.oneForm.path).then((res) => {
+      this.get(this.oneForm.key).then((res) => {
         if (res.code != 0) {
           tool.error(res.msg);
         } else {
           let value = res.value || {};
-          this.oneForm.data = value.data;
+          this.oneForm.value = value.value;
           this.readonlyOne = false;
           this.updateOne = true;
         }
       });
     },
     toInfo(data) {
-      this.oneForm.path = data.path;
+      this.oneForm.key = data.key;
       this.insertOne = false;
       this.readonlyOne = true;
 
-      this.get(this.oneForm.path).then((res) => {
+      this.get(this.oneForm.key).then((res) => {
         if (res.code != 0) {
           tool.error(res.msg);
         } else {
           let value = res.value || {};
-          this.oneForm.data = value.data;
+          this.oneForm.value = value.value;
         }
       });
     },
@@ -372,14 +320,14 @@ export default {
 </script>
 
 <style>
-.worker-zookeeper-wrap {
+.worker-redis-wrap {
   height: 100%;
   width: 100%;
   margin: 0px;
   padding: 0px;
   position: relative;
 }
-.worker-zookeeper-wrap .worker-zookeeper-list {
+.worker-redis-wrap .worker-redis-list {
   height: calc(100% - 150px);
   width: calc(100% - 500px);
   max-width: 600px;
@@ -391,7 +339,7 @@ export default {
   padding: 10px;
   overflow: auto;
 }
-.worker-zookeeper-wrap .worker-zookeeper-node {
+.worker-redis-wrap .worker-redis-node {
   flex: 1;
   display: flex;
   align-items: center;
@@ -399,7 +347,7 @@ export default {
   font-size: 14px;
   padding-right: 8px;
 }
-.worker-zookeeper-wrap .worker-zookeeper-form {
+.worker-redis-wrap .worker-redis-form {
   height: calc(100% - 100px);
   width: 400px;
   margin: 0px;
@@ -409,11 +357,11 @@ export default {
   padding: 10px;
   overflow: auto;
 }
-.worker-zookeeper-wrap .el-tree {
+.worker-redis-wrap .el-tree {
   /* border: 1px solid #f3f3f3; */
   border-bottom: 0px;
 }
-.worker-zookeeper-wrap .el-tree-node__content {
+.worker-redis-wrap .el-tree-node__content {
   border-bottom: 1px dotted #696969;
 }
 </style>

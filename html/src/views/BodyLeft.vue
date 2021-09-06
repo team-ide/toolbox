@@ -27,11 +27,24 @@ export default {
       opens: [],
       data: [
         {
+          name: "Redis",
+          key: "redis",
+          children: [
+            {
+              name: "default",
+              title: "Redis Default",
+              workerType: "redis",
+              key: "redis/default",
+            },
+          ],
+        },
+        {
           name: "Zookeeper",
           key: "zookeeper",
           children: [
             {
               name: "default",
+              title: "Zookeeper Default",
               workerType: "zookeeper",
               key: "zookeeper/default",
             },
@@ -71,6 +84,7 @@ export default {
       this.open(data);
     },
     initExpands() {
+      this.expand("redis");
       this.expand("zookeeper");
     },
     expand(key) {

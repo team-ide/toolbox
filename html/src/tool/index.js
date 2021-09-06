@@ -1,12 +1,12 @@
 import server from "@/server/index.js";
 import source from "@/source/index.js";
-import coos from 'coos-ui'
+import teamide from 'teamide-ui'
 import jQuery from 'jquery'
 
 let tool = {};
 tool.jQuery = jQuery;
-for (let key in coos) {
-    tool[key] = coos[key];
+for (let key in teamide) {
+    tool[key] = teamide[key];
 }
 
 tool.open = function () {
@@ -184,7 +184,7 @@ tool.getRandom = function (length) {
 };
 tool.formatDateStr = function (datetime) {
     var value = datetime || "";
-    if (!coos.isEmpty(value)) {
+    if (!teamide.isEmpty(value)) {
         value = '' + value;
         value = value.replace(/-/g, '');
         value = value.replace(/:/g, '');
