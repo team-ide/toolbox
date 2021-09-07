@@ -7,10 +7,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-import java.util.List;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 
 @Slf4j
@@ -165,7 +162,9 @@ public class RedisJedis implements RedisDo {
             err = e;
             throw e;
         } finally {
-            pool.returnResource(jedis);
+            if (jedis != null) {
+                jedis.close();
+            }
             userEnd(err);
         }
     }
@@ -176,15 +175,27 @@ public class RedisJedis implements RedisDo {
      * @param pattern pattern
      * @throws Exception 异常
      */
-    public Set<String> keys(String pattern) throws Exception {
+    public Set<String> keys(String pattern, int size) throws Exception {
         Exception err = null;
         Jedis jedis = null;
         userStart();
-        Set<String> keys = null;
+        Set<String> keys = new HashSet<>();
         try {
             log.debug("redis [" + name + "] keys pattern [" + pattern + "] start ");
             jedis = pool.getResource();
-            keys = jedis.keys(pattern);
+            Set<String> ks = jedis.keys(pattern);
+            if (size <= 0 || ks.size() <= size) {
+                keys.addAll(ks);
+            } else {
+                int index = 0;
+                for (String k : ks) {
+                    keys.add(k);
+                    index++;
+                    if (index > size) {
+                        break;
+                    }
+                }
+            }
             log.debug("redis [" + name + "] keys pattern [" + pattern + "] end ");
             return keys;
         } catch (Exception e) {
@@ -192,7 +203,9 @@ public class RedisJedis implements RedisDo {
             err = e;
             throw e;
         } finally {
-            pool.returnResource(jedis);
+            if (jedis != null) {
+                jedis.close();
+            }
             userEnd(err);
         }
     }
@@ -218,7 +231,9 @@ public class RedisJedis implements RedisDo {
             err = e;
             throw e;
         } finally {
-            pool.returnResource(jedis);
+            if (jedis != null) {
+                jedis.close();
+            }
             userEnd(err);
         }
     }
@@ -243,7 +258,9 @@ public class RedisJedis implements RedisDo {
             err = e;
             throw e;
         } finally {
-            pool.returnResource(jedis);
+            if (jedis != null) {
+                jedis.close();
+            }
             userEnd(err);
         }
     }

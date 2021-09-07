@@ -14,25 +14,25 @@ import org.springframework.stereotype.Service;
  * @date 2021/08/30
  */
 @Service
-public class ZookeeperWorkGet implements ToolboxWork<ZookeeperWorkGet.ZookeeperGetRequest, ZookeeperWorkGet.ZookeeperGetResponse> {
+public class ZookeeperWorkGet implements ToolboxWork<ZookeeperWorkGet.Request, ZookeeperWorkGet.Response> {
 
     @Autowired
     private ZookeeperService zookeeperService;
 
-    public Class<ZookeeperGetRequest> getRequestClass() {
-        return ZookeeperGetRequest.class;
+    public Class<Request> getRequestClass() {
+        return Request.class;
     }
 
     /**
      * 工作
      *
      * @param request 请求
-     * @return {@link ZookeeperGetResponse}
+     * @return {@link Response}
      * @throws Exception 异常
      */
     @Override
-    public ZookeeperGetResponse work(ZookeeperGetRequest request) throws Exception {
-        ZookeeperGetResponse response = new ZookeeperGetResponse();
+    public Response work(Request request) throws Exception {
+        Response response = new Response();
         ZookeeperCurator curator = zookeeperService.curator(request.getUrl(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getPath())) {
             final String path = request.getPath();
@@ -51,7 +51,7 @@ public class ZookeeperWorkGet implements ToolboxWork<ZookeeperWorkGet.ZookeeperG
      * @date 2021/08/30
      */
     @Data
-    public static class ZookeeperGetRequest extends ZookeeperRequestBase {
+    public static class Request extends ZookeeperRequestBase {
 
         /**
          * 需要查询数据的路径
@@ -64,7 +64,7 @@ public class ZookeeperWorkGet implements ToolboxWork<ZookeeperWorkGet.ZookeeperG
      * @date 2021/08/30
      */
     @Data
-    public static class ZookeeperGetResponse extends ZookeeperResponseBase {
+    public static class Response extends ZookeeperResponseBase {
 
         /**
          * 路径

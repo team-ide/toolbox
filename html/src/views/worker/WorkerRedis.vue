@@ -38,15 +38,24 @@
             placeholder="pattern"
           ></el-input>
         </el-form-item>
+        <el-form-item label="展示数量">
+          <el-input v-model="searchForm.size" placeholder="size"></el-input>
+        </el-form-item>
         <el-form-item>
-          <a class="tm-btn tm-btn-sm color-green" @click="doSearch"> 搜索 </a>
+          <a
+            class="tm-btn tm-btn-sm color-green"
+            :class="{ 'tm-disabled': loading }"
+            @click="doSearch"
+          >
+            搜索
+          </a>
           <a class="tm-btn tm-btn-sm color-blue mgl-5" @click="toInsert">
             新增
           </a>
         </el-form-item>
       </el-form>
     </div>
-    <div class="worker-redis-list" v-if="connect.open">
+    <div class="worker-redis-list worker-scrollbar" v-if="connect.open">
       <el-tree
         ref="tree"
         :props="defaultProps"
@@ -71,7 +80,7 @@
         </span>
       </el-tree>
     </div>
-    <div class="worker-redis-form" v-if="connect.open">
+    <div class="worker-redis-form worker-scrollbar" v-if="connect.open">
       <template v-if="readonlyOne">
         <h3>查看</h3>
       </template>
@@ -137,7 +146,8 @@ export default {
         open: false,
         form: null,
       },
-      searchForm: { pattern: "" },
+      loading: false,
+      searchForm: { pattern: "*", size: 20 },
       readonlyOne: true,
       insertOne: true,
       updateOne: true,
@@ -180,10 +190,11 @@ export default {
     },
   },
   methods: {
-    keys(pattern) {
+    keys(pattern, size) {
       let data = {};
       Object.assign(data, this.connect.form);
       data.pattern = pattern;
+      data.size = size;
       return server.redis.keys(data);
     },
     get(key) {
@@ -245,20 +256,26 @@ export default {
       let data = {};
       Object.assign(data, this.searchForm);
       this.data = null;
-      this.keys(data.pattern).then((res) => {
-        if (res.code != 0) {
-          tool.error(res.msg);
-        } else {
-          let value = res.value || {};
-          let keys = value.keys || [];
-          let datas = [];
+      this.loading = true;
+      this.keys(data.pattern, data.size)
+        .then((res) => {
+          this.loading = false;
+          if (res.code != 0) {
+            tool.error(res.msg);
+          } else {
+            let value = res.value || {};
+            let keys = value.keys || [];
+            let datas = [];
 
-          keys.forEach((name) => {
-            datas.push({ key: name, name: name });
-          });
-          this.data = datas;
-        }
-      });
+            keys.forEach((name) => {
+              datas.push({ key: name, name: name });
+            });
+            this.data = datas;
+          }
+        })
+        .catch(() => {
+          this.loading = false;
+        });
     },
     doConnect() {
       this.connect.open = false;
@@ -354,12 +371,11 @@ export default {
   width: calc(100% - 500px);
   max-width: 600px;
   min-width: 300px;
-  margin: 0px;
+  margin: 10px;
   padding: 0px;
   position: relative;
   float: left;
-  padding: 10px;
-  overflow: auto;
+  overflow-x: hidden !important;
 }
 .worker-redis-wrap .worker-redis-node {
   flex: 1;

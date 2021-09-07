@@ -13,25 +13,25 @@ import org.springframework.stereotype.Service;
  * @date 2021/08/30
  */
 @Service
-public class RedisWorkGet implements ToolboxWork<RedisWorkGet.RedisGetRequest, RedisWorkGet.RedisGetResponse> {
+public class RedisWorkGet implements ToolboxWork<RedisWorkGet.Request, RedisWorkGet.Response> {
 
     @Autowired
     private RedisService redisService;
 
-    public Class<RedisGetRequest> getRequestClass() {
-        return RedisGetRequest.class;
+    public Class<Request> getRequestClass() {
+        return Request.class;
     }
 
     /**
      * 工作
      *
      * @param request 请求
-     * @return {@link RedisGetResponse}
+     * @return {@link Response}
      * @throws Exception 异常
      */
     @Override
-    public RedisGetResponse work(RedisGetRequest request) throws Exception {
-        RedisGetResponse response = new RedisGetResponse();
+    public Response work(Request request) throws Exception {
+        Response response = new Response();
         RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.isCluster(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getKey())) {
             String value = redis.get(request.getKey());
@@ -46,7 +46,7 @@ public class RedisWorkGet implements ToolboxWork<RedisWorkGet.RedisGetRequest, R
      * @date 2021/08/30
      */
     @Data
-    public static class RedisGetRequest extends RedisRequestBase {
+    public static class Request extends RedisRequestBase {
         /**
          * key
          */
@@ -60,7 +60,7 @@ public class RedisWorkGet implements ToolboxWork<RedisWorkGet.RedisGetRequest, R
      * @date 2021/08/30
      */
     @Data
-    public static class RedisGetResponse extends RedisResponseBase {
+    public static class Response extends RedisResponseBase {
         /**
          * value
          */

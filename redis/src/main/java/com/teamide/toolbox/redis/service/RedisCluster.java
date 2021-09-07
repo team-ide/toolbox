@@ -163,7 +163,7 @@ public class RedisCluster implements RedisDo {
      * @param pattern pattern
      * @throws Exception 异常
      */
-    public Set<String> keys(String pattern) throws Exception {
+    public Set<String> keys(String pattern, int size) throws Exception {
         Exception err = null;
         userStart();
         Set<String> keys = new HashSet<>();
@@ -171,17 +171,30 @@ public class RedisCluster implements RedisDo {
             log.debug("redis [" + name + "] keys pattern [" + pattern + "] start ");
 
             Map<String, JedisPool> clusterNodes = cluster.getClusterNodes();
-
+            Set<String> ks = new HashSet<>();
             for (Map.Entry<String, JedisPool> entry : clusterNodes.entrySet()) {
-                Jedis jedis = entry.getValue().getResource();
+                JedisPool pool = entry.getValue();
+                Jedis jedis = pool.getResource();
                 // 判断非从节点(因为若主从复制，从节点会跟随主节点的变化而变化)
                 if (!jedis.info("replication").contains("role:slave")) {
-                    Set<String> ks = jedis.keys(pattern);
-                    if (ks.size() > 0) {
-                        keys.addAll(ks);
+                    Set<String> ks_ = jedis.keys(pattern);
+                    if (ks_.size() > 0) {
+                        ks.addAll(ks_);
                     }
                 }
-                entry.getValue().returnResource(jedis);
+                jedis.close();
+            }
+            if (size <= 0 || ks.size() <= size) {
+                keys.addAll(ks);
+            } else {
+                int index = 0;
+                for (String k : ks) {
+                    keys.add(k);
+                    index++;
+                    if (index > size) {
+                        break;
+                    }
+                }
             }
             log.debug("redis [" + name + "] keys pattern [" + pattern + "] end ");
             return keys;

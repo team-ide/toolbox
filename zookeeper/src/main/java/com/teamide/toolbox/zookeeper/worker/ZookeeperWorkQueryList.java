@@ -12,24 +12,24 @@ import org.springframework.stereotype.Service;
  * @date 2021/08/30
  */
 @Service
-public class ZookeeperWorkQueryList implements ToolboxWork<ZookeeperWorkQueryList.ZookeeperQueryListRequest, ZookeeperWorkQueryList.ZookeeperQueryListResponse> {
+public class ZookeeperWorkQueryList implements ToolboxWork<ZookeeperWorkQueryList.Request, ZookeeperWorkQueryList.Response> {
 
     @Autowired
     private ZookeeperService zookeeperService;
 
-    public Class<ZookeeperQueryListRequest> getRequestClass() {
-        return ZookeeperQueryListRequest.class;
+    public Class<Request> getRequestClass() {
+        return Request.class;
     }
 
     /**
      * 工作
      *
      * @param request 请求
-     * @return {@link ZookeeperQueryListResponse}
+     * @return {@link Response}
      * @throws Exception 异常
      */
     @Override
-    public ZookeeperQueryListResponse work(ZookeeperQueryListRequest request) throws Exception {
+    public Response work(Request request) throws Exception {
         return null;
     }
 
@@ -39,7 +39,7 @@ public class ZookeeperWorkQueryList implements ToolboxWork<ZookeeperWorkQueryLis
      * @date 2021/08/30
      */
     @Data
-    public static class ZookeeperQueryListRequest extends ZookeeperRequestBase {
+    public static class Request extends ZookeeperRequestBase {
 
         /**
          * 搜索文案
@@ -52,7 +52,7 @@ public class ZookeeperWorkQueryList implements ToolboxWork<ZookeeperWorkQueryLis
      * @date 2021/08/30
      */
     @Data
-    public static class ZookeeperQueryListResponse extends ZookeeperResponseBase {
+    public static class Response extends ZookeeperResponseBase {
 
     }
 }

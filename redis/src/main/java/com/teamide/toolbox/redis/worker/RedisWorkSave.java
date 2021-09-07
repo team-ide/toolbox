@@ -13,25 +13,25 @@ import org.springframework.stereotype.Service;
  * @date 2021/08/30
  */
 @Service
-public class RedisWorkSave implements ToolboxWork<RedisWorkSave.RedisSaveRequest, RedisWorkSave.RedisSaveResponse> {
+public class RedisWorkSave implements ToolboxWork<RedisWorkSave.Request, RedisWorkSave.Response> {
 
     @Autowired
     private RedisService redisService;
 
-    public Class<RedisSaveRequest> getRequestClass() {
-        return RedisSaveRequest.class;
+    public Class<Request> getRequestClass() {
+        return Request.class;
     }
 
     /**
      * 工作
      *
      * @param request 请求
-     * @return {@link RedisSaveResponse}
+     * @return {@link Response}
      * @throws Exception 异常
      */
     @Override
-    public RedisSaveResponse work(RedisSaveRequest request) throws Exception {
-        RedisSaveResponse response = new RedisSaveResponse();
+    public Response work(Request request) throws Exception {
+        Response response = new Response();
         RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.isCluster(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getKey())) {
             redis.set(request.getKey(), request.getValue());
@@ -45,7 +45,7 @@ public class RedisWorkSave implements ToolboxWork<RedisWorkSave.RedisSaveRequest
      * @date 2021/08/30
      */
     @Data
-    public static class RedisSaveRequest extends RedisRequestBase {
+    public static class Request extends RedisRequestBase {
         /**
          * key
          */
@@ -63,7 +63,7 @@ public class RedisWorkSave implements ToolboxWork<RedisWorkSave.RedisSaveRequest
      * @date 2021/08/30
      */
     @Data
-    public static class RedisSaveResponse extends RedisResponseBase {
+    public static class Response extends RedisResponseBase {
 
     }
 }

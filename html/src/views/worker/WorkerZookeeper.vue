@@ -15,7 +15,7 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="worker-zookeeper-list" v-if="connect.open">
+    <div class="worker-zookeeper-list worker-scrollbar" v-if="connect.open">
       <el-tree
         ref="tree"
         :load="loadNode"
@@ -60,7 +60,7 @@
         </span>
       </el-tree>
     </div>
-    <div class="worker-zookeeper-form" v-if="connect.open">
+    <div class="worker-zookeeper-form worker-scrollbar" v-if="connect.open">
       <template v-if="readonlyOne">
         <h3>查看节点</h3>
       </template>
@@ -389,12 +389,10 @@ export default {
   width: calc(100% - 500px);
   max-width: 600px;
   min-width: 300px;
-  margin: 0px;
+  margin: 10px;
   padding: 0px;
   position: relative;
   float: left;
-  padding: 10px;
-  overflow: auto;
 }
 .worker-zookeeper-wrap .worker-zookeeper-node {
   flex: 1;

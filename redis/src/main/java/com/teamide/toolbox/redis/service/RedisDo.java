@@ -18,7 +18,7 @@ public interface RedisDo {
 
     public String set(String key, String value) throws Exception;
 
-    public Set<String> keys(String pattern) throws Exception;
+    public Set<String> keys(String pattern, int size) throws Exception;
 
     public String get(String key) throws Exception;
 

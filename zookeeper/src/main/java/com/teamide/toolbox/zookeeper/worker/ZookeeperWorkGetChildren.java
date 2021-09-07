@@ -16,25 +16,25 @@ import java.util.List;
  * @date 2021/08/30
  */
 @Service
-public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChildren.ZookeeperGetChildrenRequest, ZookeeperWorkGetChildren.ZookeeperGetChildrenResponse> {
+public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChildren.Request, ZookeeperWorkGetChildren.Response> {
 
     @Autowired
     private ZookeeperService zookeeperService;
 
-    public Class<ZookeeperGetChildrenRequest> getRequestClass() {
-        return ZookeeperGetChildrenRequest.class;
+    public Class<Request> getRequestClass() {
+        return Request.class;
     }
 
     /**
      * 工作
      *
      * @param request 请求
-     * @return {@link ZookeeperGetChildrenRequest}
+     * @return {@link Request}
      * @throws Exception 异常
      */
     @Override
-    public ZookeeperGetChildrenResponse work(ZookeeperGetChildrenRequest request) throws Exception {
-        ZookeeperGetChildrenResponse response = new ZookeeperGetChildrenResponse();
+    public Response work(Request request) throws Exception {
+        Response response = new Response();
         ZookeeperCurator curator = zookeeperService.curator(request.getUrl(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getPath())) {
             final String path = request.getPath();
@@ -52,7 +52,7 @@ public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChi
      * @date 2021/08/30
      */
     @Data
-    public static class ZookeeperGetChildrenRequest extends ZookeeperRequestBase {
+    public static class Request extends ZookeeperRequestBase {
 
         /**
          * 需要查询的路径
@@ -65,7 +65,7 @@ public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChi
      * @date 2021/08/30
      */
     @Data
-    public static class ZookeeperGetChildrenResponse extends ZookeeperResponseBase {
+    public static class Response extends ZookeeperResponseBase {
 
         /**
          * 子列表

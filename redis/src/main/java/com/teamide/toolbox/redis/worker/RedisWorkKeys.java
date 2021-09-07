@@ -15,28 +15,28 @@ import java.util.Set;
  * @date 2021/08/30
  */
 @Service
-public class RedisWorkKeys implements ToolboxWork<RedisWorkKeys.RedisKeysRequest, RedisWorkKeys.RedisKeysResponse> {
+public class RedisWorkKeys implements ToolboxWork<RedisWorkKeys.Request, RedisWorkKeys.Response> {
 
     @Autowired
     private RedisService redisService;
 
-    public Class<RedisKeysRequest> getRequestClass() {
-        return RedisKeysRequest.class;
+    public Class<Request> getRequestClass() {
+        return Request.class;
     }
 
     /**
      * 工作
      *
      * @param request 请求
-     * @return {@link RedisKeysResponse}
+     * @return {@link Response}
      * @throws Exception 异常
      */
     @Override
-    public RedisKeysResponse work(RedisKeysRequest request) throws Exception {
-        RedisKeysResponse response = new RedisKeysResponse();
+    public Response work(Request request) throws Exception {
+        Response response = new Response();
         RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.isCluster(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getPattern())) {
-            Set<String> keys = redis.keys(request.getPattern());
+            Set<String> keys = redis.keys(request.getPattern(), request.getSize());
             response.setKeys(keys);
         }
         return response;
@@ -48,11 +48,16 @@ public class RedisWorkKeys implements ToolboxWork<RedisWorkKeys.RedisKeysRequest
      * @date 2021/08/30
      */
     @Data
-    public static class RedisKeysRequest extends RedisRequestBase {
+    public static class Request extends RedisRequestBase {
         /**
          * key
          */
         private String pattern;
+
+        /**
+         * size
+         */
+        private int size = 20;
 
 
     }
@@ -62,7 +67,7 @@ public class RedisWorkKeys implements ToolboxWork<RedisWorkKeys.RedisKeysRequest
      * @date 2021/08/30
      */
     @Data
-    public static class RedisKeysResponse extends RedisResponseBase {
+    public static class Response extends RedisResponseBase {
         /**
          * keys
          */

@@ -13,25 +13,25 @@ import org.springframework.stereotype.Service;
  * @date 2021/08/30
  */
 @Service
-public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.RedisDeleteRequest, RedisWorkDelete.RedisDeleteResponse> {
+public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.Request, RedisWorkDelete.Response> {
 
     @Autowired
     private RedisService redisService;
 
-    public Class<RedisDeleteRequest> getRequestClass() {
-        return RedisDeleteRequest.class;
+    public Class<Request> getRequestClass() {
+        return Request.class;
     }
 
     /**
      * 工作
      *
      * @param request 请求
-     * @return {@link RedisDeleteResponse}
+     * @return {@link Response}
      * @throws Exception 异常
      */
     @Override
-    public RedisDeleteResponse work(RedisDeleteRequest request) throws Exception {
-        RedisDeleteResponse response = new RedisDeleteResponse();
+    public Response work(Request request) throws Exception {
+        Response response = new Response();
         RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.isCluster(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getKey())) {
             redis.delete(request.getKey());
@@ -45,7 +45,7 @@ public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.RedisDeleteR
      * @date 2021/08/30
      */
     @Data
-    public static class RedisDeleteRequest extends RedisRequestBase {
+    public static class Request extends RedisRequestBase {
         /**
          * key
          */
@@ -59,7 +59,7 @@ public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.RedisDeleteR
      * @date 2021/08/30
      */
     @Data
-    public static class RedisDeleteResponse extends RedisResponseBase {
+    public static class Response extends RedisResponseBase {
 
     }
 }
