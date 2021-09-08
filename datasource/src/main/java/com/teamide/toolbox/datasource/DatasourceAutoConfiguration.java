@@ -3,11 +3,10 @@ package com.teamide.toolbox.datasource;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * 数据源自动装配
+ *
  * @author 朱亮
- * @version 1.0.0
- * @ClassName DatasourceAutoConfiguration.java
- * @Description TODO
- * @createTime 2021年08月26日 17:02:00
+ * @date 2021/09/08
  */
 @Configuration
 public class DatasourceAutoConfiguration {

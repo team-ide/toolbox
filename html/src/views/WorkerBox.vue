@@ -226,4 +226,39 @@ export default {
 .worker-box textarea::-ms-input-placeholder {
   color: #575757;
 }
+/* 滚动条样式*/
+.worker-box .worker-scrollbar {
+  overflow: scroll;
+}
+.worker-box textarea {
+  overflow-x: hidden;
+}
+.worker-box .worker-scrollbar::-webkit-scrollbar,
+.worker-box textarea::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.worker-box .worker-scrollbar:hover::-webkit-scrollbar,
+.worker-box textarea:hover::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.worker-box .worker-scrollbar::-webkit-scrollbar-thumb,
+.worker-box textarea::-webkit-scrollbar-thumb {
+  border-radius: 0px;
+}
+.worker-box .worker-scrollbar::-webkit-scrollbar-track,
+.worker-box textarea::-webkit-scrollbar-track {
+  border-radius: 0;
+}
+.worker-box .worker-scrollbar:hover::-webkit-scrollbar-thumb,
+.worker-box textarea:hover::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 10px #333333;
+  background: #333333;
+}
+.worker-box .worker-scrollbar:hover::-webkit-scrollbar-track,
+.worker-box textarea:hover::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 10px #262626;
+  background: #262626;
+}
 </style>

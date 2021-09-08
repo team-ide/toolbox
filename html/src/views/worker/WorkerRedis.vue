@@ -1,12 +1,23 @@
 <template>
   <div class="worker-redis-wrap">
     <div class="worker-redis-config pd-10 pdb-0">
-      <el-form :inline="true" :model="configForm" size="mini">
-        <el-form-item label="host">
-          <el-input v-model="configForm.host" placeholder="host"></el-input>
+      <el-form
+        :inline="true"
+        :model="configForm"
+        size="mini"
+        @submit.native.prevent
+      >
+        <el-form-item label="集群">
+          <el-switch
+            v-model="configForm.cluster"
+            placeholder="cluster"
+          ></el-switch>
         </el-form-item>
-        <el-form-item label="port">
-          <el-input v-model="configForm.port" placeholder="port"></el-input>
+        <el-form-item label="address">
+          <el-input
+            v-model="configForm.address"
+            placeholder="address"
+          ></el-input>
         </el-form-item>
         <el-form-item label="auth">
           <el-input v-model="configForm.auth" placeholder="auth"></el-input>
@@ -15,22 +26,36 @@
           <a class="tm-btn tm-btn-sm color-green" @click="doConnect"> 连接 </a>
         </el-form-item>
       </el-form>
-      <el-form :inline="true" :model="searchForm" size="mini">
-        <el-form-item label="pattern">
+      <el-form
+        :inline="true"
+        :model="searchForm"
+        size="mini"
+        @submit.native.prevent
+      >
+        <el-form-item label="搜索（*模糊匹配）">
           <el-input
             v-model="searchForm.pattern"
             placeholder="pattern"
           ></el-input>
         </el-form-item>
+        <el-form-item label="展示数量">
+          <el-input v-model="searchForm.size" placeholder="size"></el-input>
+        </el-form-item>
         <el-form-item>
-          <a class="tm-btn tm-btn-sm color-green" @click="doSearch"> 搜索 </a>
+          <a
+            class="tm-btn tm-btn-sm color-green"
+            :class="{ 'tm-disabled': loading }"
+            @click="doSearch"
+          >
+            搜索
+          </a>
           <a class="tm-btn tm-btn-sm color-blue mgl-5" @click="toInsert">
             新增
           </a>
         </el-form-item>
       </el-form>
     </div>
-    <div class="worker-redis-list" v-if="connect.open">
+    <div class="worker-redis-list worker-scrollbar" v-if="connect.open">
       <el-tree
         ref="tree"
         :props="defaultProps"
@@ -55,7 +80,7 @@
         </span>
       </el-tree>
     </div>
-    <div class="worker-redis-form" v-if="connect.open">
+    <div class="worker-redis-form worker-scrollbar" v-if="connect.open">
       <template v-if="readonlyOne">
         <h3>查看</h3>
       </template>
@@ -65,7 +90,7 @@
       <template v-else-if="updateOne">
         <h3>修改</h3>
       </template>
-      <el-form :model="oneForm" size="lg">
+      <el-form :model="oneForm" size="lg" @submit.native.prevent>
         <el-form-item label="key">
           <el-input
             v-model="oneForm.key"
@@ -78,7 +103,7 @@
             type="textarea"
             v-model="oneForm.value"
             placeholder="value"
-            :autosize="{ minRows: 3, maxRows: 10 }"
+            :autosize="{ minRows: 3, maxRows: 3 }"
             :readonly="readonlyOne"
           ></el-input>
         </el-form-item>
@@ -87,7 +112,7 @@
             type="textarea"
             v-model="oneForm.json"
             placeholder="格式化JSON"
-            :autosize="{ minRows: 6, maxRows: 10 }"
+            :autosize="{ minRows: 6, maxRows: 6 }"
           ></el-input>
         </el-form-item>
         <el-form-item>
@@ -112,12 +137,17 @@ export default {
     return {
       tool,
       source,
-      configForm: { host: "127.0.0.1", port: 6379, auth: "" },
+      configForm: {
+        address: "127.0.0.1:6379",
+        cluster: false,
+        auth: "",
+      },
       connect: {
         open: false,
         form: null,
       },
-      searchForm: { pattern: "*" },
+      loading: false,
+      searchForm: { pattern: "*", size: 20 },
       readonlyOne: true,
       insertOne: true,
       updateOne: true,
@@ -137,7 +167,7 @@ export default {
     };
   },
   watch: {
-    "oneForm.data"(value) {
+    "oneForm.value"(value) {
       this.oneForm.json = null;
       if (tool.isNotEmpty(value)) {
         try {
@@ -160,10 +190,11 @@ export default {
     },
   },
   methods: {
-    keys(pattern) {
+    keys(pattern, size) {
       let data = {};
       Object.assign(data, this.connect.form);
       data.pattern = pattern;
+      data.size = size;
       return server.redis.keys(data);
     },
     get(key) {
@@ -225,20 +256,26 @@ export default {
       let data = {};
       Object.assign(data, this.searchForm);
       this.data = null;
-      this.keys(data.pattern).then((res) => {
-        if (res.code != 0) {
-          tool.error(res.msg);
-        } else {
-          let value = res.value || {};
-          let keys = value.keys || [];
-          let datas = [];
+      this.loading = true;
+      this.keys(data.pattern, data.size)
+        .then((res) => {
+          this.loading = false;
+          if (res.code != 0) {
+            tool.error(res.msg);
+          } else {
+            let value = res.value || {};
+            let keys = value.keys || [];
+            let datas = [];
 
-          keys.forEach((name) => {
-            datas.push({ key: name, name: name });
-          });
-          this.data = datas;
-        }
-      });
+            keys.forEach((name) => {
+              datas.push({ key: name, name: name });
+            });
+            this.data = datas;
+          }
+        })
+        .catch(() => {
+          this.loading = false;
+        });
     },
     doConnect() {
       this.connect.open = false;
@@ -258,7 +295,9 @@ export default {
       let value = tool.getCache(this.getCacheKey());
       if (tool.isNotEmpty(value)) {
         let data = JSON.parse(value);
-        Object.assign(this.configForm, data);
+        for (var key in this.configForm) {
+          this.configForm[key] = data[key];
+        }
         this.doConnect();
       }
     },
@@ -332,12 +371,11 @@ export default {
   width: calc(100% - 500px);
   max-width: 600px;
   min-width: 300px;
-  margin: 0px;
+  margin: 10px;
   padding: 0px;
   position: relative;
   float: left;
-  padding: 10px;
-  overflow: auto;
+  overflow-x: hidden !important;
 }
 .worker-redis-wrap .worker-redis-node {
   flex: 1;

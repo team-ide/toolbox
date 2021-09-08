@@ -1,7 +1,12 @@
 <template>
   <div class="worker-zookeeper-wrap">
     <div class="worker-zookeeper-config pd-10 pdb-0">
-      <el-form :inline="true" :model="configForm" size="mini">
+      <el-form
+        :inline="true"
+        :model="configForm"
+        size="mini"
+        @submit.native.prevent
+      >
         <el-form-item label="连接地址">
           <el-input v-model="configForm.url" placeholder="连接地址"></el-input>
         </el-form-item>
@@ -10,7 +15,7 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="worker-zookeeper-list" v-if="connect.open">
+    <div class="worker-zookeeper-list worker-scrollbar" v-if="connect.open">
       <el-tree
         ref="tree"
         :load="loadNode"
@@ -55,7 +60,7 @@
         </span>
       </el-tree>
     </div>
-    <div class="worker-zookeeper-form" v-if="connect.open">
+    <div class="worker-zookeeper-form worker-scrollbar" v-if="connect.open">
       <template v-if="readonlyOne">
         <h3>查看节点</h3>
       </template>
@@ -65,7 +70,7 @@
       <template v-else-if="updateOne">
         <h3>修改节点</h3>
       </template>
-      <el-form :model="oneForm" size="lg">
+      <el-form :model="oneForm" size="lg" @submit.native.prevent>
         <el-form-item label="路径">
           <el-input
             v-model="oneForm.path"
@@ -384,12 +389,10 @@ export default {
   width: calc(100% - 500px);
   max-width: 600px;
   min-width: 300px;
-  margin: 0px;
+  margin: 10px;
   padding: 0px;
   position: relative;
   float: left;
-  padding: 10px;
-  overflow: auto;
 }
 .worker-zookeeper-wrap .worker-zookeeper-node {
   flex: 1;

@@ -5,6 +5,7 @@
         :data="data"
         :props="defaultProps"
         :default-expanded-keys="expands"
+        :expand-on-click-node="false"
         node-key="key"
         @node-click="nodeClick"
       ></el-tree>
@@ -50,6 +51,66 @@ export default {
             },
           ],
         },
+        {
+          name: "Database",
+          key: "database",
+          children: [
+            {
+              name: "default",
+              title: "Database Default",
+              workerType: "database",
+              key: "database/default",
+            },
+          ],
+        },
+        {
+          name: "Elasticsearch",
+          key: "elasticsearch",
+          children: [
+            {
+              name: "default",
+              title: "Elasticsearch Default",
+              workerType: "elasticsearch",
+              key: "elasticsearch/default",
+            },
+          ],
+        },
+        {
+          name: "Mongo",
+          key: "mongo",
+          children: [
+            {
+              name: "default",
+              title: "Mongo Default",
+              workerType: "mongo",
+              key: "mongo/default",
+            },
+          ],
+        },
+        {
+          name: "Kafka",
+          key: "kafka",
+          children: [
+            {
+              name: "default",
+              title: "Kafka Default",
+              workerType: "kafka",
+              key: "kafka/default",
+            },
+          ],
+        },
+        {
+          name: "Rabbit",
+          key: "rabbit",
+          children: [
+            {
+              name: "default",
+              title: "Rabbit Default",
+              workerType: "rabbit",
+              key: "rabbit/default",
+            },
+          ],
+        },
       ],
       defaultProps: {
         children: "children",
@@ -79,14 +140,18 @@ export default {
     },
     nodeDbclick(data, node, nodeView) {
       if (data.children && data.children.length > 0) {
+        let key = data.key;
+        let index = this.expands.indexOf(key);
+        if (index < 0) {
+          this.expands.push(key);
+        } else {
+          this.expands.splice(index, 1);
+        }
         return;
       }
       this.open(data);
     },
-    initExpands() {
-      this.expand("redis");
-      this.expand("zookeeper");
-    },
+    initExpands() {},
     expand(key) {
       if (this.expands.indexOf(key) < 0) {
         this.expands.push(key);
@@ -95,8 +160,8 @@ export default {
     open(data) {
       if (this.opens.indexOf(data.key) < 0) {
         this.opens.push(data.key);
-        this.$emit("open", data);
       }
+      this.$emit("open", data);
     },
     initOpens() {},
     init() {

@@ -13,6 +13,21 @@
           <template v-if="tab.workerType == 'redis'">
             <WorkerRedis :workerKey="tab.key"></WorkerRedis>
           </template>
+          <template v-if="tab.workerType == 'elasticsearch'">
+            <WorkerElasticsearch :workerKey="tab.key"></WorkerElasticsearch>
+          </template>
+          <template v-if="tab.workerType == 'kafka'">
+            <WorkerKafka :workerKey="tab.key"></WorkerKafka>
+          </template>
+          <template v-if="tab.workerType == 'database'">
+            <WorkerDatabase :workerKey="tab.key"></WorkerDatabase>
+          </template>
+          <template v-if="tab.workerType == 'rabbit'">
+            <WorkerRabbit :workerKey="tab.key"></WorkerRabbit>
+          </template>
+          <template v-if="tab.workerType == 'mongo'">
+            <WorkerMongo :workerKey="tab.key"></WorkerMongo>
+          </template>
         </el-tab-pane>
       </template>
     </el-tabs>
@@ -26,8 +41,22 @@ import source from "@/source";
 
 import WorkerZookeeper from "@/views/worker/WorkerZookeeper";
 import WorkerRedis from "@/views/worker/WorkerRedis";
+import WorkerElasticsearch from "@/views/worker/WorkerElasticsearch";
+import WorkerKafka from "@/views/worker/WorkerKafka";
+import WorkerDatabase from "@/views/worker/WorkerDatabase";
+import WorkerRabbit from "@/views/worker/WorkerRabbit";
+import WorkerMongo from "@/views/worker/WorkerMongo";
+
 export default {
-  components: { WorkerZookeeper, WorkerRedis },
+  components: {
+    WorkerZookeeper,
+    WorkerRedis,
+    WorkerElasticsearch,
+    WorkerKafka,
+    WorkerDatabase,
+    WorkerRabbit,
+    WorkerMongo,
+  },
   data() {
     return {
       tool,
@@ -115,8 +144,11 @@ export default {
   padding: 0px;
   position: relative;
 }
+.body-main-wrap .el-tabs__item.is-active {
+  color: #ddd;
+}
 .body-main-wrap .el-tabs__header .el-tabs__active-bar {
-  background-color: #6f6f6f;
+  background-color: #ddd;
 }
 .body-main-wrap .el-tabs__nav-wrap::after {
   height: 1px;

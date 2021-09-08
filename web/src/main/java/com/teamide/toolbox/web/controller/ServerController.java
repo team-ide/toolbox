@@ -1,7 +1,6 @@
 package com.teamide.toolbox.web.controller;
 
 import com.teamide.toolbox.bean.ResponseBean;
-import com.teamide.toolbox.worker.ToolboxWork;
 import com.teamide.toolbox.worker.ToolboxWorkerCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,8 +11,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
+/**
+ * 服务器控制器
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @RestController
 @RequestMapping("/server")
 public class ServerController {
@@ -21,16 +25,16 @@ public class ServerController {
      * 工人缓存
      */
     @Autowired
-    private ToolboxWorkerCache workerCache;
+    ToolboxWorkerCache workerCache;
 
     @RequestMapping(path = "/open", method = RequestMethod.POST)
     public Object open() {
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>(1);
 
         List<Map<String, Object>> workers = new ArrayList<>();
         data.put("workers", workers);
         workerCache.getWorkers().forEach(worker -> {
-            Map<String, Object> workerData = new HashMap<>();
+            Map<String, Object> workerData = new HashMap<>(4);
             workers.add(workerData);
 
             workerData.put("name", worker.name());
@@ -41,7 +45,7 @@ public class ServerController {
             workerData.put("works", works);
 
             worker.workMap().forEach((key, value) -> {
-                Map<String, Object> workData = new HashMap<>();
+                Map<String, Object> workData = new HashMap<>(1);
                 works.add(workData);
 
                 workData.put("name", key);

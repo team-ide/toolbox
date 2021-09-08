@@ -15,34 +15,34 @@ public interface ToolboxWorker {
      *
      * @return {@link String}
      */
-    public String name();
+    String name();
 
     /**
      * 文本
      *
      * @return {@link String}
      */
-    public String text();
+    String text();
 
     /**
      * 图标
      *
      * @return {@link String}
      */
-    public String icon();
+    String icon();
 
     /**
      * 评论
      *
      * @return {@link String}
      */
-    public String comment();
+    String comment();
 
     /**
      * 工作地图
      *
      * @return {@link Map}<{@link String}, {@link ToolboxWork}>
      */
-    public Map<String, ToolboxWork> workMap();
+    Map<String, ToolboxWork<?, ?>> workMap();
 
 }

@@ -9,10 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @description: TODO 类描述
- * @author: 朱亮
- * @date: 2021/8/30 10:53
- **/
+ * Zookeeper Worker
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @Component
 public class ZookeeperWorker implements ToolboxWorker {
 
@@ -37,24 +38,20 @@ public class ZookeeperWorker implements ToolboxWorker {
     }
 
     @Autowired
-    private ZookeeperWorkQueryList queryList;
+    ZookeeperWorkGet get;
 
     @Autowired
-    private ZookeeperWorkGet get;
+    ZookeeperWorkGetChildren getChildren;
 
     @Autowired
-    private ZookeeperWorkGetChildren getChildren;
+    ZookeeperWorkSave save;
 
     @Autowired
-    private ZookeeperWorkSave save;
-
-    @Autowired
-    private ZookeeperWorkDelete delete;
+    ZookeeperWorkDelete delete;
 
     @Override
-    public Map<String, ToolboxWork> workMap() {
-        Map<String, ToolboxWork> workMap = new HashMap<>();
-        workMap.put("queryList", queryList);
+    public Map<String, ToolboxWork<?, ?>> workMap() {
+        Map<String, ToolboxWork<?, ?>> workMap = new HashMap<>(4);
         workMap.put("get", get);
         workMap.put("getChildren", getChildren);
         workMap.put("save", save);

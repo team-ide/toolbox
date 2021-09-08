@@ -1,42 +1,58 @@
 package com.teamide.toolbox.redis.service;
 
+import com.teamide.toolbox.worker.ToolboxAutomaticShutdownTimer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * Redis服务
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @Service
 @Slf4j
 public class RedisService {
 
-    private final Map<String, RedisJedis> cache = new HashMap<>();
+    @Autowired
+    ToolboxAutomaticShutdownTimer toolboxAutomaticShutdownTimer;
 
-    public RedisJedis redis(String host, int port, String auth) throws Exception {
+    private final Map<String, RedisDo> cache = new HashMap<>();
 
-        return redis(host, port, auth, null);
+    public RedisDo redis(String address, String auth, boolean cluster) throws Exception {
+
+        return redis(address, auth, cluster, null);
     }
 
-    public RedisJedis redis(String host, int port, String auth, Long automaticShutdown) throws Exception {
+    public RedisDo redis(String address, String auth, boolean cluster, Long automaticShutdown) throws Exception {
         if (automaticShutdown == null) {
-            automaticShutdown = 60 * 10L; // 默认10分钟自动关闭
+            // 默认10分钟自动关闭
+            automaticShutdown = 60 * 10L;
         }
-        String name = host + ":" + port;
-        String key = host + "-" + port + "-auth";
-        RedisJedis redis = cache.get(key);
-        if (redis == null || !redis.isStarted()) {
+
+        String key = address + "-" + auth + "-" + cluster;
+        RedisDo redis = cache.get(key);
+        if (redis == null || !redis.started()) {
             synchronized (cache) {
                 redis = cache.get(key);
-                if (redis == null || !redis.isStarted()) {
+                if (redis == null || !redis.started()) {
                     if (redis == null) {
-                        log.debug("redis [" + name + "] is null,now create redis");
+                        log.debug("redis [" + address + "] is null,now create redis");
                     } else {
-                        log.warn("redis [" + name + "] is closed,now recreate redis");
+                        log.warn("redis [" + address + "] is closed,now recreate redis");
                     }
-                    redis = new RedisJedis(host, port, auth, automaticShutdown);
+                    if (cluster) {
+                        redis = new RedisCluster(address, auth, automaticShutdown);
+                    } else {
+                        redis = new RedisJedis(address, auth, automaticShutdown);
+                    }
                     // 随便获取一个key，测试连接是否正常
                     redis.get("test");
                     cache.put(key, redis);
+                    toolboxAutomaticShutdownTimer.add(redis);
                 }
             }
         }

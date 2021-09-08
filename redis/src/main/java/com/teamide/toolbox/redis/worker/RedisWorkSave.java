@@ -1,9 +1,10 @@
 package com.teamide.toolbox.redis.worker;
 
-import com.teamide.toolbox.redis.service.RedisJedis;
+import com.teamide.toolbox.redis.service.RedisDo;
 import com.teamide.toolbox.redis.service.RedisService;
 import com.teamide.toolbox.worker.ToolboxWork;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,26 +14,27 @@ import org.springframework.stereotype.Service;
  * @date 2021/08/30
  */
 @Service
-public class RedisWorkSave implements ToolboxWork<RedisWorkSave.RedisSaveRequest, RedisWorkSave.RedisSaveResponse> {
+public class RedisWorkSave implements ToolboxWork<RedisWorkSave.Request, RedisWorkSave.Response> {
 
     @Autowired
-    private RedisService redisService;
+    RedisService redisService;
 
-    public Class<RedisSaveRequest> getRequestClass() {
-        return RedisSaveRequest.class;
+    @Override
+    public Class<Request> getRequestClass() {
+        return Request.class;
     }
 
     /**
      * 工作
      *
      * @param request 请求
-     * @return {@link RedisSaveResponse}
+     * @return {@link Response}
      * @throws Exception 异常
      */
     @Override
-    public RedisSaveResponse work(RedisSaveRequest request) throws Exception {
-        RedisSaveResponse response = new RedisSaveResponse();
-        RedisJedis redis = redisService.redis(request.getHost(), request.getPort(), request.getAuth(), request.getAutomaticShutdown());
+    public Response work(Request request) throws Exception {
+        Response response = new Response();
+        RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.isCluster(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getKey())) {
             redis.set(request.getKey(), request.getValue());
         }
@@ -44,8 +46,9 @@ public class RedisWorkSave implements ToolboxWork<RedisWorkSave.RedisSaveRequest
      * @author 朱亮
      * @date 2021/08/30
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class RedisSaveRequest extends RedisRequestBase {
+    public static class Request extends RedisRequestBase {
         /**
          * key
          */
@@ -62,8 +65,9 @@ public class RedisWorkSave implements ToolboxWork<RedisWorkSave.RedisSaveRequest
      * @author 朱亮
      * @date 2021/08/30
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class RedisSaveResponse extends RedisResponseBase {
+    public static class Response extends RedisResponseBase {
 
     }
 }

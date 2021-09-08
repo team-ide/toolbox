@@ -3,8 +3,8 @@ package com.teamide.toolbox.zookeeper.worker;
 import com.teamide.toolbox.worker.ToolboxWork;
 import com.teamide.toolbox.zookeeper.service.ZookeeperCurator;
 import com.teamide.toolbox.zookeeper.service.ZookeeperService;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,25 +16,26 @@ import java.util.List;
  * @date 2021/08/30
  */
 @Service
-public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChildren.ZookeeperGetChildrenRequest, ZookeeperWorkGetChildren.ZookeeperGetChildrenResponse> {
+public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChildren.Request, ZookeeperWorkGetChildren.Response> {
 
     @Autowired
-    private ZookeeperService zookeeperService;
+    ZookeeperService zookeeperService;
 
-    public Class<ZookeeperGetChildrenRequest> getRequestClass() {
-        return ZookeeperGetChildrenRequest.class;
+    @Override
+    public Class<Request> getRequestClass() {
+        return Request.class;
     }
 
     /**
      * 工作
      *
      * @param request 请求
-     * @return {@link ZookeeperGetChildrenRequest}
+     * @return {@link Request}
      * @throws Exception 异常
      */
     @Override
-    public ZookeeperGetChildrenResponse work(ZookeeperGetChildrenRequest request) throws Exception {
-        ZookeeperGetChildrenResponse response = new ZookeeperGetChildrenResponse();
+    public Response work(Request request) throws Exception {
+        Response response = new Response();
         ZookeeperCurator curator = zookeeperService.curator(request.getUrl(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getPath())) {
             final String path = request.getPath();
@@ -51,8 +52,9 @@ public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChi
      * @author 朱亮
      * @date 2021/08/30
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class ZookeeperGetChildrenRequest extends ZookeeperRequestBase {
+    public static class Request extends ZookeeperRequestBase {
 
         /**
          * 需要查询的路径
@@ -64,8 +66,9 @@ public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChi
      * @author 朱亮
      * @date 2021/08/30
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class ZookeeperGetChildrenResponse extends ZookeeperResponseBase {
+    public static class Response extends ZookeeperResponseBase {
 
         /**
          * 子列表

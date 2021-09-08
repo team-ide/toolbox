@@ -8,21 +8,21 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
- * @description: TODO 类描述
- * @author: 朱亮
- * @date: 2021/9/6 16:42
- **/
+ * 控制器异常处理建议
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @Slf4j
 @RestControllerAdvice
 public class ControllerExceptionHandleAdvice {
 
     @ExceptionHandler
-    public Object handler(HttpServletRequest req, HttpServletResponse res, Throwable e) {
-        ResponseBean result = toResult(e);
-        return result;
+    public Object error(HttpServletRequest req, Throwable e) {
+        log.error("request path [" + req.getPathInfo() + "] error {}", e);
+        return toResult(e);
     }
 
     /**
@@ -33,7 +33,7 @@ public class ControllerExceptionHandleAdvice {
      */
     public ResponseBean toResult(Throwable e) {
         ResponseBean error = ResponseBean.fail();
-        error.setMsg(getErrmsg(e));
+        error.setMsg(getErrMsg(e));
         if (e instanceof BaseException) {
             BaseException base = (BaseException) e;
             error.setCode(base.getCode());
@@ -44,21 +44,21 @@ public class ControllerExceptionHandleAdvice {
     /**
      * 递归获取异常信息
      *
-     * @param e
-     * @return
+     * @param e error
+     * @return errMsg
      */
-    public String getErrmsg(Throwable e) {
-        String errmsg = e.getMessage();
-        if (StringUtils.isEmpty(errmsg)) {
+    public String getErrMsg(Throwable e) {
+        String errMsg = e.getMessage();
+        if (StringUtils.isEmpty(errMsg)) {
             if (e instanceof NullPointerException) {
-                errmsg = "NullPointerException";
+                errMsg = "NullPointerException";
             }
         }
-        if (StringUtils.isEmpty(errmsg)) {
+        if (StringUtils.isEmpty(errMsg)) {
             if (e.getCause() != null && e.getCause() != e) {
-                errmsg = getErrmsg(e.getCause());
+                errMsg = getErrMsg(e.getCause());
             }
         }
-        return errmsg;
+        return errMsg;
     }
 }

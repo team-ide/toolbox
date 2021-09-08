@@ -7,11 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 
 /**
+ * 工具箱的启动
+ *
  * @author 朱亮
- * @version 1.0.0
- * @ClassName ToolboxStartup.java
- * @Description TODO
- * @createTime 2021年08月26日 16:59:00
+ * @date 2021/09/08
  */
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = {MongoAutoConfiguration.class})
