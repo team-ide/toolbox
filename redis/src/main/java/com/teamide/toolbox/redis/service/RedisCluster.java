@@ -12,35 +12,55 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import java.util.*;
 
 
+/**
+ * Redis集群
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @Slf4j
 public class RedisCluster implements RedisDo {
 
-    // Redis name
+    /**
+     * 名称，用作日志区分
+     */
     private final String name;
 
-    // Redis address
+    /**
+     * 集群地址
+     */
     private final String address;
 
-    // Redis auth
+    /**
+     * 鉴权
+     */
     private final String auth;
 
-    // 自动关闭时长 单位秒
+    /**
+     * 自动关闭时长 单位秒
+     */
     private final long automaticShutdown;
 
-    // 最后使用时间戳
-    private long lastUseTime = System.currentTimeMillis();
+    /**
+     * 最后使用时间戳
+     */
+    private long lastUseTimestamp = System.currentTimeMillis();
 
-    // jedis cluster 客户端管理工具
+    /**
+     * jedis cluster 客户端管理工具
+     */
     private final JedisCluster cluster;
 
-    // 已启动标识
+    /**
+     * 已启动标识
+     */
     private boolean started = true;
 
-    // 用于块级锁
+    /**
+     * 用于块级锁
+     */
     private final Object lock = new Object();
 
-    //
-    private Timer timer;
 
     public RedisCluster(String address, String auth, long automaticShutdown) {
         if (StringUtils.isEmpty(auth)) {
@@ -64,46 +84,18 @@ public class RedisCluster implements RedisDo {
         GenericObjectPoolConfig<Jedis> config = new GenericObjectPoolConfig<>();
         this.cluster = new JedisCluster(hostAndPortSet, connectionTimeout, soTimeout, maxAttempts, auth, config);
         log.info("redis [" + this.name + "] create cluster end");
-
-        if (this.automaticShutdown > 0) {
-            timer = new Timer();
-            startTimerTask();
-        }
     }
 
-    private void startTimerTask() {
-//        log.debug("redis [" + name + "] timer add task ");
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                checkAutomaticShutdown();
-            }
-        }, 1000);
-    }
-
-    private void checkAutomaticShutdown() {
-//        log.debug("redis [" + name + "] timer task checkAutomaticShutdown ");
-        long now = System.currentTimeMillis();
-        long timeout = now - lastUseTime;
-        // 超时 关闭
-        if (timeout > this.automaticShutdown * 1000) {
-            log.warn("redis [" + name + "] timeout need to stop");
-            stop();
-            timer.cancel();
-        } else {
-            startTimerTask();
-        }
-    }
 
     private void userStart() {
         if (!this.started) {
             return;
         }
-        lastUseTime = System.currentTimeMillis();
+        lastUseTimestamp = System.currentTimeMillis();
     }
 
     private void userEnd(Exception exception) {
-        lastUseTime = System.currentTimeMillis();
+        lastUseTimestamp = System.currentTimeMillis();
         if (exception != null) {
             boolean shouldClose = exception instanceof JedisConnectionException;
             if (shouldClose) {
@@ -117,11 +109,13 @@ public class RedisCluster implements RedisDo {
      *
      * @return 是否启动
      */
-    public boolean isStarted() {
+    @Override
+    public boolean started() {
         return this.started;
     }
 
-    private void stop() {
+    @Override
+    public void stop() {
         synchronized (lock) {
             if (!this.started) {
                 return;
@@ -139,6 +133,7 @@ public class RedisCluster implements RedisDo {
      * @param value value
      * @throws Exception 异常
      */
+    @Override
     public String set(String key, String value) throws Exception {
         Exception err = null;
         userStart();
@@ -162,6 +157,7 @@ public class RedisCluster implements RedisDo {
      * @param pattern pattern
      * @throws Exception 异常
      */
+    @Override
     public Set<String> keys(String pattern, int size) throws Exception {
         Exception err = null;
         userStart();
@@ -176,9 +172,9 @@ public class RedisCluster implements RedisDo {
                 Jedis jedis = pool.getResource();
                 // 判断非从节点(因为若主从复制，从节点会跟随主节点的变化而变化)
                 if (!jedis.info("replication").contains("role:slave")) {
-                    Set<String> ks_ = jedis.keys(pattern);
-                    if (ks_.size() > 0) {
-                        ks.addAll(ks_);
+                    Set<String> ksB = jedis.keys(pattern);
+                    if (ksB.size() > 0) {
+                        ks.addAll(ksB);
                     }
                 }
                 jedis.close();
@@ -212,6 +208,7 @@ public class RedisCluster implements RedisDo {
      * @param key key
      * @throws Exception 异常
      */
+    @Override
     public String get(String key) throws Exception {
         Exception err = null;
         userStart();
@@ -235,6 +232,7 @@ public class RedisCluster implements RedisDo {
      * @param key key
      * @throws Exception 异常
      */
+    @Override
     public void delete(String key) throws Exception {
         Exception err = null;
         userStart();
@@ -261,5 +259,15 @@ public class RedisCluster implements RedisDo {
 
     public String getAuth() {
         return auth;
+    }
+
+    @Override
+    public long automaticShutdown() {
+        return this.automaticShutdown;
+    }
+
+    @Override
+    public long lastUseTimestamp() {
+        return this.lastUseTimestamp;
     }
 }

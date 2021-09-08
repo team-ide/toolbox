@@ -12,13 +12,19 @@ import lombok.EqualsAndHashCode;
 @Data
 public class RedisRequestBase extends ToolboxWorkRequest {
 
-    // Redis address
+    /**
+     * 连接地址
+     */
     private String address;
 
-    // Redis auth
+    /**
+     * 鉴权密钥
+     */
     private String auth;
 
-    // Redis cluster
+    /**
+     * 是否集群
+     */
     private boolean cluster;
 
     /**

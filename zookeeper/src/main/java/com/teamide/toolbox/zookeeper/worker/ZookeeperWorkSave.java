@@ -20,6 +20,7 @@ public class ZookeeperWorkSave implements ToolboxWork<ZookeeperWorkSave.Request,
     @Autowired
     ZookeeperService zookeeperService;
 
+    @Override
     public Class<Request> getRequestClass() {
         return Request.class;
     }

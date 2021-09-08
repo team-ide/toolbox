@@ -7,6 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 工具箱 Worker 缓存
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @Component
 public class ToolboxWorkerCache {
 

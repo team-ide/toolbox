@@ -7,6 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * elasticsearch 自动配置
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @Configuration
 @ComponentScan
 public class ElasticsearchAutoConfiguration {

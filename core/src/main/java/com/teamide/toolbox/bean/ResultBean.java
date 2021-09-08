@@ -16,13 +16,19 @@ public class ResultBean<T> implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    // 结果 值
+    /**
+     * 结果 值
+     */
     private T value;
 
-    // 结果 状态码
+    /**
+     * 结果 状态码
+     */
     protected String code = "0";
 
-    // 结果 信息
+    /**
+     * 结果 信息
+     */
     protected String msg;
 
     public T getValue() {

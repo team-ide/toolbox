@@ -16,22 +16,34 @@ public class PageBean<T> extends ResultBean<List<T>> {
      */
     private static final long serialVersionUID = 1L;
 
-    // 当前页
+    /**
+     * 当前页
+     */
     private int pageNum = 1;
 
-    // 每页记录
+    /**
+     * 每页记录
+     */
     private int pageSize = 10;
 
-    // 总页数
+    /**
+     * 总页数
+     */
     private int pages = 0;
 
-    // 总记录数
+    /**
+     * 总记录数
+     */
     private long total = 0;
 
-    // 上一页
+    /**
+     * 上一页
+     */
     private int prePage = 1;
 
-    // 下一页
+    /**
+     * 下一页
+     */
     private int nextPage = 1;
 
     public int getPageNum() {

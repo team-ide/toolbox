@@ -19,6 +19,7 @@ public class ZookeeperWorkGet implements ToolboxWork<ZookeeperWorkGet.Request, Z
     @Autowired
     ZookeeperService zookeeperService;
 
+    @Override
     public Class<Request> getRequestClass() {
         return Request.class;
     }

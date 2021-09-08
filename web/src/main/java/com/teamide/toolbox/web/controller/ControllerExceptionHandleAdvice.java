@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * 控制器异常处理建议
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @Slf4j
 @RestControllerAdvice
 public class ControllerExceptionHandleAdvice {

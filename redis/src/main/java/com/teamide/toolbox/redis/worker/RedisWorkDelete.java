@@ -19,6 +19,7 @@ public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.Request, Red
     @Autowired
     RedisService redisService;
 
+    @Override
     public Class<Request> getRequestClass() {
         return Request.class;
     }

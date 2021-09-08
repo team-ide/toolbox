@@ -8,6 +8,12 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * elasticsearch Worker
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @Component
 public class ElasticsearchWorker implements ToolboxWorker {
 
@@ -37,7 +43,7 @@ public class ElasticsearchWorker implements ToolboxWorker {
 
     @Override
     public Map<String, ToolboxWork<?, ?>> workMap() {
-        Map<String, ToolboxWork<?, ?>> workMap = new HashMap<>();
+        Map<String, ToolboxWork<?, ?>> workMap = new HashMap<>(1);
         workMap.put("delete", delete);
         return workMap;
     }

@@ -19,6 +19,7 @@ public class ZookeeperWorkDelete implements ToolboxWork<ZookeeperWorkDelete.Requ
     @Autowired
     ZookeeperService zookeeperService;
 
+    @Override
     public Class<Request> getRequestClass() {
         return Request.class;
     }

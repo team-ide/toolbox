@@ -26,7 +26,8 @@ public class ZookeeperService {
 
     public ZookeeperCurator curator(String url, Long automaticShutdown) throws Exception {
         if (automaticShutdown == null) {
-            automaticShutdown = 60 * 10L; // 默认10分钟自动关闭
+            // 默认10分钟自动关闭
+            automaticShutdown = 60 * 10L;
         }
 
         ZookeeperCurator curator = cache.get(url);

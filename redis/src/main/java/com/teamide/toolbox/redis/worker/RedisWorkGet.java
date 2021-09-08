@@ -19,6 +19,7 @@ public class RedisWorkGet implements ToolboxWork<RedisWorkGet.Request, RedisWork
     @Autowired
     RedisService redisService;
 
+    @Override
     public Class<Request> getRequestClass() {
         return Request.class;
     }

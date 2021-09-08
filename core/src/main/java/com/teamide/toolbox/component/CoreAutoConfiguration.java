@@ -10,6 +10,13 @@ import org.springframework.context.annotation.Configuration;
 
 import java.text.SimpleDateFormat;
 
+
+/**
+ * 核心 配置
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @ComponentScan
 @Configuration
 public class CoreAutoConfiguration {
@@ -18,9 +25,6 @@ public class CoreAutoConfiguration {
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
-
-        // 序列化的时候序列对象的所有属性
-        // mapper.setSerializationInclusion(Include.ALWAYS);
 
         // 反序列化的时候如果多了其他属性,不抛出异常
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -36,4 +40,5 @@ public class CoreAutoConfiguration {
         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
         return mapper;
     }
+
 }

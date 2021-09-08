@@ -21,6 +21,7 @@ public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChi
     @Autowired
     ZookeeperService zookeeperService;
 
+    @Override
     public Class<Request> getRequestClass() {
         return Request.class;
     }

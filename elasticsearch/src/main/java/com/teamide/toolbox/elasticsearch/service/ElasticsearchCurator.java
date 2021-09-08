@@ -1,10 +1,9 @@
 package com.teamide.toolbox.elasticsearch.service;
 
+import com.teamide.toolbox.worker.ToolboxAutomaticShutdown;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.ConnectException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -15,26 +14,34 @@ import java.util.TimerTask;
  * @date 2021/08/29
  */
 @Slf4j
-public class ElasticsearchCurator {
+public class ElasticsearchCurator implements ToolboxAutomaticShutdown {
 
-    // ES地址
+    /**
+     * ES地址
+     */
     private final String url;
 
-    // 自动关闭时长 单位秒
+    /**
+     * 自动关闭时长 单位秒
+     */
     private final long automaticShutdown;
 
-    // 最后使用时间戳
-    private long lastUseTime = System.currentTimeMillis();
+    /**
+     * 最后使用时间戳
+     */
+    private long lastUseTimestamp = System.currentTimeMillis();
 
 
-    // 已启动标识
+    /**
+     * 已启动标识
+     */
     private boolean started = true;
 
-    // 用于块级锁
+    /**
+     * 用于块级锁
+     */
     private final Object lock = new Object();
 
-    //
-    private Timer timer;
 
     /**
      * 传入Zookeeper地址和自动关闭时长构建Curator
@@ -50,45 +57,18 @@ public class ElasticsearchCurator {
 
 
         log.info("es [" + url + "] curator connect to [" + this.url + "] end");
-        if (this.automaticShutdown > 0) {
-            timer = new Timer();
-            startTimerTask();
-        }
     }
 
-    private void startTimerTask() {
-//        log.debug("es [" + url + "] timer add task ");
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                checkAutomaticShutdown();
-            }
-        }, 1000);
-    }
-
-    private void checkAutomaticShutdown() {
-//        log.debug("es [" + url + "] timer task checkAutomaticShutdown ");
-        long now = System.currentTimeMillis();
-        long timeout = now - lastUseTime;
-        // 超时 关闭
-        if (timeout > this.automaticShutdown * 1000) {
-            log.warn("es [" + url + "] curator timeout need to stop");
-            stop();
-            timer.cancel();
-        } else {
-            startTimerTask();
-        }
-    }
 
     private void userStart() {
         if (!this.started) {
             return;
         }
-        lastUseTime = System.currentTimeMillis();
+        lastUseTimestamp = System.currentTimeMillis();
     }
 
     private void userEnd(Exception exception) {
-        lastUseTime = System.currentTimeMillis();
+        lastUseTimestamp = System.currentTimeMillis();
         if (exception != null) {
             boolean shouldClose = exception instanceof ConnectException;
             if (shouldClose) {
@@ -97,16 +77,9 @@ public class ElasticsearchCurator {
         }
     }
 
-    /**
-     * 是否启动
-     *
-     * @return 是否启动
-     */
-    public boolean isStarted() {
-        return this.started;
-    }
 
-    private void stop() {
+    @Override
+    public void stop() {
         synchronized (lock) {
             if (!this.started) {
                 return;
@@ -129,4 +102,18 @@ public class ElasticsearchCurator {
         }
     }
 
+    @Override
+    public long automaticShutdown() {
+        return this.automaticShutdown;
+    }
+
+    @Override
+    public long lastUseTimestamp() {
+        return this.lastUseTimestamp;
+    }
+
+    @Override
+    public boolean started() {
+        return this.started;
+    }
 }

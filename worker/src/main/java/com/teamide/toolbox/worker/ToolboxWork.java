@@ -14,8 +14,18 @@ import java.util.Map;
 public interface ToolboxWork<P extends ToolboxWorkRequest, R extends ToolboxWorkResponse> {
 
 
+    /**
+     * 获取请求Class 类型
+     * @return 获取请求Class
+     */
     Class<P> getRequestClass();
 
+    /**
+     * 根据Data转为请求对象
+     * @param data data
+     * @return request
+     * @throws Exception err
+     */
     default P getRequest(Map<String, Object> data) throws Exception {
         if (data == null) {
             return getRequestClass().newInstance();

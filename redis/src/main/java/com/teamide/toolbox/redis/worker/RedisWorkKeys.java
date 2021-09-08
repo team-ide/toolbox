@@ -21,6 +21,7 @@ public class RedisWorkKeys implements ToolboxWork<RedisWorkKeys.Request, RedisWo
     @Autowired
     RedisService redisService;
 
+    @Override
     public Class<Request> getRequestClass() {
         return Request.class;
     }

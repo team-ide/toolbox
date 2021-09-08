@@ -1,5 +1,6 @@
 package com.teamide.toolbox.zookeeper.service;
 
+import com.teamide.toolbox.worker.ToolboxAutomaticShutdown;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -24,28 +25,38 @@ import java.util.TimerTask;
  * @date 2021/08/29
  */
 @Slf4j
-public class ZookeeperCurator {
+public class ZookeeperCurator implements ToolboxAutomaticShutdown {
 
-    // ZK地址
+    /**
+     * ZK地址
+     */
     private final String url;
 
-    // 自动关闭时长 单位秒
+    /**
+     * 自动关闭时长 单位秒
+     */
     private final long automaticShutdown;
 
-    // 最后使用时间戳
-    private long lastUseTime = System.currentTimeMillis();
+    /**
+     * 最后使用时间戳
+     */
+    private long lastUseTimestamp = System.currentTimeMillis();
 
-    // ZK客户端管理工具
+    /**
+     * ZK客户端管理工具
+     */
     private final CuratorFramework curator;
 
-    // 已启动标识
+    /**
+     * 已启动标识
+     */
     private boolean started = true;
 
-    // 用于块级锁
+    /**
+     * 用于块级锁
+     */
     private final Object lock = new Object();
 
-    //
-    private Timer timer;
 
     /**
      * 传入Zookeeper地址和自动关闭时长构建Curator
@@ -61,10 +72,12 @@ public class ZookeeperCurator {
 
         log.info("zk [" + url + "] curator connect to [" + this.url + "] start");
 
-
-        this.curator = CuratorFrameworkFactory.builder().connectString(this.url)// zkClint连接地址
-                .connectionTimeoutMs(60 * 1000)// 连接超时时间
-                .sessionTimeoutMs(60 * 1000)// 会话超时时间
+        // zkClint连接地址
+        this.curator = CuratorFrameworkFactory.builder().connectString(this.url)
+                // 连接超时时间
+                .connectionTimeoutMs(60 * 1000)
+                // 会话超时时间
+                .sessionTimeoutMs(60 * 1000)
                 .retryPolicy(retry)
                 .build();
         this.curator.start();
@@ -77,45 +90,18 @@ public class ZookeeperCurator {
             throw e;
         }
         log.info("zk [" + url + "] curator connect to [" + this.url + "] end");
-        if (this.automaticShutdown > 0) {
-            timer = new Timer();
-            startTimerTask();
-        }
     }
 
-    private void startTimerTask() {
-//        log.debug("zk [" + url + "] timer add task ");
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                checkAutomaticShutdown();
-            }
-        }, 1000);
-    }
-
-    private void checkAutomaticShutdown() {
-//        log.debug("zk [" + url + "] timer task checkAutomaticShutdown ");
-        long now = System.currentTimeMillis();
-        long timeout = now - lastUseTime;
-        // 超时 关闭
-        if (timeout > this.automaticShutdown * 1000) {
-            log.warn("zk [" + url + "] curator timeout need to stop");
-            stop();
-            timer.cancel();
-        } else {
-            startTimerTask();
-        }
-    }
 
     private void userStart() {
         if (!this.started) {
             return;
         }
-        lastUseTime = System.currentTimeMillis();
+        lastUseTimestamp = System.currentTimeMillis();
     }
 
     private void userEnd(Exception exception) {
-        lastUseTime = System.currentTimeMillis();
+        lastUseTimestamp = System.currentTimeMillis();
         if (exception != null) {
             boolean shouldClose = false;
             // 会话过期 则停止 提供服务
@@ -139,11 +125,13 @@ public class ZookeeperCurator {
      *
      * @return 是否启动
      */
-    public boolean isStarted() {
+    @Override
+    public boolean started() {
         return this.started;
     }
 
-    private void stop() {
+    @Override
+    public void stop() {
         synchronized (lock) {
             if (!this.started) {
                 return;
@@ -382,5 +370,15 @@ public class ZookeeperCurator {
         } finally {
             userEnd(err);
         }
+    }
+
+    @Override
+    public long automaticShutdown() {
+        return this.automaticShutdown;
+    }
+
+    @Override
+    public long lastUseTimestamp() {
+        return this.lastUseTimestamp;
     }
 }

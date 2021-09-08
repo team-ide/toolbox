@@ -18,6 +18,7 @@ public class ElasticsearchWorkDelete implements ToolboxWork<ElasticsearchWorkDel
     @Autowired
     ElasticsearchService elasticsearchService;
 
+    @Override
     public Class<Request> getRequestClass() {
         return Request.class;
     }

@@ -11,44 +11,69 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import java.util.*;
 
 
+/**
+ * Redis单机操作
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @Slf4j
 public class RedisJedis implements RedisDo {
 
-    // Redis name
+    /**
+     * 名称，用于日志区分
+     */
     private final String name;
 
-    // Redis address
+    /**
+     * 连接地址
+     */
     private final String address;
 
-    // Redis auth
+    /**
+     * 鉴权密钥
+     */
     private final String auth;
 
-    // 自动关闭时长 单位秒
+    /**
+     * 自动关闭时长 单位秒
+     */
     private final long automaticShutdown;
 
-    // 最后使用时间戳
-    private long lastUseTime = System.currentTimeMillis();
+    /**
+     * 最后使用时间戳
+     */
+    private long lastUseTimestamp = System.currentTimeMillis();
 
-    // jedis 连接池 客户端管理工具
+    /**
+     * jedis 连接池 客户端管理工具
+     */
     private final JedisPool pool;
 
-    // 已启动标识
+    /**
+     * 已启动标识
+     */
     private boolean started = true;
 
-    // 用于块级锁
+    /**
+     * 用于块级锁
+     */
     private final Object lock = new Object();
 
-    //
-    private Timer timer;
-
-    //可用连接实例的最大数目，默认值为8；
-    //如果赋值为-1，则表示不限制；如果pool已经分配了maxActive个jedis实例，则此时pool的状态为exhausted(耗尽)。
+    /**
+     * 可用连接实例的最大数目，默认值为8；
+     * 如果赋值为-1，则表示不限制；如果pool已经分配了maxActive个jedis实例，则此时pool的状态为exhausted(耗尽)。
+     */
     private static final int MAX_TOTAL = 10;
 
-    //控制一个pool最多有多少个状态为idle(空闲的)的jedis实例，默认值也是8。
+    /**
+     * 控制一个pool最多有多少个状态为idle(空闲的)的jedis实例，默认值也是8。
+     */
     private static final int MAX_IDLE = 5;
 
-    //在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的；
+    /**
+     * 在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的；
+     */
     private static final boolean TEST_ON_BORROW = true;
 
     private static final int TIMEOUT = 10000;
@@ -73,45 +98,18 @@ public class RedisJedis implements RedisDo {
 
         log.info("redis [" + this.name + "] create pool end");
 
-        if (this.automaticShutdown > 0) {
-            timer = new Timer();
-            startTimerTask();
-        }
     }
 
-    private void startTimerTask() {
-//        log.debug("redis [" + name + "] timer add task ");
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                checkAutomaticShutdown();
-            }
-        }, 1000);
-    }
-
-    private void checkAutomaticShutdown() {
-//        log.debug("redis [" + name + "] timer task checkAutomaticShutdown ");
-        long now = System.currentTimeMillis();
-        long timeout = now - lastUseTime;
-        // 超时 关闭
-        if (timeout > this.automaticShutdown * 1000) {
-            log.warn("redis [" + name + "] timeout need to stop");
-            stop();
-            timer.cancel();
-        } else {
-            startTimerTask();
-        }
-    }
 
     private void userStart() {
         if (!this.started) {
             return;
         }
-        lastUseTime = System.currentTimeMillis();
+        lastUseTimestamp = System.currentTimeMillis();
     }
 
     private void userEnd(Exception exception) {
-        lastUseTime = System.currentTimeMillis();
+        lastUseTimestamp = System.currentTimeMillis();
         if (exception != null) {
             boolean shouldClose = exception instanceof JedisConnectionException;
 
@@ -126,11 +124,13 @@ public class RedisJedis implements RedisDo {
      *
      * @return 是否启动
      */
-    public boolean isStarted() {
+    @Override
+    public boolean started() {
         return this.started;
     }
 
-    private void stop() {
+    @Override
+    public void stop() {
         synchronized (lock) {
             if (!this.started) {
                 return;
@@ -148,6 +148,7 @@ public class RedisJedis implements RedisDo {
      * @param value value
      * @throws Exception 异常
      */
+    @Override
     public String set(String key, String value) throws Exception {
         Exception err = null;
         Jedis jedis = null;
@@ -176,6 +177,7 @@ public class RedisJedis implements RedisDo {
      * @param pattern pattern
      * @throws Exception 异常
      */
+    @Override
     public Set<String> keys(String pattern, int size) throws Exception {
         Exception err = null;
         Jedis jedis = null;
@@ -217,6 +219,7 @@ public class RedisJedis implements RedisDo {
      * @param key key
      * @throws Exception 异常
      */
+    @Override
     public String get(String key) throws Exception {
         Exception err = null;
         Jedis jedis = null;
@@ -245,6 +248,7 @@ public class RedisJedis implements RedisDo {
      * @param key key
      * @throws Exception 异常
      */
+    @Override
     public void delete(String key) throws Exception {
         Exception err = null;
         Jedis jedis = null;
@@ -276,5 +280,15 @@ public class RedisJedis implements RedisDo {
 
     public String getAuth() {
         return auth;
+    }
+
+    @Override
+    public long automaticShutdown() {
+        return this.automaticShutdown;
+    }
+
+    @Override
+    public long lastUseTimestamp() {
+        return this.lastUseTimestamp;
     }
 }

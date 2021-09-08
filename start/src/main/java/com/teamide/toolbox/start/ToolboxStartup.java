@@ -6,6 +6,12 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 
+/**
+ * 工具箱的启动
+ *
+ * @author 朱亮
+ * @date 2021/09/08
+ */
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = {MongoAutoConfiguration.class})
 @Slf4j

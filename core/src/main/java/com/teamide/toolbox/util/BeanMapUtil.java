@@ -62,8 +62,8 @@ public class BeanMapUtil {
         if (bean instanceof Map) {
             return (Map<String, Object>) bean;
         }
-        Map<String, Object> map = new HashMap<>();
         BeanMap beanMap = BeanMap.create(bean);
+        Map<String, Object> map = new HashMap<>(beanMap.size());
         for (Object key : beanMap.keySet()) {
             map.put(String.valueOf(key), beanMap.get(key));
         }
