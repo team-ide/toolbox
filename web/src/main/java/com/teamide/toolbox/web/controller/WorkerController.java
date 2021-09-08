@@ -1,14 +1,12 @@
 package com.teamide.toolbox.web.controller;
 
 import com.teamide.toolbox.bean.ResponseBean;
-import com.teamide.toolbox.util.BeanMapUtil;
 import com.teamide.toolbox.worker.ToolboxWork;
 import com.teamide.toolbox.worker.ToolboxWorker;
 import com.teamide.toolbox.worker.ToolboxWorkerCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -25,7 +23,7 @@ public class WorkerController {
      * 工人缓存
      */
     @Autowired
-    private ToolboxWorkerCache workerCache;
+    ToolboxWorkerCache workerCache;
 
 
     /**

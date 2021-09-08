@@ -6,6 +6,7 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.*;
 
@@ -42,15 +43,15 @@ public class RedisJedis implements RedisDo {
 
     //可用连接实例的最大数目，默认值为8；
     //如果赋值为-1，则表示不限制；如果pool已经分配了maxActive个jedis实例，则此时pool的状态为exhausted(耗尽)。
-    private static int MAX_TOTAL = 10;
+    private static final int MAX_TOTAL = 10;
 
     //控制一个pool最多有多少个状态为idle(空闲的)的jedis实例，默认值也是8。
-    private static int MAX_IDLE = 5;
+    private static final int MAX_IDLE = 5;
 
     //在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的；
-    private static boolean TEST_ON_BORROW = true;
+    private static final boolean TEST_ON_BORROW = true;
 
-    private static int TIMEOUT = 10000;
+    private static final int TIMEOUT = 10000;
 
     public RedisJedis(String address, String auth, long automaticShutdown) {
         this.address = address;
@@ -112,7 +113,7 @@ public class RedisJedis implements RedisDo {
     private void userEnd(Exception exception) {
         lastUseTime = System.currentTimeMillis();
         if (exception != null) {
-            boolean shouldClose = false;
+            boolean shouldClose = exception instanceof JedisConnectionException;
 
             if (shouldClose) {
                 stop();
@@ -263,5 +264,17 @@ public class RedisJedis implements RedisDo {
             }
             userEnd(err);
         }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getAuth() {
+        return auth;
     }
 }

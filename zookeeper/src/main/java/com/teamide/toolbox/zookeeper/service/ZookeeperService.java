@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
 
 
 /**
@@ -51,54 +50,4 @@ public class ZookeeperService {
     }
 
 
-    /**
-     * 创建线程池
-     * <p>
-     * ThreadPoolExecutor + LinkedBlockingQueue
-     * <p>
-     * 阻塞队列
-     *
-     * @return Executor 线程池
-     */
-    public Executor createExecutor() {
-        // 核心工作线程数量
-        int workerCore = Runtime.getRuntime().availableProcessors();
-        // 最大工作线程数量
-        int workerMax = workerCore + 2;
-
-        // 空闲时长
-        long keepAliveTime = 60;
-        TimeUnit timeUnit = TimeUnit.SECONDS;
-
-        // 如果队列大小小于0 则配置无界队列
-        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(workerMax);
-
-        return new ThreadPoolExecutor(
-                workerCore,
-                workerMax,
-                keepAliveTime, timeUnit,
-                queue,
-                Executors.defaultThreadFactory(),
-                new CustomRejectedExecutionHandler());
-    }
-
-    /**
-     * 自定义 线程池对拒绝任务的处理策略
-     * <p>
-     * 阻塞队列
-     *
-     * @author ZhuLiang
-     * @date 2021/08/06
-     */
-    public static class CustomRejectedExecutionHandler implements RejectedExecutionHandler {
-        @Override
-        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            try {
-                // 核心改造点，由blockingqueue的offer改成put阻塞方法
-                executor.getQueue().put(r);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }

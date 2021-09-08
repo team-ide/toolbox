@@ -8,11 +8,6 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @description: TODO 类描述
- * @author: 朱亮
- * @date: 2021/8/30 10:53
- **/
 @Component
 public class ElasticsearchWorker implements ToolboxWorker {
 
@@ -38,11 +33,11 @@ public class ElasticsearchWorker implements ToolboxWorker {
 
 
     @Autowired
-    private ElasticsearchWorkDelete delete;
+    ElasticsearchWorkDelete delete;
 
     @Override
-    public Map<String, ToolboxWork> workMap() {
-        Map<String, ToolboxWork> workMap = new HashMap<>();
+    public Map<String, ToolboxWork<?, ?>> workMap() {
+        Map<String, ToolboxWork<?, ?>> workMap = new HashMap<>();
         workMap.put("delete", delete);
         return workMap;
     }

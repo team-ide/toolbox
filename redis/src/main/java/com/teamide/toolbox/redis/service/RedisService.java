@@ -2,7 +2,6 @@ package com.teamide.toolbox.redis.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.HostAndPort;
 
 import java.util.*;
 
@@ -22,17 +21,16 @@ public class RedisService {
             automaticShutdown = 60 * 10L; // 默认10分钟自动关闭
         }
 
-        String name = address;
-        String key = name + "-" + auth + "-" + cluster;
+        String key = address + "-" + auth + "-" + cluster;
         RedisDo redis = cache.get(key);
         if (redis == null || !redis.isStarted()) {
             synchronized (cache) {
                 redis = cache.get(key);
                 if (redis == null || !redis.isStarted()) {
                     if (redis == null) {
-                        log.debug("redis [" + name + "] is null,now create redis");
+                        log.debug("redis [" + address + "] is null,now create redis");
                     } else {
-                        log.warn("redis [" + name + "] is closed,now recreate redis");
+                        log.warn("redis [" + address + "] is closed,now recreate redis");
                     }
                     if (cluster) {
                         redis = new RedisCluster(address, auth, automaticShutdown);

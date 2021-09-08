@@ -7,6 +7,7 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.*;
 
@@ -41,12 +42,10 @@ public class RedisCluster implements RedisDo {
     //
     private Timer timer;
 
-    public RedisCluster(String address, String auth, long automaticShutdown) throws Exception {
+    public RedisCluster(String address, String auth, long automaticShutdown) {
         if (StringUtils.isEmpty(auth)) {
             auth = null;
         }
-        StringBuffer name = new StringBuffer();
-
         Set<HostAndPort> hostAndPortSet = new HashSet<>();
 
         Arrays.stream(address.split(";")).forEach(one -> {
@@ -62,7 +61,8 @@ public class RedisCluster implements RedisDo {
         int soTimeout = 1000 * 10;
         int maxAttempts = 10;
         log.info("redis [" + this.name + "] create cluster start");
-        this.cluster = new JedisCluster(hostAndPortSet, connectionTimeout, soTimeout, maxAttempts, auth, new GenericObjectPoolConfig());
+        GenericObjectPoolConfig<Jedis> config = new GenericObjectPoolConfig<>();
+        this.cluster = new JedisCluster(hostAndPortSet, connectionTimeout, soTimeout, maxAttempts, auth, config);
         log.info("redis [" + this.name + "] create cluster end");
 
         if (this.automaticShutdown > 0) {
@@ -105,8 +105,7 @@ public class RedisCluster implements RedisDo {
     private void userEnd(Exception exception) {
         lastUseTime = System.currentTimeMillis();
         if (exception != null) {
-            boolean shouldClose = false;
-
+            boolean shouldClose = exception instanceof JedisConnectionException;
             if (shouldClose) {
                 stop();
             }
@@ -250,5 +249,17 @@ public class RedisCluster implements RedisDo {
         } finally {
             userEnd(err);
         }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getAuth() {
+        return auth;
     }
 }

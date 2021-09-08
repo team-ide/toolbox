@@ -19,10 +19,10 @@ import org.springframework.context.annotation.Configuration;
 public class ZookeeperAutoConfiguration {
 
     @Autowired
-    private ToolboxWorkerCache cache;
+    ToolboxWorkerCache cache;
 
     @Autowired
-    private ZookeeperWorker worker;
+    ZookeeperWorker worker;
 
     @Bean
     public ZookeeperWorker getZookeeperWorker() {

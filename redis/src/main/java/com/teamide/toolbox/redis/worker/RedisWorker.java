@@ -8,11 +8,6 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @description: TODO 类描述
- * @author: 朱亮
- * @date: 2021/8/30 10:53
- **/
 @Component
 public class RedisWorker implements ToolboxWorker {
 
@@ -38,20 +33,20 @@ public class RedisWorker implements ToolboxWorker {
 
 
     @Autowired
-    private RedisWorkKeys keys;
+    RedisWorkKeys keys;
 
     @Autowired
-    private RedisWorkGet get;
+    RedisWorkGet get;
 
     @Autowired
-    private RedisWorkSave save;
+    RedisWorkSave save;
 
     @Autowired
-    private RedisWorkDelete delete;
+    RedisWorkDelete delete;
 
     @Override
-    public Map<String, ToolboxWork> workMap() {
-        Map<String, ToolboxWork> workMap = new HashMap<>();
+    public Map<String, ToolboxWork<?, ?>> workMap() {
+        Map<String, ToolboxWork<?, ?>> workMap = new HashMap<>();
         workMap.put("keys", keys);
         workMap.put("get", get);
         workMap.put("save", save);

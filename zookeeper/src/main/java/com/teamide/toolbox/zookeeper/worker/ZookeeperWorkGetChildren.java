@@ -3,8 +3,8 @@ package com.teamide.toolbox.zookeeper.worker;
 import com.teamide.toolbox.worker.ToolboxWork;
 import com.teamide.toolbox.zookeeper.service.ZookeeperCurator;
 import com.teamide.toolbox.zookeeper.service.ZookeeperService;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.List;
 public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChildren.Request, ZookeeperWorkGetChildren.Response> {
 
     @Autowired
-    private ZookeeperService zookeeperService;
+    ZookeeperService zookeeperService;
 
     public Class<Request> getRequestClass() {
         return Request.class;
@@ -51,6 +51,7 @@ public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChi
      * @author 朱亮
      * @date 2021/08/30
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Request extends ZookeeperRequestBase {
 
@@ -64,6 +65,7 @@ public class ZookeeperWorkGetChildren implements ToolboxWork<ZookeeperWorkGetChi
      * @author 朱亮
      * @date 2021/08/30
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Response extends ZookeeperResponseBase {
 

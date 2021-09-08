@@ -2,6 +2,7 @@ package com.teamide.toolbox.elasticsearch.service;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.ConnectException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -41,7 +42,7 @@ public class ElasticsearchCurator {
      * @param url               Zookeeper地址
      * @param automaticShutdown 自动关闭时长，单位S，超出该时间不再操作，则关闭该连接
      */
-    public ElasticsearchCurator(String url, long automaticShutdown) throws Exception {
+    public ElasticsearchCurator(String url, long automaticShutdown) {
         this.url = url;
         this.automaticShutdown = automaticShutdown;
 
@@ -89,7 +90,7 @@ public class ElasticsearchCurator {
     private void userEnd(Exception exception) {
         lastUseTime = System.currentTimeMillis();
         if (exception != null) {
-            boolean shouldClose = false;
+            boolean shouldClose = exception instanceof ConnectException;
             if (shouldClose) {
                 stop();
             }
@@ -113,6 +114,18 @@ public class ElasticsearchCurator {
             log.debug("es [" + url + "] curator close ");
             this.started = false;
 //            this.curator.close();
+        }
+    }
+
+    public void work() throws Exception {
+        Exception err = null;
+        userStart();
+        try {
+            getClass().newInstance();
+        } catch (Exception e) {
+            err = e;
+        } finally {
+            userEnd(err);
         }
     }
 

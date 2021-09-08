@@ -10,6 +10,6 @@ import lombok.Data;
  * @date 2021/08/30
  */
 @Data
-public class ToolboxWorkRequest<T> {
-
+public class ToolboxWorkRequest {
+    private String requestId;
 }

@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import java.text.SimpleDateFormat;
 
 @ComponentScan
+@Configuration
 public class CoreAutoConfiguration {
 
     @Bean

@@ -3,8 +3,8 @@ package com.teamide.toolbox.zookeeper.worker;
 import com.teamide.toolbox.worker.ToolboxWork;
 import com.teamide.toolbox.zookeeper.service.ZookeeperCurator;
 import com.teamide.toolbox.zookeeper.service.ZookeeperService;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class ZookeeperWorkDelete implements ToolboxWork<ZookeeperWorkDelete.Request, ZookeeperWorkDelete.Response> {
 
     @Autowired
-    private ZookeeperService zookeeperService;
+    ZookeeperService zookeeperService;
 
     public Class<Request> getRequestClass() {
         return Request.class;
@@ -50,6 +50,7 @@ public class ZookeeperWorkDelete implements ToolboxWork<ZookeeperWorkDelete.Requ
      * @author 朱亮
      * @date 2021/08/30
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Request extends ZookeeperRequestBase {
 
@@ -68,6 +69,7 @@ public class ZookeeperWorkDelete implements ToolboxWork<ZookeeperWorkDelete.Requ
      * @author 朱亮
      * @date 2021/08/30
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Response extends ZookeeperResponseBase {
 

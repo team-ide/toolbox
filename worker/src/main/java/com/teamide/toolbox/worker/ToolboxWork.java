@@ -3,7 +3,6 @@ package com.teamide.toolbox.worker;
 
 import com.teamide.toolbox.util.BeanMapUtil;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.Map;
 
 /**
@@ -15,22 +14,16 @@ import java.util.Map;
 public interface ToolboxWork<P extends ToolboxWorkRequest, R extends ToolboxWorkResponse> {
 
 
-    public Class<P> getRequestClass();
+    Class<P> getRequestClass();
 
-    public default P getRequest(Map<String, Object> data) throws Exception {
-        P p = null;
+    default P getRequest(Map<String, Object> data) throws Exception {
         if (data == null) {
-            p = getRequestClass().newInstance();
+            return getRequestClass().newInstance();
         } else {
-            p = BeanMapUtil.toBean(data, getRequestClass());
+            return BeanMapUtil.toBean(data, getRequestClass());
         }
-        return p;
     }
 
-    public default Class<R> getResponseClass() {
-        Class<R> rClass = (Class<R>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
-        return rClass;
-    }
 
     /**
      * 工作
@@ -39,5 +32,5 @@ public interface ToolboxWork<P extends ToolboxWorkRequest, R extends ToolboxWork
      * @return {@link ToolboxWorkResponse}
      * @throws Exception 异常
      */
-    public R work(P request) throws Exception;
+    R work(P request) throws Exception;
 }

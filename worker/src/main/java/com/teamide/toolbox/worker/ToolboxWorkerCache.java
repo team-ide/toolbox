@@ -27,10 +27,6 @@ public class ToolboxWorkerCache {
     }
 
     public List<ToolboxWorker> getWorkers() {
-        List<ToolboxWorker> workers = new ArrayList<>();
-        workerMap.values().forEach(one -> {
-            workers.add(one);
-        });
-        return workers;
+        return new ArrayList<>(workerMap.values());
     }
 }

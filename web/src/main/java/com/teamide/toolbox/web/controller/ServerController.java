@@ -1,7 +1,6 @@
 package com.teamide.toolbox.web.controller;
 
 import com.teamide.toolbox.bean.ResponseBean;
-import com.teamide.toolbox.worker.ToolboxWork;
 import com.teamide.toolbox.worker.ToolboxWorkerCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 @RestController
 @RequestMapping("/server")
@@ -21,7 +19,7 @@ public class ServerController {
      * 工人缓存
      */
     @Autowired
-    private ToolboxWorkerCache workerCache;
+    ToolboxWorkerCache workerCache;
 
     @RequestMapping(path = "/open", method = RequestMethod.POST)
     public Object open() {

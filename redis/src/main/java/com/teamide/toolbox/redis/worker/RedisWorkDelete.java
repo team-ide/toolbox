@@ -4,6 +4,7 @@ import com.teamide.toolbox.redis.service.RedisDo;
 import com.teamide.toolbox.redis.service.RedisService;
 import com.teamide.toolbox.worker.ToolboxWork;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.Request, RedisWorkDelete.Response> {
 
     @Autowired
-    private RedisService redisService;
+    RedisService redisService;
 
     public Class<Request> getRequestClass() {
         return Request.class;
@@ -44,6 +45,7 @@ public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.Request, Red
      * @author 朱亮
      * @date 2021/08/30
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Request extends RedisRequestBase {
         /**
@@ -58,6 +60,7 @@ public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.Request, Red
      * @author 朱亮
      * @date 2021/08/30
      */
+    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Response extends RedisResponseBase {
 
