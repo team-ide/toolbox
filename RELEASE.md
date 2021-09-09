@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.0.9 -m "Redis添加单机和集群连接，配置表单中选择"
+git tag -a v1.1.0 -m "Zookeeper工作面板中，树根据子节点宽度自适应，列表中按钮使用图标"
 
 # 推送标签
-git push origin v1.0.9
+git push origin v1.1.0
 ```
