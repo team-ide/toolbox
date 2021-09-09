@@ -187,8 +187,33 @@ export default {
 .worker-box .el-tree {
   background-color: transparent;
   color: unset;
+  width: auto;
+  font-size: 12px;
+}
+.worker-box .el-tree .mdi {
+  vertical-align: middle;
 }
 
+.worker-box .worker-box-tree-span {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+.worker-box .el-tree__empty-block {
+  display: none;
+}
+.worker-box .el-tree-node__content {
+}
+.worker-box .el-tree-node__children {
+  overflow: visible !important;
+}
+.worker-box .el-tree-node__children.v-enter-active,
+.worker-box .el-tree-node__children.v-leave-active {
+  overflow: hidden !important;
+}
 .worker-box .el-tree .el-tree-node.is-current > .el-tree-node__content {
   background-color: #636363 !important;
 }
