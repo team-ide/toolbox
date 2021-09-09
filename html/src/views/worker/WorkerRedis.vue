@@ -55,7 +55,11 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="worker-redis-list worker-scrollbar" v-if="connect.open">
+    <div
+      class="worker-redis-list worker-scrollbar"
+      ref="treeBox"
+      v-if="connect.open"
+    >
       <el-tree
         ref="tree"
         :props="defaultProps"
@@ -66,15 +70,11 @@
         @current-change="currentChange"
         :expand-on-click-node="false"
       >
-        <span class="worker-redis-node" slot-scope="{ node, data }">
+        <span class="worker-box-tree-span" slot-scope="{ node, data }">
           <span>{{ node.label }}</span>
-          <span>
-            <a
-              class="tm-link color-red ft-12 mgl-5"
-              size="mini"
-              @click="toDelete(data)"
-            >
-              删除
+          <span class="mgl-20">
+            <a class="tm-link color-orange ft-15 mgr-2" @click="toDelete(data)">
+              <i class="mdi mdi-delete-outline"></i>
             </a>
           </span>
         </span>
@@ -369,21 +369,12 @@ export default {
 .worker-redis-wrap .worker-redis-list {
   height: calc(100% - 150px);
   width: calc(100% - 500px);
-  max-width: 600px;
   min-width: 300px;
   margin: 10px;
   padding: 0px;
   position: relative;
   float: left;
   overflow-x: hidden !important;
-}
-.worker-redis-wrap .worker-redis-node {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  padding-right: 8px;
 }
 .worker-redis-wrap .worker-redis-form {
   height: calc(100% - 100px);

@@ -31,10 +31,10 @@ public class ZookeeperService {
         }
 
         ZookeeperCurator curator = cache.get(url);
-        if (curator == null || !curator.isStarted()) {
+        if (curator == null || !curator.started()) {
             synchronized (cache) {
                 curator = cache.get(url);
-                if (curator == null || !curator.isStarted()) {
+                if (curator == null || !curator.started()) {
                     if (curator == null) {
                         log.debug("curator url [" + url + "] is null,now create curator");
                     } else {

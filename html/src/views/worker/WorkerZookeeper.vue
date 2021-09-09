@@ -15,7 +15,11 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="worker-zookeeper-list worker-scrollbar" v-if="connect.open">
+    <div
+      class="worker-zookeeper-list worker-scrollbar"
+      ref="treeBox"
+      v-if="connect.open"
+    >
       <el-tree
         ref="tree"
         :load="loadNode"
@@ -27,34 +31,25 @@
         @current-change="currentChange"
         :expand-on-click-node="false"
       >
-        <span class="worker-zookeeper-node" slot-scope="{ node, data }">
+        <span class="worker-box-tree-span" slot-scope="{ node, data }">
           <template v-if="data.path == '/' && connect.form != null">
             <span>{{ connect.form.url }}</span>
           </template>
           <template v-else>
             <span>{{ node.label }}</span>
           </template>
-          <span>
+          <span class="mgl-20">
             <a
-              class="tm-link color-grey ft-12 mgl-5"
-              size="mini"
+              class="tm-link color-grey ft-14 mgr-2"
               @click="toReloadChildren(data)"
             >
-              刷新
+              <i class="mdi mdi-reload"></i>
             </a>
-            <a
-              class="tm-link color-blue ft-12 mgl-5"
-              size="mini"
-              @click="toInsert(data)"
-            >
-              新增
+            <a class="tm-link color-blue ft-16 mgr-2" @click="toInsert(data)">
+              <i class="mdi mdi-plus"></i>
             </a>
-            <a
-              class="tm-link color-red ft-12 mgl-5"
-              size="mini"
-              @click="toDelete(data)"
-            >
-              删除
+            <a class="tm-link color-orange ft-15 mgr-2" @click="toDelete(data)">
+              <i class="mdi mdi-delete-outline"></i>
             </a>
           </span>
         </span>
@@ -278,6 +273,7 @@ export default {
           });
           this.formatDatas(parent, datas);
           resolve(datas);
+          tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
         }
       });
     },
@@ -387,20 +383,11 @@ export default {
 .worker-zookeeper-wrap .worker-zookeeper-list {
   height: calc(100% - 150px);
   width: calc(100% - 500px);
-  max-width: 600px;
   min-width: 300px;
   margin: 10px;
   padding: 0px;
   position: relative;
   float: left;
-}
-.worker-zookeeper-wrap .worker-zookeeper-node {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  padding-right: 8px;
 }
 .worker-zookeeper-wrap .worker-zookeeper-form {
   height: calc(100% - 100px);
