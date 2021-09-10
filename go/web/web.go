@@ -30,6 +30,9 @@ func StartServer() {
 
 	r := mux.NewRouter()
 
+	r.HandleFunc("/server/open", handleOpen)
+	r.HandleFunc("/server/session", handleSession)
+
 	workerCache := worker.WorkerCache
 	for workerName, oneWorker := range workerCache {
 		workMap := oneWorker.WorkMap()

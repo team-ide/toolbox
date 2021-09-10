@@ -9,8 +9,9 @@ import (
 )
 
 type BaseResponse struct {
-	Code string `json:"code"`
-	Msg  string `json:"msg"`
+	Code  string      `json:"code"`
+	Msg   string      `json:"msg"`
+	Value interface{} `json:"value"`
 }
 
 var (
@@ -43,21 +44,17 @@ func ToBean(r *http.Request, req interface{}) (err error) {
 	return
 }
 
-func outJSON(w http.ResponseWriter, res interface{}, err error) {
+func outJSON(w http.ResponseWriter, value interface{}, err error) {
+	out := BaseResponse{}
 	if err != nil {
-		res = BaseResponse{
-			Code: "-1",
-			Msg:  err.Error(),
-		}
-	}
-	if res == nil {
-		res = BaseResponse{
-			Code: "0",
-			Msg:  "OK",
-		}
+		out.Code = "-1"
+		out.Msg = err.Error()
+	} else {
+		out.Code = "0"
+		out.Value = value
 	}
 	w.Header().Set("Content-Type", "application/json")
-	by, err := base.JSON.Marshal(res)
+	by, err := base.JSON.Marshal(out)
 	if err != nil {
 		io.WriteString(w, ERROR_RESULT)
 		return
