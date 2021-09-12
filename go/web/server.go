@@ -12,12 +12,12 @@ func handleOpen(rw http.ResponseWriter, r *http.Request) {
 
 	workerCache := worker.WorkerCache
 	for _, oneWorker := range workerCache {
-		workMap := oneWorker.WorkMap()
+		workMap := oneWorker.WorkMap
 		workerData := make(map[string]interface{})
-		workerData["name"] = oneWorker.Name()
-		workerData["icon"] = oneWorker.Icon()
-		workerData["comment"] = oneWorker.Comment()
-		workerData["text"] = oneWorker.Text()
+		workerData["name"] = oneWorker.Name
+		workerData["icon"] = oneWorker.Icon
+		workerData["comment"] = oneWorker.Comment
+		workerData["text"] = oneWorker.Text
 
 		workerWorks := []map[string]interface{}{}
 		for workName, _ := range workMap {

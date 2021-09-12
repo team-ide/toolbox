@@ -12,8 +12,8 @@ import (
 )
 
 type WorkerWork struct {
-	worker worker.Worker
-	work   worker.Work
+	worker *worker.Worker
+	work   func(interface{}) (interface{}, error)
 }
 
 func (workerWork *WorkerWork) handle(rw http.ResponseWriter, r *http.Request) {
@@ -22,7 +22,8 @@ func (workerWork *WorkerWork) handle(rw http.ResponseWriter, r *http.Request) {
 		outJSON(rw, nil, err)
 		return
 	}
-	res, err := workerWork.work.Work(body)
+
+	res, err := workerWork.work(body)
 	outJSON(rw, res, err)
 }
 
@@ -35,7 +36,7 @@ func StartServer() {
 
 	workerCache := worker.WorkerCache
 	for workerName, oneWorker := range workerCache {
-		workMap := oneWorker.WorkMap()
+		workMap := oneWorker.WorkMap
 		for workName, oneWork := range workMap {
 			workerWork := WorkerWork{
 				worker: oneWorker,

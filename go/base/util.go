@@ -15,7 +15,7 @@ var (
 	JSON = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
-func GetJSON(data interface{}) string {
+func ToJSON(data interface{}) string {
 	if data != nil {
 		bs, _ := JSON.Marshal(data)
 		if bs != nil {
@@ -23,6 +23,11 @@ func GetJSON(data interface{}) string {
 		}
 	}
 	return ""
+}
+
+func ToBean(bytes []byte, req interface{}) (err error) {
+	err = JSON.Unmarshal(bytes, req)
+	return
 }
 
 //获取当前时间戳
