@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.4 -m "添加Go服务，实现zookeeper、redis管理"
+git tag -a v1.1.5 -m "添加Go服务，实现zookeeper、redis管理"
 
 # 推送标签
-git push origin v1.1.4
+git push origin v1.1.5
 ```
