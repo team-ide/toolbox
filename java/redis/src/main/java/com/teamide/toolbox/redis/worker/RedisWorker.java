@@ -50,6 +50,9 @@ public class RedisWorker implements ToolboxWorker {
     @Autowired
     RedisWorkDelete delete;
 
+    @Autowired
+    RedisWorkDeletePattern deletePattern;
+
     @Override
     public Map<String, ToolboxWork<?, ?>> workMap() {
         Map<String, ToolboxWork<?, ?>> workMap = new HashMap<>(4);
@@ -57,6 +60,7 @@ public class RedisWorker implements ToolboxWorker {
         workMap.put("get", get);
         workMap.put("save", save);
         workMap.put("delete", delete);
+        workMap.put("deletePattern", deletePattern);
         return workMap;
     }
 }

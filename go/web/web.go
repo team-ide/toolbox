@@ -29,10 +29,15 @@ func (workerWork *WorkerWork) handle(rw http.ResponseWriter, r *http.Request) {
 
 func StartServer() {
 
+	context := config.Config.Server.Context
+	if context == "" || context == "/" {
+		context = ""
+	}
+
 	r := mux.NewRouter()
 
-	r.HandleFunc("/server/open", handleOpen)
-	r.HandleFunc("/server/session", handleSession)
+	r.HandleFunc(context+"/server/open", handleOpen)
+	r.HandleFunc(context+"/server/session", handleSession)
 
 	workerCache := worker.WorkerCache
 	for workerName, oneWorker := range workerCache {
@@ -42,7 +47,7 @@ func StartServer() {
 				worker: oneWorker,
 				work:   oneWork,
 			}
-			requestMapping := fmt.Sprint("/server/", workerName, "/", workName)
+			requestMapping := fmt.Sprint(context, "/server/worker/", workerName, "/", workName)
 			r.HandleFunc(requestMapping, workerWork.handle)
 		}
 	}
@@ -50,9 +55,9 @@ func StartServer() {
 	//静态请求，由AssetFS统一处理。
 	for k := range _bintree.Children {
 		name := k
-		path := "/" + name
+		path := context + "/" + name
 		if name == "index.html" {
-			path = "/"
+			path = context + "/"
 		}
 		r.HandleFunc(path, func(rw http.ResponseWriter, r *http.Request) {
 			if strings.HasSuffix(name, ".html") {
@@ -71,7 +76,7 @@ func StartServer() {
 	port := config.Config.Server.Port
 
 	httpServer := fmt.Sprint(host, ":", port)
-
+	println("url:http://" + httpServer + context)
 	err := http.ListenAndServe(httpServer, r)
 	if err != nil {
 		panic(err)

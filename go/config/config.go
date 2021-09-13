@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"base"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -24,9 +24,12 @@ var (
 
 func init() {
 	filePath := "./config.toml"
-	fmt.Printf("parse toml file once. filePath: %s\n", filePath)
-	if _, err := toml.DecodeFile(filePath, &Config); err != nil {
-		panic(err)
+	exists, err := base.PathExists(filePath)
+	if exists && err == nil {
+		// fmt.Printf("parse toml file once. filePath: %s\n", filePath)
+		if _, err := toml.DecodeFile(filePath, &Config); err != nil {
+			panic(err)
+		}
 	}
 	Config = formatConfig(Config)
 }
@@ -35,6 +38,18 @@ func init() {
 func formatConfig(config *TomlConfig) *TomlConfig {
 	if config == nil {
 		config = &TomlConfig{}
+	}
+	if config.Server == nil {
+		config.Server = &server{}
+	}
+	if config.Server.Host == "" {
+		config.Server.Host = "0.0.0.0"
+	}
+	if config.Server.Port == 0 {
+		config.Server.Port = 18000
+	}
+	if config.Server.Context == "" {
+		config.Server.Context = "/toolbox"
 	}
 	return config
 }

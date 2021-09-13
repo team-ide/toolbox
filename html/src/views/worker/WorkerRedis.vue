@@ -49,36 +49,45 @@
           >
             搜索
           </a>
+          <a class="tm-btn tm-btn-sm color-red mgl-5" @click="deletePattern">
+            删除匹配
+          </a>
           <a class="tm-btn tm-btn-sm color-blue mgl-5" @click="toInsert">
             新增
           </a>
         </el-form-item>
       </el-form>
     </div>
-    <div
-      class="worker-redis-list worker-scrollbar"
-      ref="treeBox"
-      v-if="connect.open"
-    >
-      <el-tree
-        ref="tree"
-        :props="defaultProps"
-        :data="data"
-        :default-expanded-keys="expands"
-        node-key="key"
-        @node-click="nodeClick"
-        @current-change="currentChange"
-        :expand-on-click-node="false"
-      >
-        <span class="worker-box-tree-span" slot-scope="{ node, data }">
-          <span>{{ node.label }}</span>
-          <span class="mgl-20">
-            <a class="tm-link color-orange ft-15 mgr-2" @click="toDelete(data)">
-              <i class="mdi mdi-delete-outline"></i>
-            </a>
+    <div class="worker-redis-list-box" v-if="connect.open">
+      <div class="worker-redis-list worker-scrollbar" ref="treeBox">
+        <el-tree
+          ref="tree"
+          :props="defaultProps"
+          :data="data"
+          :default-expanded-keys="expands"
+          node-key="key"
+          @node-click="nodeClick"
+          @current-change="currentChange"
+          :expand-on-click-node="false"
+        >
+          <span class="worker-box-tree-span" slot-scope="{ node, data }">
+            <span>{{ node.label }}</span>
+            <span class="mgl-20">
+              <a
+                class="tm-link color-orange ft-15 mgr-2"
+                @click="toDelete(data)"
+              >
+                <i class="mdi mdi-delete-outline"></i>
+              </a>
+            </span>
           </span>
-        </span>
-      </el-tree>
+        </el-tree>
+      </div>
+      <div v-if="data != null" class="text-center pd-5 ft-12">
+        共搜索
+        <span class="color-orange ft-15 mglr-5">{{ count }}</span>
+        条记录
+      </div>
     </div>
     <div class="worker-redis-form worker-scrollbar" v-if="connect.open">
       <template v-if="readonlyOne">
@@ -159,6 +168,7 @@ export default {
       expands: [],
       opens: [],
       data: null,
+      count: 0,
       defaultProps: {
         children: "children",
         label: "name",
@@ -194,7 +204,7 @@ export default {
       let data = {};
       Object.assign(data, this.connect.form);
       data.pattern = pattern;
-      data.size = size;
+      data.size = Number(size);
       return server.redis.keys(data);
     },
     get(key) {
@@ -245,6 +255,39 @@ export default {
         })
         .catch(() => {});
     },
+    deletePattern() {
+      if (window.event) {
+        window.event.stopPropagation && window.event.stopPropagation();
+      }
+      let data = {};
+      Object.assign(data, this.connect.form);
+      Object.assign(data, this.searchForm);
+      if (tool.isEmpty(data.pattern)) {
+        tool.error("匹配字符不能为空！");
+        return;
+      }
+      tool
+        .confirm("将删除匹配[" + data.pattern + "]所有Key，确认删除？")
+        .then(() => {
+          server.redis.deletePattern(data).then((res) => {
+            res.value = res.value || {};
+            if (res.code != 0) {
+              if (res.value.count > 0) {
+                tool.error(
+                  "共删除" + res.value.count + "条记录出现异常：" + res.msg
+                );
+                this.reload();
+              } else {
+                tool.error("删除失败：" + res.msg);
+              }
+            } else {
+              tool.success("删除成功，共删除" + res.value.count + "条记录");
+              this.reload();
+            }
+          });
+        })
+        .catch(() => {});
+    },
     nodeClick() {},
     doSearch() {
       this.load();
@@ -256,6 +299,7 @@ export default {
       let data = {};
       Object.assign(data, this.searchForm);
       this.data = null;
+      this.count = 0;
       this.loading = true;
       this.keys(data.pattern, data.size)
         .then((res) => {
@@ -265,6 +309,7 @@ export default {
           } else {
             let value = res.value || {};
             let keys = value.keys || [];
+            this.count = value.count;
             let datas = [];
 
             keys.forEach((name) => {
@@ -366,14 +411,21 @@ export default {
   padding: 0px;
   position: relative;
 }
-.worker-redis-wrap .worker-redis-list {
+.worker-redis-wrap .worker-redis-list-box {
   height: calc(100% - 150px);
   width: calc(100% - 500px);
-  min-width: 300px;
   margin: 10px;
   padding: 0px;
   position: relative;
   float: left;
+  overflow: hidden;
+}
+.worker-redis-wrap .worker-redis-list {
+  height: calc(100% - 50px);
+  min-width: 300px;
+  margin: 0px;
+  padding: 0px;
+  position: relative;
   overflow-x: hidden !important;
 }
 .worker-redis-wrap .worker-redis-form {

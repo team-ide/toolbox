@@ -37,7 +37,7 @@ func (service *ZKService) Create(path string, data []byte, mode int32) (err erro
 	}
 	if strings.LastIndex(path, "/") > 0 {
 		parentPath := path[0:strings.LastIndex(path, "/")]
-		err = service.CreateIfNotExists(parentPath)
+		err = service.CreateIfNotExists(parentPath, []byte{})
 		if err != nil {
 			return err
 		}
@@ -58,7 +58,7 @@ func (service *ZKService) SetData(path string, data []byte) (err error) {
 	if !isExist {
 		return errors.New("node:" + path + " not exists")
 	}
-	if _, err = service.conn.Set(path, data, state.Aversion); err != nil {
+	if _, err = service.conn.Set(path, data, state.Aversion+1); err != nil {
 		if err != zk.ErrNodeExists {
 			return err
 		}
@@ -67,7 +67,7 @@ func (service *ZKService) SetData(path string, data []byte) (err error) {
 }
 
 //一层层检查，如果不存在则创建父节点
-func (service *ZKService) CreateIfNotExists(path string) (err error) {
+func (service *ZKService) CreateIfNotExists(path string, data []byte) (err error) {
 	isExist, err := service.Exists(path)
 	if err != nil {
 		return err
@@ -77,12 +77,12 @@ func (service *ZKService) CreateIfNotExists(path string) (err error) {
 	}
 	if strings.LastIndex(path, "/") > 0 {
 		parentPath := path[0:strings.LastIndex(path, "/")]
-		err = service.CreateIfNotExists(parentPath)
+		err = service.CreateIfNotExists(parentPath, data)
 		if err != nil {
 			return err
 		}
 	}
-	if _, err = service.conn.Create(path, []byte{}, 0, zk.WorldACL(zk.PermAll)); err != nil {
+	if _, err = service.conn.Create(path, data, 0, zk.WorldACL(zk.PermAll)); err != nil {
 		if err != zk.ErrNodeExists {
 			return err
 		}
@@ -93,5 +93,42 @@ func (service *ZKService) CreateIfNotExists(path string) (err error) {
 //判断节点是否存在
 func (service *ZKService) Exists(path string) (isExist bool, err error) {
 	isExist, _, err = service.conn.Exists(path)
-	return isExist, err
+	return
+}
+
+//判断节点是否存在
+func (service *ZKService) Get(path string) (data []byte, err error) {
+	data, _, err = service.conn.Get(path)
+	return
+}
+
+//判断节点是否存在
+func (service *ZKService) GetChildren(path string) (children []string, err error) {
+	children, _, err = service.conn.Children(path)
+	return
+}
+
+//判断节点是否存在
+func (service *ZKService) Delete(path string) (err error) {
+	var isExist bool
+	var stat *zk.Stat
+	isExist, stat, err = service.conn.Exists(path)
+	if !isExist {
+		return
+	}
+	var children []string
+	children, _, err = service.conn.Children(path)
+	if err != nil {
+		return
+	}
+	if len(children) > 0 {
+		for _, one := range children {
+			err = service.Delete(one)
+			if err != nil {
+				return
+			}
+		}
+	}
+	err = service.conn.Delete(path, stat.Aversion)
+	return
 }

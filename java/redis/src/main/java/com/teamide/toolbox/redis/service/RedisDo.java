@@ -49,5 +49,13 @@ public interface RedisDo extends ToolboxAutomaticShutdown {
      * @param key key
      * @throws Exception err
      */
-    void delete(String key) throws Exception;
+    int delete(String key) throws Exception;
+
+    /**
+     * 匹配pattern删除所有key
+     *
+     * @param pattern pattern
+     * @throws Exception err
+     */
+    int deletePattern(String pattern) throws Exception;
 }

@@ -11,6 +11,9 @@ func Init() {
 		WorkMap: map[string]func(interface{}) (interface{}, error){},
 	}
 	worker_.WorkMap["get"] = getWork
+	worker_.WorkMap["save"] = saveWork
+	worker_.WorkMap["getChildren"] = getChildrenWork
+	worker_.WorkMap["delete"] = deleteWork
 
 	worker.AddWorker(worker_)
 }

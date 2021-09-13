@@ -15,14 +15,14 @@ type Worker struct {
 }
 
 var (
-	WorkerCache                   map[string]*Worker
-	toolboxAutomaticShutdownCache map[string]*ToolboxAutomaticShutdown
-	lock                          sync.Mutex
+	WorkerCache            map[string]*Worker
+	AutomaticShutdownCache map[string]*AutomaticShutdown
+	lock                   sync.Mutex
 )
 
 func init() {
 	WorkerCache = map[string]*Worker{}
-	toolboxAutomaticShutdownCache = map[string]*ToolboxAutomaticShutdown{}
+	AutomaticShutdownCache = map[string]*AutomaticShutdown{}
 	go startToolboxAutomaticShutdownTimer()
 }
 
@@ -31,36 +31,41 @@ func AddWorker(worker *Worker) {
 	WorkerCache[name] = worker
 }
 
-func GetToolboxAutomaticShutdown(key string, create func() *ToolboxAutomaticShutdown) *ToolboxAutomaticShutdown {
+func GetAutomaticShutdown(key string, create func(*AutomaticShutdown) error) (res *AutomaticShutdown, err error) {
 	lock.Lock()
 	defer lock.Unlock()
-	res, ok := toolboxAutomaticShutdownCache[key]
+	var ok bool
+	res, ok = AutomaticShutdownCache[key]
 	if !ok {
-		res = create()
-		toolboxAutomaticShutdownCache[key] = res
+		res = &AutomaticShutdown{}
+		err = create(res)
+		if err != nil {
+			return
+		}
+		AutomaticShutdownCache[key] = res
 	}
-	return res
+	return
 }
 
-type ToolboxAutomaticShutdown interface {
-	AutomaticShutdown() int64
-	LastUseTimestamp() int64
-	stop()
-	started()
+type AutomaticShutdown struct {
+	AutomaticShutdown int64
+	LastUseTimestamp  int64
+	Stop              func()
+	Service           interface{}
 }
 
 func startToolboxAutomaticShutdownTimer() {
 	time.Sleep(1 * time.Second)
-	cache := toolboxAutomaticShutdownCache
+	cache := AutomaticShutdownCache
 	nowTime := base.GetNowTime()
-	for _, one := range cache {
-		one_ := *one
-		if one_.AutomaticShutdown() <= 0 {
+	for key, one := range cache {
+		if one.AutomaticShutdown <= 0 {
 			continue
 		}
-		lastTime := nowTime - one_.LastUseTimestamp()
-		if lastTime >= one_.AutomaticShutdown() {
-			one_.stop()
+		lastTime := nowTime - one.LastUseTimestamp
+		if lastTime >= one.AutomaticShutdown {
+			delete(AutomaticShutdownCache, key)
+			(*one).Stop()
 		}
 
 	}

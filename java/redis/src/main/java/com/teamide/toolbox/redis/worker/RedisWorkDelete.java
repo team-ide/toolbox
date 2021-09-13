@@ -36,7 +36,8 @@ public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.Request, Red
         Response response = new Response();
         RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.isCluster(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getKey())) {
-            redis.delete(request.getKey());
+            int count = redis.delete(request.getKey());
+            response.setCount(count);
         }
         return response;
     }
@@ -64,6 +65,9 @@ public class RedisWorkDelete implements ToolboxWork<RedisWorkDelete.Request, Red
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Response extends RedisResponseBase {
-
+        /**
+         * count
+         */
+        private int count;
     }
 }

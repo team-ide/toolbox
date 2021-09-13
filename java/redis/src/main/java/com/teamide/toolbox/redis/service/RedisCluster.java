@@ -233,15 +233,57 @@ public class RedisCluster implements RedisDo {
      * @throws Exception 异常
      */
     @Override
-    public void delete(String key) throws Exception {
+    public int delete(String key) throws Exception {
         Exception err = null;
         userStart();
+        int count = 0;
         try {
             log.debug("redis [" + name + "] delete key [" + key + "] start ");
             cluster.del(key);
+            count++;
             log.debug("redis [" + name + "] delete key [" + key + "] end ");
+            return count;
         } catch (Exception e) {
             log.error("redis [" + name + "] delete key [" + key + "] error {} ", e);
+            err = e;
+            throw e;
+        } finally {
+            userEnd(err);
+        }
+    }
+
+    /**
+     * 匹配pattern删除所有key
+     *
+     * @param pattern pattern
+     * @throws Exception err
+     */
+    @Override
+    public int deletePattern(String pattern) throws Exception {
+        Exception err = null;
+        userStart();
+        int count = 0;
+        try {
+            log.debug("redis [" + name + "] deletePattern pattern [" + pattern + "] start ");
+            Map<String, JedisPool> clusterNodes = cluster.getClusterNodes();
+            for (Map.Entry<String, JedisPool> entry : clusterNodes.entrySet()) {
+                JedisPool pool = entry.getValue();
+                Jedis jedis = pool.getResource();
+                // 判断非从节点(因为若主从复制，从节点会跟随主节点的变化而变化)
+                if (!jedis.info("replication").contains("role:slave")) {
+                    Set<String> ks = jedis.keys(pattern);
+                    for (String key : ks) {
+                        jedis.del(key);
+                        count++;
+                    }
+                }
+                jedis.close();
+            }
+
+            log.debug("redis [" + name + "] deletePattern pattern [" + pattern + "] end ");
+            return count;
+        } catch (Exception e) {
+            log.error("redis [" + name + "] deletePattern pattern [" + pattern + "] error {} ", e);
             err = e;
             throw e;
         } finally {
