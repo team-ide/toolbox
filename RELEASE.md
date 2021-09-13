@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.0 -m "Zookeeper工作面板中，树根据子节点宽度自适应，列表中按钮使用图标"
+git tag -a v1.1.1 -m "添加Go服务，实现zookeeper、redis管理"
 
 # 推送标签
-git push origin v1.1.0
+git push origin v1.1.1
 ```
