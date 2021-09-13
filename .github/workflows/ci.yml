@@ -7,7 +7,7 @@ jobs:
   lint:
     strategy:
       matrix:
-        platform: [ubuntu-latest, windows-latest]
+        platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       # 下载源码
@@ -30,15 +30,6 @@ jobs:
       - run: mkdir release/go-linux
       - run: cp -rf go/config.toml release/go-linux/ && cp -rf go/toolbox release/go-linux/
       - run: tar -zcvf release-go-linux.tgz release/go-linux
-      # 打包构建 window
-      - name: Build Go Window
-        uses: actions/setup-go@v2
-        with:
-          go-version: '^1.15'
-      - run: cd go && export GOARCH=x64 && export GOOS=window && go build
-      - run: mkdir release/go-window
-      - run: cp -rf go/config.toml release/go-window/ && cp -rf go/toolbox release/go-window/
-      - run: tar -zcvf release-go-window.tgz release/go-window
       # 发布
       - name: Create Release
         id: create_release
@@ -70,15 +61,5 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # 上传地址，通过创建Release获取到的
           asset_path: ./release-go-linux.tgz # 要上传文件
           asset_name: release-go-linux.tgz # 上传后的文件名
-          asset_content_type: application/x-tgz
-      - name: Upload Go Window Release Asset
-        id: upload-go-window-release-asset
-        uses: actions/upload-release-asset@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # 上传地址，通过创建Release获取到的
-          asset_path: ./release-go-window.tgz # 要上传文件
-          asset_name: release-go-window.tgz # 上传后的文件名
           asset_content_type: application/x-tgz
 
