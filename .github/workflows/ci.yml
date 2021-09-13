@@ -16,18 +16,14 @@ jobs:
         with:
           java-version: '8'
           distribution: 'adopt'
-      - run: cd java
-      - run: mvn clean install
-      - run: cd ../
+      - run: cd java && mvn clean install
       - run: tar -zcvf release-java.tgz release/java
       # 打包构建 go
       - name: Build
         uses: actions/setup-go@v2
         with:
           go-version: '^1.15'
-      - run: cd go
-      - run: go build
-      - run: cd ../
+      - run: cd go && go build
       - run: mkdir release/go
       - run: cp -rf go/config.toml release/go/
       - run: cp -rf go/config release/go/
