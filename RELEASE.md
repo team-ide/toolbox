@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.8 -m "ZK修改节点版本和删除节点检测子节点，删除拼接父级路径"
+git tag -a v1.1.8-test -m "测试发布"
 
 # 推送标签
-git push origin v1.1.8
+git push origin v1.1.8-test
 ```

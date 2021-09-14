@@ -20,7 +20,7 @@ jobs:
           java-version: '8'
           distribution: 'adopt'
       - run: cd java && mvn clean install
-      - run: zip -q -r release-java.zip release/java
+      - run: zip -q -r release-java.zip java/release
       # 打包构建 go
       - name: Build Go
         uses: actions/setup-go@v2
@@ -28,13 +28,13 @@ jobs:
           go-version: '^1.15'
       # 打包Linux
       - run: cd go && export GOARCH=amd64 && export GOOS=linux && go build
-      - run: mkdir release/go-linux-x64
+      - run: mkdir -p release/go-linux-x64
       - run: cp -rf go/config.toml release/go-linux-x64/ && cp -rf go/toolbox release/go-linux-x64/
       - run: zip -q -r release-go-linux-x64.zip release/go-linux-x64
 
       # 打包Linux
       - run: cd go && export GOARCH=amd64 && export GOOS=windows && go build
-      - run: mkdir release/go-windows-x64
+      - run: mkdir -p release/go-windows-x64
       - run: cp -rf go/config.toml release/go-windows-x64/ && cp -rf go/toolbox release/go-windows-x64/
       - run: zip -q -r release-go-windows-x64.zip release/go-windows-x64
 
