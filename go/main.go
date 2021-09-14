@@ -27,11 +27,4 @@ func init() {
 }
 func main() {
 	web.StartServer()
-	// server := ""
-	// zkService, err := zookeeper.CreateZKService(server)
-	// println("连接Zookeeper：", server)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// println(zkService)
 }

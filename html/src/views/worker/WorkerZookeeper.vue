@@ -14,57 +14,68 @@
           <a class="tm-btn tm-btn-sm color-green" @click="doConnect"> 连接 </a>
         </el-form-item>
       </el-form>
+      <el-divider class="mg-0"></el-divider>
     </div>
-    <div
-      class="worker-zookeeper-list worker-scrollbar"
-      ref="treeBox"
-      v-if="connect.open"
-    >
-      <el-tree
-        ref="tree"
-        :load="loadNode"
-        lazy
-        :props="defaultProps"
-        :default-expanded-keys="expands"
-        node-key="key"
-        @node-click="nodeClick"
-        @current-change="currentChange"
-        :expand-on-click-node="false"
+    <div class="worker-zookeeper-list-box" v-if="connect.open">
+      <div class="ft-16 pdb-15 color-orange">节点信息</div>
+      <el-divider class="mg-0"></el-divider>
+      <div
+        class="worker-zookeeper-list worker-scrollbar"
+        ref="treeBox"
+        v-if="connect.open"
       >
-        <span class="worker-box-tree-span" slot-scope="{ node, data }">
-          <template v-if="data.path == '/' && connect.form != null">
-            <span>{{ connect.form.url }}</span>
-          </template>
-          <template v-else>
-            <span>{{ node.label }}</span>
-          </template>
-          <span class="mgl-20">
-            <a
-              class="tm-link color-grey ft-14 mgr-2"
-              @click="toReloadChildren(data)"
-            >
-              <i class="mdi mdi-reload"></i>
-            </a>
-            <a class="tm-link color-blue ft-16 mgr-2" @click="toInsert(data)">
-              <i class="mdi mdi-plus"></i>
-            </a>
-            <a class="tm-link color-orange ft-15 mgr-2" @click="toDelete(data)">
-              <i class="mdi mdi-delete-outline"></i>
-            </a>
+        <el-tree
+          ref="tree"
+          :load="loadNode"
+          lazy
+          :props="defaultProps"
+          :default-expanded-keys="expands"
+          node-key="key"
+          @node-click="nodeClick"
+          @current-change="currentChange"
+          :expand-on-click-node="false"
+        >
+          <span class="worker-box-tree-span" slot-scope="{ node, data }">
+            <template v-if="data.path == '/' && connect.form != null">
+              <span>{{ connect.form.url }}</span>
+            </template>
+            <template v-else>
+              <span>{{ node.label }}</span>
+            </template>
+            <span class="mgl-20">
+              <a
+                class="tm-link color-grey ft-14 mgr-2"
+                @click="toReloadChildren(data)"
+              >
+                <i class="mdi mdi-reload"></i>
+              </a>
+              <a class="tm-link color-blue ft-16 mgr-2" @click="toInsert(data)">
+                <i class="mdi mdi-plus"></i>
+              </a>
+              <a
+                class="tm-link color-orange ft-15 mgr-2"
+                @click="toDelete(data)"
+              >
+                <i class="mdi mdi-delete-outline"></i>
+              </a>
+            </span>
           </span>
-        </span>
-      </el-tree>
+        </el-tree>
+      </div>
     </div>
-    <div class="worker-zookeeper-form worker-scrollbar" v-if="connect.open">
-      <template v-if="readonlyOne">
-        <h3>查看节点</h3>
-      </template>
-      <template v-else-if="insertOne">
-        <h3>新增节点</h3>
-      </template>
-      <template v-else-if="updateOne">
-        <h3>修改节点</h3>
-      </template>
+    <div class="worker-zookeeper-form" v-if="connect.open">
+      <div class="ft-16 pdb-15 color-orange">
+        <template v-if="readonlyOne">
+          <span>查看节点</span>
+        </template>
+        <template v-else-if="insertOne">
+          <span>新增节点</span>
+        </template>
+        <template v-else-if="updateOne">
+          <span>修改节点</span>
+        </template>
+      </div>
+      <el-divider class="mg-0"></el-divider>
       <el-form :model="oneForm" size="lg" @submit.native.prevent>
         <el-form-item label="路径">
           <el-input
@@ -311,7 +322,7 @@ export default {
       if (tool.isNotEmpty(value)) {
         let data = JSON.parse(value);
         Object.assign(this.configForm, data);
-        this.doConnect();
+        // this.doConnect();
       }
     },
     getCacheKey() {
@@ -382,10 +393,18 @@ export default {
   padding: 0px;
   position: relative;
 }
-.worker-zookeeper-wrap .worker-zookeeper-list {
-  height: calc(100% - 150px);
-  width: calc(100% - 500px);
+.worker-zookeeper-wrap .worker-zookeeper-list-box {
+  height: calc(100% - 100px);
+  width: calc(100% - 440px);
   min-width: 300px;
+  margin: 10px;
+  padding: 0px;
+  position: relative;
+  float: left;
+}
+.worker-zookeeper-wrap .worker-zookeeper-list {
+  height: calc(100% - 50px);
+  width: 100%;
   margin: 10px;
   padding: 0px;
   position: relative;
