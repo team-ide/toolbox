@@ -25,7 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>2.5.3</spring-boot.version>
         <persistence.version>1.0.2</persistence.version>
-        <release.root>../../release/java</release.root>
+        <release.root>../release</release.root>
     </properties>
     <dependencyManagement>
         <dependencies>
