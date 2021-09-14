@@ -7,7 +7,6 @@ import (
 type getRequest struct {
 	Address string `json:"address"`
 	Auth    string `json:"auth"`
-	Cluster bool   `json:"cluster"`
 	Key     string `json:"key"`
 }
 
@@ -23,7 +22,7 @@ func getWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 	var service Service
-	service, err = getService(request.Address, request.Auth, request.Cluster)
+	service, err = getService(request.Address, request.Auth)
 	if err != nil {
 		return
 	}
@@ -40,7 +39,6 @@ func getWork(req interface{}) (res interface{}, err error) {
 type keysRequest struct {
 	Address string `json:"address"`
 	Auth    string `json:"auth"`
-	Cluster bool   `json:"cluster"`
 	Pattern string `json:"pattern"`
 	Size    int    `json:"size"`
 }
@@ -58,7 +56,7 @@ func keysWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 	var service Service
-	service, err = getService(request.Address, request.Auth, request.Cluster)
+	service, err = getService(request.Address, request.Auth)
 	if err != nil {
 		return
 	}
@@ -77,7 +75,6 @@ func keysWork(req interface{}) (res interface{}, err error) {
 type saveRequest struct {
 	Address string `json:"address"`
 	Auth    string `json:"auth"`
-	Cluster bool   `json:"cluster"`
 	Key     string `json:"key"`
 	Value   string `json:"value"`
 }
@@ -93,7 +90,7 @@ func saveWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 	var service Service
-	service, err = getService(request.Address, request.Auth, request.Cluster)
+	service, err = getService(request.Address, request.Auth)
 	if err != nil {
 		return
 	}
@@ -108,7 +105,6 @@ func saveWork(req interface{}) (res interface{}, err error) {
 type deleteRequest struct {
 	Address string `json:"address"`
 	Auth    string `json:"auth"`
-	Cluster bool   `json:"cluster"`
 	Key     string `json:"key"`
 }
 
@@ -124,7 +120,7 @@ func deleteWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 	var service Service
-	service, err = getService(request.Address, request.Auth, request.Cluster)
+	service, err = getService(request.Address, request.Auth)
 	if err != nil {
 		return
 	}
@@ -141,7 +137,6 @@ func deleteWork(req interface{}) (res interface{}, err error) {
 type deletePatternRequest struct {
 	Address string `json:"address"`
 	Auth    string `json:"auth"`
-	Cluster bool   `json:"cluster"`
 	Pattern string `json:"pattern"`
 }
 
@@ -157,7 +152,7 @@ func deletePatternWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 	var service Service
-	service, err = getService(request.Address, request.Auth, request.Cluster)
+	service, err = getService(request.Address, request.Auth)
 	if err != nil {
 		return
 	}

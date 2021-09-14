@@ -3,6 +3,7 @@ package redis
 import (
 	"base"
 	"fmt"
+	"strings"
 	"worker"
 )
 
@@ -39,7 +40,6 @@ func (automatic *Automatic) CreateClusterAutomaticShutdown(automaticShutdown *wo
 	if err != nil {
 		return err
 	}
-
 	_, err = service.Get("test_key")
 	if err != nil {
 		service.redisCluster.Close()
@@ -56,11 +56,12 @@ func (automatic *Automatic) CreateClusterAutomaticShutdown(automaticShutdown *wo
 	return err
 }
 
-func getService(address string, auth string, cluster bool) (service Service, err error) {
+func getService(address string, auth string) (service Service, err error) {
 	automatic := &Automatic{
 		address: address,
 		auth:    auth,
 	}
+	cluster := strings.Contains(address, ";")
 	if cluster {
 		key := "redis-cluster-" + address + "-" + auth + "-" + fmt.Sprint(cluster)
 		var automaticShutdown *worker.AutomaticShutdown

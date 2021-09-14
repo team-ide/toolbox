@@ -34,7 +34,7 @@ public class RedisWorkGet implements ToolboxWork<RedisWorkGet.Request, RedisWork
     @Override
     public Response work(Request request) throws Exception {
         Response response = new Response();
-        RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.isCluster(), request.getAutomaticShutdown());
+        RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getKey())) {
             String value = redis.get(request.getKey());
             response.setValue(value);

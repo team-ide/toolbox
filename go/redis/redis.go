@@ -52,17 +52,24 @@ func (service *RedisService) Keys(pattern string, size int) (count int, keys []s
 
 	client := service.pool.Get()
 	defer client.Close()
-	var list []string
-	list, err = redigo.Strings(client.Do("KEYS", pattern))
-	count = len(list)
-	if count <= size {
-		keys = list
-	} else {
-		for index, one := range list {
-			if index < size {
-				keys = append(keys, one)
-			} else {
-				break
+	var reply interface{}
+	reply, err = client.Do("KEYS", pattern)
+	if err != nil {
+		return
+	}
+	if reply != nil {
+		var list []string
+		list, err = redigo.Strings(reply, err)
+		count = len(list)
+		if count <= size || size <= 0 {
+			keys = list
+		} else {
+			for index, one := range list {
+				if index < size {
+					keys = append(keys, one)
+				} else {
+					break
+				}
 			}
 		}
 	}
@@ -72,7 +79,14 @@ func (service *RedisService) Get(key string) (value string, err error) {
 
 	client := service.pool.Get()
 	defer client.Close()
-	value, err = redigo.String(client.Do("GET", key))
+	var reply interface{}
+	reply, err = client.Do("GET", key)
+	if err != nil {
+		return
+	}
+	if reply != nil {
+		value, err = redigo.String(reply, err)
+	}
 	return
 }
 
@@ -97,10 +111,11 @@ func (service *RedisService) Del(key string) (count int, err error) {
 
 func (service *RedisService) DelPattern(pattern string) (count int, err error) {
 	count = 0
+	var list []string
+	_, list, err = service.Keys(pattern, 0)
+
 	client := service.pool.Get()
 	defer client.Close()
-	var list []string
-	list, err = redigo.Strings(client.Do("KEYS", pattern))
 
 	for _, key := range list {
 		_, err = client.Do("DEL", key)

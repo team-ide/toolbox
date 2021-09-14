@@ -7,7 +7,7 @@
         size="mini"
         @submit.native.prevent
       >
-        <el-form-item label="连接地址">
+        <el-form-item label="连接地址（多个使用“,”隔开）">
           <el-input v-model="configForm.url" placeholder="连接地址"></el-input>
         </el-form-item>
         <el-form-item>
