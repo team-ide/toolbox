@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.8-test -m "测试发布"
+git tag -a v1.1.9 -m "Toolbox完成Zookeeper和Redis在线管理，发布go打包的linux和window包"
 
 # 推送标签
-git push origin v1.1.8-test
+git push origin v1.1.9
 ```
