@@ -39,6 +39,9 @@ func (service *RedisClusterService) Keys(pattern string, size int) (count int, k
 	cmd := service.redisCluster.Keys(context.TODO(), pattern)
 	var list []string
 	list, err = cmd.Result()
+	if err != nil {
+		return
+	}
 	count = len(list)
 	if count <= size {
 		keys = list
@@ -57,12 +60,16 @@ func (service *RedisClusterService) Get(key string) (value string, err error) {
 
 	cmd := service.redisCluster.Get(context.TODO(), key)
 	value, err = cmd.Result()
+	if err != nil {
+		if err == redis.Nil {
+			err = nil
+		}
+	}
 	return
 }
 
 func (service *RedisClusterService) Set(key string, value string) (err error) {
 	cmd := service.redisCluster.Set(context.TODO(), key, value, time.Duration(0))
-
 	_, err = cmd.Result()
 	return
 }
@@ -82,6 +89,9 @@ func (service *RedisClusterService) DelPattern(pattern string) (count int, err e
 	cmd := service.redisCluster.Keys(context.TODO(), pattern)
 	var list []string
 	list, err = cmd.Result()
+	if err != nil {
+		return
+	}
 	for _, key := range list {
 		var num int
 		num, err = service.Del(key)

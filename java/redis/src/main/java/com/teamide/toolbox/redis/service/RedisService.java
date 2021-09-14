@@ -22,18 +22,18 @@ public class RedisService {
 
     private final Map<String, RedisDo> cache = new HashMap<>();
 
-    public RedisDo redis(String address, String auth, boolean cluster) throws Exception {
+    public RedisDo redis(String address, String auth) throws Exception {
 
-        return redis(address, auth, cluster, null);
+        return redis(address, auth, null);
     }
 
-    public RedisDo redis(String address, String auth, boolean cluster, Long automaticShutdown) throws Exception {
+    public RedisDo redis(String address, String auth, Long automaticShutdown) throws Exception {
         if (automaticShutdown == null) {
             // 默认10分钟自动关闭
             automaticShutdown = 60 * 10L;
         }
 
-        String key = address + "-" + auth + "-" + cluster;
+        String key = address + "-" + auth;
         RedisDo redis = cache.get(key);
         if (redis == null || !redis.started()) {
             synchronized (cache) {
@@ -44,6 +44,7 @@ public class RedisService {
                     } else {
                         log.warn("redis [" + address + "] is closed,now recreate redis");
                     }
+                    boolean cluster = address.contains(";");
                     if (cluster) {
                         redis = new RedisCluster(address, auth, automaticShutdown);
                     } else {

@@ -23,11 +23,6 @@ public class RedisRequestBase extends ToolboxWorkRequest {
     private String auth;
 
     /**
-     * 是否集群
-     */
-    private boolean cluster;
-
-    /**
      * 自动关闭
      */
     private Long automaticShutdown;

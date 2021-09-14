@@ -34,7 +34,7 @@ public class RedisWorkDeletePattern implements ToolboxWork<RedisWorkDeletePatter
     @Override
     public Response work(Request request) throws Exception {
         Response response = new Response();
-        RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.isCluster(), request.getAutomaticShutdown());
+        RedisDo redis = redisService.redis(request.getAddress(), request.getAuth(), request.getAutomaticShutdown());
         if (StringUtils.isNoneEmpty(request.getPattern())) {
             int count = redis.deletePattern(request.getPattern());
             response.setCount(count);

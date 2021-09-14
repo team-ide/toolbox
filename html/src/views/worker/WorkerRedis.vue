@@ -7,13 +7,7 @@
         size="mini"
         @submit.native.prevent
       >
-        <el-form-item label="集群">
-          <el-switch
-            v-model="configForm.cluster"
-            placeholder="cluster"
-          ></el-switch>
-        </el-form-item>
-        <el-form-item label="address">
+        <el-form-item label="address（多个使用“;”隔开）">
           <el-input
             v-model="configForm.address"
             placeholder="address"
@@ -148,7 +142,6 @@ export default {
       source,
       configForm: {
         address: "127.0.0.1:6379",
-        cluster: false,
         auth: "",
       },
       connect: {
