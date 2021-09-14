@@ -42,7 +42,7 @@ func (service *KafkaService) GetTopics() (topics []string, err error) {
 	return
 }
 
-func (service *KafkaService) Poll(groupId string, topics []string) (msgs []*sarama.ConsumerMessage, err error) {
+func (service *KafkaService) Pull(groupId string, topics []string) (msgs []*sarama.ConsumerMessage, err error) {
 	group, err := sarama.NewConsumerGroupFromClient(groupId, service.saramaClient)
 	if err != nil {
 		return

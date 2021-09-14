@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.12 -m "Toolbox完成Zookeeper和Redis在线管理，发布go打包的linux和window包"
+git tag -a v1.1.13 -m "Toolbox完成Kafka在线管理，加载Topic列表，拉取Topic消息，推送Topic消息，页面排版调整"
 
 # 推送标签
-git push origin v1.1.12
+git push origin v1.1.13
 ```

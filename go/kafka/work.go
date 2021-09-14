@@ -45,7 +45,7 @@ type KafkaMessage struct {
 	Header    map[string]string `json:"header"`
 }
 
-type pollRequest struct {
+type pullRequest struct {
 	Address   string `json:"address"`
 	GroupId   string `json:"groupId"`
 	Topic     string `json:"topic"`
@@ -53,13 +53,13 @@ type pollRequest struct {
 	ValueType string `json:"valueType"`
 }
 
-type pollResponse struct {
+type pullResponse struct {
 	Msgs []KafkaMessage `json:"msgs"`
 }
 
-func pollWork(req interface{}) (res interface{}, err error) {
-	request := &pollRequest{}
-	response := &pollResponse{}
+func pullWork(req interface{}) (res interface{}, err error) {
+	request := &pullRequest{}
+	response := &pullResponse{}
 	err = base.ToBean(req.([]byte), request)
 	if err != nil {
 		return
@@ -69,7 +69,7 @@ func pollWork(req interface{}) (res interface{}, err error) {
 	if err != nil {
 		return
 	}
-	kafkaMsgs, err := service.Poll(request.GroupId, []string{request.Topic})
+	kafkaMsgs, err := service.Pull(request.GroupId, []string{request.Topic})
 	if err != nil {
 		return nil, err
 	}

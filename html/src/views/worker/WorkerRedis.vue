@@ -20,6 +20,9 @@
           <a class="tm-btn tm-btn-sm color-green" @click="doConnect"> 连接 </a>
         </el-form-item>
       </el-form>
+      <el-divider class="mg-0"></el-divider>
+    </div>
+    <div class="worker-redis-list-box" v-if="connect.open">
       <el-form
         :inline="true"
         :model="searchForm"
@@ -37,7 +40,7 @@
         </el-form-item>
         <el-form-item>
           <a
-            class="tm-btn tm-btn-sm color-green"
+            class="tm-btn tm-btn-sm color-green mgl-5"
             :class="{ 'tm-disabled': loading }"
             @click="doSearch"
           >
@@ -51,8 +54,8 @@
           </a>
         </el-form-item>
       </el-form>
-    </div>
-    <div class="worker-redis-list-box" v-if="connect.open">
+      <div class="ft-16 pdb-15 color-orange">Keys列表</div>
+      <el-divider class="mg-0 mgb-10"></el-divider>
       <div class="worker-redis-list worker-scrollbar" ref="treeBox">
         <el-tree
           ref="tree"
@@ -83,16 +86,19 @@
         条记录
       </div>
     </div>
-    <div class="worker-redis-form worker-scrollbar" v-if="connect.open">
-      <template v-if="readonlyOne">
-        <h3>查看</h3>
-      </template>
-      <template v-else-if="insertOne">
-        <h3>新增</h3>
-      </template>
-      <template v-else-if="updateOne">
-        <h3>修改</h3>
-      </template>
+    <div class="worker-redis-form" v-if="connect.open">
+      <div class="ft-16 pdb-15 color-orange">
+        <template v-if="readonlyOne">
+          <span>查看</span>
+        </template>
+        <template v-else-if="insertOne">
+          <span>新增</span>
+        </template>
+        <template v-else-if="updateOne">
+          <span>修改</span>
+        </template>
+      </div>
+      <el-divider class="mg-0"></el-divider>
       <el-form :model="oneForm" size="lg" @submit.native.prevent>
         <el-form-item label="key">
           <el-input
@@ -405,7 +411,7 @@ export default {
   position: relative;
 }
 .worker-redis-wrap .worker-redis-list-box {
-  height: calc(100% - 150px);
+  height: calc(100% - 100px);
   width: calc(100% - 500px);
   margin: 10px;
   padding: 0px;
@@ -414,7 +420,7 @@ export default {
   overflow: hidden;
 }
 .worker-redis-wrap .worker-redis-list {
-  height: calc(100% - 50px);
+  height: calc(100% - 200px);
   min-width: 300px;
   margin: 0px;
   padding: 0px;

@@ -13,90 +13,148 @@
             placeholder="address"
           ></el-input>
         </el-form-item>
-        <el-form-item label="groupId（用于消费）">
+        <el-form-item>
+          <a class="tm-btn tm-btn-sm color-green" @click="doConnect"> 连接 </a>
+        </el-form-item>
+      </el-form>
+      <el-divider class="mg-0"></el-divider>
+    </div>
+    <div class="worker-kafka-topic-list-box" v-if="connect.open">
+      <div class="ft-16 pdb-15 color-orange">Topics列表</div>
+      <el-divider class="mgb-5 mg-0"></el-divider>
+      <div
+        class="worker-kafka-topic-list worker-scrollbar"
+        v-if="connect.open"
+        ref="treeBox"
+      >
+        <el-tree
+          ref="topic_tree"
+          :props="defaultProps"
+          :data="topics"
+          node-key="key"
+          @node-click="topicNodeClick"
+          @current-change="topicCurrentChange"
+          :expand-on-click-node="false"
+        >
+          <span class="worker-box-tree-span" slot-scope="{ data }">
+            <span>{{ data.topic }}</span>
+            <span class="mgl-20"> </span>
+          </span>
+        </el-tree>
+      </div>
+    </div>
+    <div class="worker-kafka-data-list-box" v-if="connect.open">
+      <el-form
+        :inline="true"
+        :model="searchForm"
+        size="mini"
+        @submit.native.prevent
+      >
+        <el-form-item label="topic">
           <el-input
-            v-model="configForm.groupId"
+            v-model="searchForm.topic"
+            placeholder="topic"
+            style="width: 120px"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="groupId">
+          <el-input
+            v-model="searchForm.groupId"
             placeholder="groupId"
+            style="width: 120px"
           ></el-input>
         </el-form-item>
         <el-form-item label="key类型">
-          <el-select v-model="configForm.keyType" placeholder="keyType">
+          <el-select
+            v-model="searchForm.keyType"
+            placeholder="keyType"
+            style="width: 80px"
+          >
             <el-option label="String" value="String"> </el-option>
             <el-option label="Long" value="Long"> </el-option>
             <el-option label="Integer" value="Integer"> </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="value类型">
-          <el-select v-model="configForm.valueType" placeholder="valueType">
+          <el-select
+            v-model="searchForm.valueType"
+            placeholder="valueType"
+            style="width: 80px"
+          >
             <el-option label="String" value="String"> </el-option>
             <el-option label="Long" value="Long"> </el-option>
             <el-option label="Integer" value="Integer"> </el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
-          <a class="tm-btn tm-btn-sm color-green" @click="doConnect"> 连接 </a>
+          <a class="tm-btn tm-btn-sm color-green mgl-5" @click="loadDatas">
+            拉取
+          </a>
+          <a class="tm-btn tm-btn-sm color-blue mgl-5" @click="toInsert">
+            新增
+          </a>
         </el-form-item>
       </el-form>
-    </div>
-    <div
-      class="worker-kafka-topic-list worker-scrollbar"
-      v-if="connect.open"
-      ref="treeBox"
-    >
-      <el-tree
-        ref="topic_tree"
-        :props="defaultProps"
-        :data="topics"
-        node-key="key"
-        @node-click="topicNodeClick"
-        @current-change="topicCurrentChange"
-        :expand-on-click-node="false"
-      >
-        <span class="worker-box-tree-span" slot-scope="{ node, data }">
-          <span>{{ node.label }}</span>
-          <span class="mgl-20">
-            <a class="tm-link color-orange ft-15 mgr-2" @click="toDelete(data)">
-              <i class="mdi mdi-delete-outline"></i>
-            </a>
+      <div class="ft-16 pdb-15 color-orange">Msgs列表</div>
+      <el-divider class="mgb-5 mg-0"></el-divider>
+      <div class="worker-kafka-data-list worker-scrollbar" ref="treeBox">
+        <el-tree
+          ref="data_tree"
+          :props="defaultProps"
+          :data="datas"
+          node-key="key"
+          @node-click="dataNodeClick"
+          @current-change="dataCurrentChange"
+          :expand-on-click-node="false"
+        >
+          <span class="worker-box-tree-span" slot-scope="{ data }">
+            <span>
+              <template v-if="tool.isNotEmpty(data.key)">
+                {{ data.key }}
+                :
+              </template>
+              {{ data.value }}
+            </span>
+            <span class="mgl-20">
+              <a
+                class="tm-link color-orange ft-15 mgr-2"
+                @click="toSubmit(data)"
+                title="提交"
+              >
+                <i class="mdi mdi-send-check"></i>
+              </a>
+            </span>
           </span>
-        </span>
-      </el-tree>
+        </el-tree>
+      </div>
     </div>
-    <div
-      class="worker-kafka-data-list worker-scrollbar"
-      v-if="connect.open"
-      ref="treeBox"
-    >
-      <el-tree
-        ref="data_tree"
-        :props="defaultProps"
-        :data="datas"
-        node-key="key"
-        @node-click="dataNodeClick"
-        @current-change="dataCurrentChange"
-        :expand-on-click-node="false"
-      >
-        <span class="worker-box-tree-span" slot-scope="{ node, data }">
-          <span>{{ node.label }}</span>
-          <span class="mgl-20">
-            <a class="tm-link color-orange ft-15 mgr-2" @click="toDelete(data)">
-              <i class="mdi mdi-delete-outline"></i>
-            </a>
-          </span>
-        </span>
-      </el-tree>
-    </div>
-    <div class="worker-kafka-form worker-scrollbar" v-if="connect.open">
-      <template v-if="readonlyOne">
-        <h3>查看</h3>
-      </template>
-      <template v-else-if="insertOne">
-        <h3>新增</h3>
-      </template>
-      <template v-else-if="updateOne">
-        <h3>修改</h3>
-      </template>
+    <div class="worker-kafka-form" v-if="connect.open">
+      <div class="ft-16 pdb-15 color-orange">
+        <template v-if="readonlyOne">
+          <span>查看</span>
+        </template>
+        <template v-else-if="insertOne">
+          <span>新增</span>
+        </template>
+        <template v-else-if="updateOne">
+          <span>修改</span>
+        </template>
+      </div>
       <el-form :model="oneForm" size="lg" @submit.native.prevent>
+        <el-form-item label="topic">
+          <el-input
+            v-model="oneForm.topic"
+            placeholder="topic"
+            :readonly="readonlyOne || updateOne"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="partition（分区）">
+          <el-input
+            v-model="oneForm.partition"
+            placeholder="partition"
+            :readonly="readonlyOne || updateOne"
+          ></el-input>
+        </el-form-item>
         <el-form-item label="key">
           <el-input
             v-model="oneForm.key"
@@ -110,7 +168,7 @@
             v-model="oneForm.value"
             placeholder="value"
             :autosize="{ minRows: 3, maxRows: 3 }"
-            :readonly="readonlyOne"
+            :readonly="readonlyOne || updateOne"
           ></el-input>
         </el-form-item>
         <el-form-item label="格式化JSON（只做查看，不保存）">
@@ -145,20 +203,23 @@ export default {
       source,
       configForm: {
         address: "127.0.0.1:9092",
-        groupId: "test-group",
-        keyType: "String",
-        valueType: "String",
       },
       connect: {
         open: false,
         form: null,
       },
       loading: false,
-      searchForm: { pattern: "*", size: 20 },
+      searchForm: {
+        topic: "test-topic",
+        groupId: "test-group",
+        keyType: "String",
+        valueType: "String",
+      },
       readonlyOne: true,
       insertOne: true,
       updateOne: true,
       oneForm: {
+        topic: null,
         key: null,
         value: null,
         json: null,
@@ -201,16 +262,8 @@ export default {
       Object.assign(data, this.connect.form);
       return server.kafka.topics(data);
     },
-    poll() {
-      let data = {};
-      Object.assign(data, this.connect.form);
-      Object.assign(data, this.searchForm);
-      if (tool.isEmpty(this.select_topic == null)) {
-        tool.error("请先选择topic！");
-        return;
-      }
-      data.topic = this.select_topic.topic;
-      return server.kafka.poll(data);
+    pull(data) {
+      return server.kafka.pull(data);
     },
     push() {
       let data = {};
@@ -225,7 +278,7 @@ export default {
           tool.error(res.msg);
         } else {
           tool.success("推送成功");
-          this.reload();
+          this.loadDatas();
         }
       });
     },
@@ -271,7 +324,7 @@ export default {
               tool.error(res.msg);
             } else {
               tool.success("提交成功");
-              this.reloadData();
+              this.loadDatas();
             }
           });
         })
@@ -310,9 +363,20 @@ export default {
         });
     },
     loadDatas() {
+      let data = {};
+      Object.assign(data, this.connect.form);
+      Object.assign(data, this.searchForm);
+      if (tool.isEmpty(data.topic)) {
+        tool.error("topic不能为空！");
+        return;
+      }
+      if (tool.isEmpty(data.groupId)) {
+        tool.error("groupId不能为空！");
+        return;
+      }
       this.datas = null;
       this.datas_loading = true;
-      this.poll()
+      this.pull(data)
         .then((res) => {
           this.datas_loading = false;
           if (res.code != 0) {
@@ -323,7 +387,7 @@ export default {
             let datas = [];
 
             msgs.forEach((msg) => {
-              datas.push({ key: msg.key, name: msg.value, value: msg.value });
+              datas.push(msg);
             });
             this.datas = datas;
           }
@@ -363,49 +427,33 @@ export default {
       if (window.event) {
         window.event.stopPropagation && window.event.stopPropagation();
       }
+      this.oneForm.topic = this.searchForm.topic;
       this.oneForm.key = "";
       this.oneForm.value = "";
+      this.oneForm.partition = 0;
+      this.oneForm.offset = 0;
       this.updateOne = false;
       this.insertOne = true;
       this.readonlyOne = false;
     },
     topicCurrentChange(data) {
-      this.select_topic = data;
-      this.loadDatas();
+      for (var key in data) {
+        this.searchForm[key] = data[key];
+      }
     },
     dataCurrentChange(data) {
       this.toUpdate(data);
     },
     toUpdate(data) {
       this.oneForm.key = data.key;
-      this.insertOne = false;
-      this.updateOne = false;
-      this.readonlyOne = true;
+      this.oneForm.value = data.value;
+      this.oneForm.topic = data.topic;
+      this.oneForm.partition = data.partition;
+      this.oneForm.offset = data.offset;
 
-      this.get(this.oneForm.key).then((res) => {
-        if (res.code != 0) {
-          tool.error(res.msg);
-        } else {
-          let value = res.value || {};
-          this.oneForm.value = value.value;
-          this.readonlyOne = false;
-          this.updateOne = true;
-        }
-      });
-    },
-    toInfo(data) {
-      this.oneForm.key = data.key;
       this.insertOne = false;
-      this.readonlyOne = true;
-
-      this.get(this.oneForm.key).then((res) => {
-        if (res.code != 0) {
-          tool.error(res.msg);
-        } else {
-          let value = res.value || {};
-          this.oneForm.value = value.value;
-        }
-      });
+      this.readonlyOne = false;
+      this.updateOne = true;
     },
     init() {
       this.initConnect();
@@ -425,27 +473,42 @@ export default {
   padding: 0px;
   position: relative;
 }
-.worker-kafka-wrap .worker-kafka-topic-list {
-  height: calc(100% - 150px);
+.worker-kafka-wrap .worker-kafka-topic-list-box {
+  height: calc(100% - 100px);
   width: 300px;
-  margin: 0px;
+  margin: 10px;
   padding: 0px;
   position: relative;
   float: left;
+  overflow: hidden !important;
+}
+.worker-kafka-wrap .worker-kafka-topic-list {
+  height: calc(100% - 50px);
+  margin: 0px;
+  padding: 0px;
+  position: relative;
   overflow-x: hidden !important;
+}
+.worker-kafka-wrap .worker-kafka-data-list-box {
+  height: calc(100% - 100px);
+  width: calc(100% - 760px);
+  min-width: 400px;
+  margin: 10px;
+  padding: 0px;
+  position: relative;
+  float: left;
+  overflow: hidden;
 }
 .worker-kafka-wrap .worker-kafka-data-list {
   height: calc(100% - 150px);
-  width: 400px;
   margin: 0px;
   padding: 0px;
   position: relative;
-  float: left;
   overflow-x: hidden !important;
 }
 .worker-kafka-wrap .worker-kafka-form {
   height: calc(100% - 100px);
-  width: calc(100% - 760px);
+  width: 400px;
   margin: 0px;
   padding: 0px;
   position: relative;
