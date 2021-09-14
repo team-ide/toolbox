@@ -15,6 +15,11 @@ func (automatic *Automatic) CreateAutomaticShutdown(automaticShutdown *worker.Au
 	if err != nil {
 		return err
 	}
+	_, err = service.Exists("/")
+	if err != nil {
+		service.conn.Close()
+		return err
+	}
 	// 默认10分钟自动关闭
 	automaticShutdown.AutomaticShutdown = 10 * 60
 	automaticShutdown.Service = service

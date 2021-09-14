@@ -40,6 +40,9 @@ func GetAutomaticShutdown(key string, create func(*AutomaticShutdown) error) (re
 		res = &AutomaticShutdown{}
 		err = create(res)
 		if err != nil {
+			if res.Stop != nil {
+				res.Stop()
+			}
 			return
 		}
 		AutomaticShutdownCache[key] = res
