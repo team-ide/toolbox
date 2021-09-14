@@ -90,7 +90,7 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ^1.15
-
+          
       - name: Build Go Toolbox
         run: |
           cd go && go build -o release/toolbox
@@ -117,8 +117,8 @@ jobs:
       - name: Upload ZIP file to Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: toolbox-${{ steps.get_filename.outputs.ASSET_NAME }}.zip
-          path: toolbox-${{ steps.get_filename.outputs.ASSET_NAME }}.zip
+          name: toolbox-go-${{ steps.get_filename.outputs.ASSET_NAME }}.zip
+          path: toolbox-go-${{ steps.get_filename.outputs.ASSET_NAME }}.zip
 
       - name: Upload files to GitHub release
         uses: svenstaro/upload-release-action@v2
