@@ -58,7 +58,7 @@ func (service *ZKService) SetData(path string, data []byte) (err error) {
 	if !isExist {
 		return errors.New("node:" + path + " not exists")
 	}
-	if _, err = service.conn.Set(path, data, state.Aversion+1); err != nil {
+	if _, err = service.conn.Set(path, data, state.Version); err != nil {
 		if err != zk.ErrNodeExists {
 			return err
 		}
@@ -123,12 +123,12 @@ func (service *ZKService) Delete(path string) (err error) {
 	}
 	if len(children) > 0 {
 		for _, one := range children {
-			err = service.Delete(one)
+			err = service.Delete(path + "/" + one)
 			if err != nil {
 				return
 			}
 		}
 	}
-	err = service.conn.Delete(path, stat.Aversion)
+	err = service.conn.Delete(path, stat.Version)
 	return
 }

@@ -76,6 +76,9 @@ func StartServer() {
 	port := config.Config.Server.Port
 
 	httpServer := fmt.Sprint(host, ":", port)
+	if context != "/" {
+		context += "/"
+	}
 	println("url:http://" + httpServer + context)
 	err := http.ListenAndServe(httpServer, r)
 	if err != nil {
