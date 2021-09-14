@@ -19,6 +19,20 @@
             placeholder="groupId"
           ></el-input>
         </el-form-item>
+        <el-form-item label="key类型">
+          <el-select v-model="configForm.keyType" placeholder="keyType">
+            <el-option label="String" value="String"> </el-option>
+            <el-option label="Long" value="Long"> </el-option>
+            <el-option label="Integer" value="Integer"> </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="value类型">
+          <el-select v-model="configForm.valueType" placeholder="valueType">
+            <el-option label="String" value="String"> </el-option>
+            <el-option label="Long" value="Long"> </el-option>
+            <el-option label="Integer" value="Integer"> </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <a class="tm-btn tm-btn-sm color-green" @click="doConnect"> 连接 </a>
         </el-form-item>
@@ -132,6 +146,8 @@ export default {
       configForm: {
         address: "127.0.0.1:9092",
         groupId: "test-group",
+        keyType: "String",
+        valueType: "String",
       },
       connect: {
         open: false,
@@ -189,6 +205,11 @@ export default {
       let data = {};
       Object.assign(data, this.connect.form);
       Object.assign(data, this.searchForm);
+      if (tool.isEmpty(this.select_topic == null)) {
+        tool.error("请先选择topic！");
+        return;
+      }
+      data.topic = this.select_topic.topic;
       return server.kafka.poll(data);
     },
     push() {
@@ -265,10 +286,8 @@ export default {
       this.loadKafka();
     },
     loadKafka() {
-      let data = {};
-      Object.assign(data, this.searchForm);
-      this.data = null;
-      this.count = 0;
+      this.topics = null;
+      this.datas = null;
       this.loading = true;
       this.loadTopics()
         .then((res) => {
@@ -281,13 +300,36 @@ export default {
             let datas = [];
 
             topics.forEach((name) => {
-              datas.push({ key: name, name: name });
+              datas.push({ key: name, name: name, topic: name });
             });
             this.topics = datas;
           }
         })
         .catch(() => {
           this.loading = false;
+        });
+    },
+    loadDatas() {
+      this.datas = null;
+      this.datas_loading = true;
+      this.poll()
+        .then((res) => {
+          this.datas_loading = false;
+          if (res.code != 0) {
+            tool.error(res.msg);
+          } else {
+            let value = res.value || {};
+            let msgs = value.msgs || [];
+            let datas = [];
+
+            msgs.forEach((msg) => {
+              datas.push({ key: msg.key, name: msg.value, value: msg.value });
+            });
+            this.datas = datas;
+          }
+        })
+        .catch(() => {
+          this.datas_loading = false;
         });
     },
     doConnect() {
@@ -328,7 +370,8 @@ export default {
       this.readonlyOne = false;
     },
     topicCurrentChange(data) {
-      this.toUpdate(data);
+      this.select_topic = data;
+      this.loadDatas();
     },
     dataCurrentChange(data) {
       this.toUpdate(data);

@@ -10,7 +10,7 @@ func Init() {
 		WorkMap: map[string]func(interface{}) (interface{}, error){},
 	}
 	worker_.WorkMap["topics"] = topicsWork
-	worker_.WorkMap["pull"] = pullWork
+	worker_.WorkMap["poll"] = pollWork
 	worker_.WorkMap["push"] = pushWork
 
 	worker.AddWorker(worker_)

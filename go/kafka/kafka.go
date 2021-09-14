@@ -42,7 +42,7 @@ func (service *KafkaService) GetTopics() (topics []string, err error) {
 	return
 }
 
-func (service *KafkaService) Pull(groupId string, topics []string) (msgs []*sarama.ConsumerMessage, err error) {
+func (service *KafkaService) Poll(groupId string, topics []string) (msgs []*sarama.ConsumerMessage, err error) {
 	group, err := sarama.NewConsumerGroupFromClient(groupId, service.saramaClient)
 	if err != nil {
 		return
@@ -54,7 +54,7 @@ func (service *KafkaService) Pull(groupId string, topics []string) (msgs []*sara
 	}(handler)
 	startTime := base.GetNowTime()
 	for {
-		time.Sleep(1 * time.Second)
+		time.Sleep(200 * time.Millisecond)
 		if len(handler.msgs) > 0 {
 			break
 		}
@@ -63,10 +63,12 @@ func (service *KafkaService) Pull(groupId string, topics []string) (msgs []*sara
 			break
 		}
 	}
-	err = group.Close()
-	if err != nil {
-		return
-	}
+	go func(group sarama.ConsumerGroup) {
+		err = group.Close()
+		if err != nil {
+			return
+		}
+	}(group)
 	msgs = handler.msgs
 	return
 }
