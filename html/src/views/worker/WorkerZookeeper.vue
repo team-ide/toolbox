@@ -311,7 +311,7 @@ export default {
       if (tool.isNotEmpty(value)) {
         let data = JSON.parse(value);
         Object.assign(this.configForm, data);
-        this.doConnect();
+        // this.doConnect();
       }
     },
     getCacheKey() {

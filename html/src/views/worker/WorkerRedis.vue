@@ -336,7 +336,7 @@ export default {
         for (var key in this.configForm) {
           this.configForm[key] = data[key];
         }
-        this.doConnect();
+        //this.doConnect();
       }
     },
     getCacheKey() {

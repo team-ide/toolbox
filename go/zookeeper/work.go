@@ -20,19 +20,19 @@ func getWork(req interface{}) (res interface{}, err error) {
 	if err != nil {
 		return
 	}
-	var zkService *ZKService
-	zkService, err = getService(request.Url)
+	var service *ZKService
+	service, err = getService(request.Url)
 	if err != nil {
 		return
 	}
 	var isEx bool
-	isEx, err = zkService.Exists(request.Path)
+	isEx, err = service.Exists(request.Path)
 	if err != nil {
 		return
 	}
 	if isEx {
 		var data []byte
-		data, err = zkService.Get(request.Path)
+		data, err = service.Get(request.Path)
 		if err != nil {
 			return
 		}
@@ -58,19 +58,19 @@ func getChildrenWork(req interface{}) (res interface{}, err error) {
 	if err != nil {
 		return
 	}
-	var zkService *ZKService
-	zkService, err = getService(request.Url)
+	var service *ZKService
+	service, err = getService(request.Url)
 	if err != nil {
 		return
 	}
 	var isEx bool
-	isEx, err = zkService.Exists(request.Path)
+	isEx, err = service.Exists(request.Path)
 	if err != nil {
 		return
 	}
 	if isEx {
 		var children []string
-		children, err = zkService.GetChildren(request.Path)
+		children, err = service.GetChildren(request.Path)
 		if err != nil {
 			return
 		}
@@ -96,20 +96,20 @@ func saveWork(req interface{}) (res interface{}, err error) {
 	if err != nil {
 		return
 	}
-	var zkService *ZKService
-	zkService, err = getService(request.Url)
+	var service *ZKService
+	service, err = getService(request.Url)
 	if err != nil {
 		return
 	}
 	var isEx bool
-	isEx, err = zkService.Exists(request.Path)
+	isEx, err = service.Exists(request.Path)
 	if err != nil {
 		return
 	}
 	if isEx {
-		err = zkService.SetData(request.Path, []byte(request.Data))
+		err = service.SetData(request.Path, []byte(request.Data))
 	} else {
-		err = zkService.CreateIfNotExists(request.Path, []byte(request.Data))
+		err = service.CreateIfNotExists(request.Path, []byte(request.Data))
 	}
 	res = response
 	return
@@ -130,18 +130,18 @@ func deleteWork(req interface{}) (res interface{}, err error) {
 	if err != nil {
 		return
 	}
-	var zkService *ZKService
-	zkService, err = getService(request.Url)
+	var service *ZKService
+	service, err = getService(request.Url)
 	if err != nil {
 		return
 	}
 	var isEx bool
-	isEx, err = zkService.Exists(request.Path)
+	isEx, err = service.Exists(request.Path)
 	if err != nil {
 		return
 	}
 	if isEx {
-		err = zkService.Delete(request.Path)
+		err = service.Delete(request.Path)
 		if err != nil {
 			return
 		}
