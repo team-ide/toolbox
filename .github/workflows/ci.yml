@@ -32,7 +32,7 @@ jobs:
       - run: zip -q -r release-go-linux-x64.zip release/go-linux-x64
 
       # 打包Linux
-      - run: cd go && export GOARCH=amd64 && export GOOS=windows && go build -o ../release/go-linux-x64/toolbox.exe
+      - run: cd go && export GOARCH=amd64 && export GOOS=windows && go build -o ../release/go-windows-x64/toolbox.exe
       - run: cp -rf go/config.toml release/go-windows-x64/
       - run: zip -q -r release-go-windows-x64.zip release/go-windows-x64
 
