@@ -249,17 +249,56 @@ public class RedisJedis implements RedisDo {
      * @throws Exception 异常
      */
     @Override
-    public void delete(String key) throws Exception {
+    public int delete(String key) throws Exception {
         Exception err = null;
         Jedis jedis = null;
         userStart();
+        int count = 0;
         try {
             log.debug("redis [" + name + "] delete key [" + key + "] start ");
             jedis = pool.getResource();
             jedis.del(key);
+
             log.debug("redis [" + name + "] delete key [" + key + "] end ");
+            count++;
+            return count;
         } catch (Exception e) {
             log.error("redis [" + name + "] delete key [" + key + "] error {} ", e);
+            err = e;
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+            userEnd(err);
+        }
+    }
+
+
+    /**
+     * 匹配pattern删除所有key
+     *
+     * @param pattern pattern
+     * @throws Exception err
+     */
+    @Override
+    public int deletePattern(String pattern) throws Exception {
+        Exception err = null;
+        Jedis jedis = null;
+        userStart();
+        int count = 0;
+        try {
+            log.debug("redis [" + name + "] deletePattern pattern [" + pattern + "] start ");
+            jedis = pool.getResource();
+            Set<String> ks = jedis.keys(pattern);
+            for (String key : ks) {
+                jedis.del(key);
+                count++;
+            }
+            log.debug("redis [" + name + "] deletePattern pattern [" + pattern + "] end ");
+            return count;
+        } catch (Exception e) {
+            log.error("redis [" + name + "] deletePattern pattern [" + pattern + "] error {} ", e);
             err = e;
             throw e;
         } finally {

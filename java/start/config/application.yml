@@ -1,6 +1,8 @@
-teamide-toolbox-port: 18000
-teamide-toolbox-context: /toolbox
-teamide-toolbox-data: ./data
+server:
+  host: 0.0.0.0
+  port: 18000
+  context: /toolbox
+  data: ./data
 
 #日志配置
 logging:
