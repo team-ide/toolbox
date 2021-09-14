@@ -264,6 +264,8 @@ export default {
       this.loadChildren(path).then((res) => {
         if (res.code != 0) {
           tool.error(res.msg);
+          resolve([]);
+          tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
         } else {
           let value = res.value || {};
           let list = value.children || [];
