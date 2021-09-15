@@ -17,14 +17,14 @@ func (automatic *Automatic) CreateAutomaticShutdown(automaticShutdown *worker.Au
 	}
 	_, err = service.GetTopics()
 	if err != nil {
-		service.saramaClient.Close()
+		// service.saramaClient.Close()
 		return err
 	}
 	// 默认10分钟自动关闭
 	automaticShutdown.AutomaticShutdown = 10 * 60
 	automaticShutdown.Service = service
 	automaticShutdown.Stop = func() {
-		service.saramaClient.Close()
+		// service.saramaClient.Close()
 	}
 	automatic.automaticShutdown = automaticShutdown
 

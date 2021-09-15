@@ -3,6 +3,7 @@ package kafka
 import (
 	"base"
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -13,45 +14,56 @@ func CreateKafkaService(address string) (service *KafkaService, err error) {
 	service = &KafkaService{
 		address: address,
 	}
-	err = service.init()
 	return
 }
 
 type KafkaService struct {
-	address      string
-	saramaClient sarama.Client
+	address string
 }
 
-func (service *KafkaService) init() (err error) {
+func (service *KafkaService) getClient() (saramaClient sarama.Client, err error) {
 	SaramaConfig := sarama.NewConfig()
 	SaramaConfig.Consumer.Return.Errors = true
 	SaramaConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
-	SaramaConfig.Consumer.MaxWaitTime = time.Second * 5
+	SaramaConfig.Consumer.MaxWaitTime = time.Second * 1
 	addrs := strings.Split(service.address, ",")
-	var saramaClient sarama.Client
 	saramaClient, err = sarama.NewClient(addrs, SaramaConfig)
 	if err != nil {
 		return
 	}
-	service.saramaClient = saramaClient
 	return
 }
 
 func (service *KafkaService) GetTopics() (topics []string, err error) {
-	topics, err = service.saramaClient.Topics()
+	var saramaClient sarama.Client
+	saramaClient, err = service.getClient()
+	if err != nil {
+		return
+	}
+	defer saramaClient.Close()
+	topics, err = saramaClient.Topics()
 	return
 }
 
 func (service *KafkaService) Pull(groupId string, topics []string) (msgs []*sarama.ConsumerMessage, err error) {
-	group, err := sarama.NewConsumerGroupFromClient(groupId, service.saramaClient)
+	var saramaClient sarama.Client
+	saramaClient, err = service.getClient()
+	if err != nil {
+		return
+	}
+	defer saramaClient.Close()
+	group, err := sarama.NewConsumerGroupFromClient(groupId, saramaClient)
 	if err != nil {
 		return
 	}
 	handler := &consumerGroupHandler{}
-	go func(handler *consumerGroupHandler) {
-		ctx := context.TODO()
+	go func() {
+		ctx := context.Background()
 		err = group.Consume(ctx, topics, handler)
-	}(handler)
+		if err != nil {
+			fmt.Println("group.Consume error:", err)
+		}
+	}()
 	startTime := base.GetNowTime()
 	for {
 		time.Sleep(200 * time.Millisecond)
@@ -63,12 +75,13 @@ func (service *KafkaService) Pull(groupId string, topics []string) (msgs []*sara
 			break
 		}
 	}
-	go func(group sarama.ConsumerGroup) {
-		err = group.Close()
-		if err != nil {
-			return
-		}
-	}(group)
+	// go func() {
+	err = group.Close()
+	if err != nil {
+		fmt.Println("group.Close error:", err)
+		return
+	}
+	// }()
 	msgs = handler.msgs
 	return
 }
@@ -80,14 +93,53 @@ type consumerGroupHandler struct {
 func (consumerGroupHandler) Setup(_ sarama.ConsumerGroupSession) error   { return nil }
 func (consumerGroupHandler) Cleanup(_ sarama.ConsumerGroupSession) error { return nil }
 func (handler *consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	for msg := range claim.Messages() {
+	chanMessages := claim.Messages()
+	for msg := range chanMessages {
 		handler.msgs = append(handler.msgs, msg)
 	}
 	return nil
 }
 
+func (service *KafkaService) Commit(groupId string, topic string, partition int32, offset int64) (err error) {
+	var saramaClient sarama.Client
+	saramaClient, err = service.getClient()
+	if err != nil {
+		return
+	}
+	defer saramaClient.Close()
+	offsetManager, err := sarama.NewOffsetManagerFromClient(groupId, saramaClient)
+	if err != nil {
+		return
+	}
+	partitionOffsetManager, err := offsetManager.ManagePartition(topic, partition)
+	if err != nil {
+		return
+	}
+	partitionOffsetManager.MarkOffset(offset, "")
+	err = offsetManager.Close()
+	return
+}
+
+func (service *KafkaService) AddPartition(groupId string, topic string, partition int32, offset int64) (err error) {
+	var saramaClient sarama.Client
+	saramaClient, err = service.getClient()
+	if err != nil {
+		return
+	}
+	defer saramaClient.Close()
+	admin, err := sarama.NewClusterAdminFromClient(saramaClient)
+	if err != nil {
+		return
+	}
+
+	defer admin.Close()
+
+	return
+}
+
 //创建生产者
 func (service *KafkaService) NewSyncProducer() (sarama.SyncProducer, error) {
+
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
 	config.Producer.Timeout = 3

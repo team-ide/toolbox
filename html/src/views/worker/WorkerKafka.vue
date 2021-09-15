@@ -87,7 +87,11 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <a class="tm-btn tm-btn-sm color-green mgl-5" @click="loadDatas">
+          <a
+            class="tm-btn tm-btn-sm color-green mgl-5"
+            @click="loadDatas"
+            :class="{ 'tm-disabled': datas_loading }"
+          >
             拉取
           </a>
           <a class="tm-btn tm-btn-sm color-blue mgl-5" @click="toInsert">
@@ -97,35 +101,34 @@
       </el-form>
       <div class="ft-16 pdb-15 color-orange">Msgs列表</div>
       <el-divider class="mgb-5 mg-0"></el-divider>
-      <div class="worker-kafka-data-list worker-scrollbar" ref="treeBox">
-        <el-tree
-          ref="data_tree"
-          :props="defaultProps"
-          :data="datas"
-          node-key="key"
-          @node-click="dataNodeClick"
-          @current-change="dataCurrentChange"
-          :expand-on-click-node="false"
-        >
-          <span class="worker-box-tree-span" slot-scope="{ data }">
-            <span>
-              <template v-if="tool.isNotEmpty(data.key)">
-                {{ data.key }}
-                :
-              </template>
-              {{ data.value }}
-            </span>
-            <span class="mgl-20">
+      <div class="worker-kafka-data-list" ref="treeBox">
+        <el-table :data="datas" height="100%" style="width: 100%" size="mini">
+          <el-table-column prop="partition" label="Partition" width="80">
+          </el-table-column>
+          <el-table-column prop="offset" label="Offset" width="80">
+          </el-table-column>
+          <el-table-column prop="key" label="Key" width="110">
+          </el-table-column>
+          <el-table-column prop="value" label="Value"> </el-table-column>
+          <el-table-column width="60">
+            <template slot-scope="scope">
               <a
-                class="tm-link color-orange ft-15 mgr-2"
-                @click="toSubmit(data)"
+                class="tm-link color-grey-1 ft-15 mgr-5"
+                @click="toShow(scope.row)"
+                title="查看"
+              >
+                <i class="mdi mdi-eye"></i>
+              </a>
+              <a
+                class="tm-link color-orange ft-15"
+                @click="toCommit(scope.row)"
                 title="提交"
               >
                 <i class="mdi mdi-send-check"></i>
               </a>
-            </span>
-          </span>
-        </el-tree>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
     </div>
     <div class="worker-kafka-form" v-if="connect.open">
@@ -183,6 +186,9 @@
           <a v-if="!readonlyOne" class="tm-btn color-green" @click="push">
             推送
           </a>
+          <a v-if="readonlyOne" class="tm-btn color-orange" @click="toCommit(oneForm)">
+            提交
+          </a>
         </el-form-item>
       </el-form>
     </div>
@@ -222,10 +228,13 @@ export default {
         topic: null,
         key: null,
         value: null,
+        partition: null,
+        offset: null,
         json: null,
       },
       topics: null,
       datas: null,
+      datas_loading: false,
       defaultProps: {
         children: "children",
         label: "name",
@@ -273,6 +282,16 @@ export default {
         tool.error("value不能为空！");
         return;
       }
+      if (tool.isNotEmpty(data.partition)) {
+        data.partition = Number(data.partition);
+      } else {
+        data.partition = -1;
+      }
+      if (tool.isNotEmpty(data.offset)) {
+        data.offset = Number(data.offset);
+      } else {
+        data.offset = -1;
+      }
       server.kafka.push(data).then((res) => {
         if (res.code != 0) {
           tool.error(res.msg);
@@ -282,7 +301,7 @@ export default {
         }
       });
     },
-    toSubmit(one) {
+    toCommit(one) {
       if (window.event) {
         window.event.stopPropagation && window.event.stopPropagation();
       }
@@ -299,7 +318,7 @@ export default {
         tool.error("partition不能为空！");
         return;
       }
-      data.offset = one.offset;
+      data.offset = one.offset + 1;
       if (tool.isEmpty(data.offset)) {
         tool.error("offset不能为空！");
         return;
@@ -319,7 +338,7 @@ export default {
             "]，确认提交？"
         )
         .then(() => {
-          server.kafka.submit(data).then((res) => {
+          server.kafka.commit(data).then((res) => {
             if (res.code != 0) {
               tool.error(res.msg);
             } else {
@@ -430,8 +449,8 @@ export default {
       this.oneForm.topic = this.searchForm.topic;
       this.oneForm.key = "";
       this.oneForm.value = "";
-      this.oneForm.partition = 0;
-      this.oneForm.offset = 0;
+      this.oneForm.partition = null;
+      this.oneForm.offset = null;
       this.updateOne = false;
       this.insertOne = true;
       this.readonlyOne = false;
@@ -454,6 +473,17 @@ export default {
       this.insertOne = false;
       this.readonlyOne = false;
       this.updateOne = true;
+    },
+    toShow(data) {
+      this.oneForm.key = data.key;
+      this.oneForm.value = data.value;
+      this.oneForm.topic = data.topic;
+      this.oneForm.partition = data.partition;
+      this.oneForm.offset = data.offset;
+
+      this.insertOne = false;
+      this.readonlyOne = true;
+      this.updateOne = false;
     },
     init() {
       this.initConnect();

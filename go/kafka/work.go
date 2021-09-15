@@ -75,9 +75,21 @@ func pullWork(req interface{}) (res interface{}, err error) {
 	}
 	msgs := []KafkaMessage{}
 	for _, kafkaMsg := range kafkaMsgs {
+		var key interface{}
+		var value interface{}
+		if request.KeyType == "String" {
+			key = sarama.StringEncoder(kafkaMsg.Key)
+		} else {
+			key = sarama.ByteEncoder(kafkaMsg.Key)
+		}
+		if request.ValueType == "String" {
+			value = sarama.StringEncoder(kafkaMsg.Value)
+		} else {
+			value = sarama.ByteEncoder(kafkaMsg.Value)
+		}
 		msg := KafkaMessage{
-			Key:       sarama.StringEncoder(kafkaMsg.Key),
-			Value:     sarama.StringEncoder(kafkaMsg.Value),
+			Key:       key,
+			Value:     value,
 			Topic:     kafkaMsg.Topic,
 			Partition: kafkaMsg.Partition,
 			Offset:    kafkaMsg.Offset,
@@ -101,6 +113,8 @@ type pushRequest struct {
 	ValueType string `json:"valueType"`
 	Key       string `json:"key"`
 	Value     string `json:"value"`
+	Partition int32  `json:"partition"`
+	Offset    int64  `json:"offset"`
 }
 
 type pushResponse struct {
@@ -118,12 +132,64 @@ func pushWork(req interface{}) (res interface{}, err error) {
 	if err != nil {
 		return
 	}
+
+	var key sarama.Encoder
+	var value sarama.Encoder
+	if request.KeyType == "String" {
+		key = sarama.StringEncoder(request.Key)
+	} else {
+		key = sarama.ByteEncoder(request.Key)
+	}
+	if request.ValueType == "String" {
+		value = sarama.StringEncoder(request.Value)
+	} else {
+		value = sarama.ByteEncoder(request.Value)
+	}
+
 	kafkaMsg := &sarama.ProducerMessage{}
 	kafkaMsg.Topic = request.Topic
-	kafkaMsg.Key = sarama.StringEncoder(request.Key)
-	kafkaMsg.Value = sarama.StringEncoder(request.Value)
+	kafkaMsg.Key = key
+	kafkaMsg.Value = value
+	if request.Partition >= 0 {
+		kafkaMsg.Partition = request.Partition
+	}
+	if request.Offset >= 0 {
+		kafkaMsg.Offset = request.Offset
+	}
 
 	err = service.Push(kafkaMsg)
+	if err != nil {
+		return nil, err
+	}
+	res = response
+	return
+}
+
+type commitRequest struct {
+	Address   string `json:"address"`
+	GroupId   string `json:"groupId"`
+	Topic     string `json:"topic"`
+	Partition int32  `json:"partition"`
+	Offset    int64  `json:"offset"`
+}
+
+type commitResponse struct {
+}
+
+func commitWork(req interface{}) (res interface{}, err error) {
+	request := &commitRequest{}
+	response := &commitResponse{}
+	err = base.ToBean(req.([]byte), request)
+	if err != nil {
+		return
+	}
+	var service *KafkaService
+	service, err = getService(request.Address)
+	if err != nil {
+		return
+	}
+
+	err = service.Commit(request.GroupId, request.Topic, request.Partition, request.Offset)
 	if err != nil {
 		return nil, err
 	}
