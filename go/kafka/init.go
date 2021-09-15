@@ -12,6 +12,7 @@ func Init() {
 	worker_.WorkMap["topics"] = topicsWork
 	worker_.WorkMap["pull"] = pullWork
 	worker_.WorkMap["push"] = pushWork
+	worker_.WorkMap["commit"] = commitWork
 
 	worker.AddWorker(worker_)
 }

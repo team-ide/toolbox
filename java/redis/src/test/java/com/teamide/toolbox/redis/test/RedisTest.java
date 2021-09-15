@@ -40,20 +40,20 @@ public class RedisTest {
 
         new Thread(() -> {
             try {
-                RedisDo redis = redisService.redis(address, null, false);
+                RedisDo redis = redisService.redis(address, null);
                 String code = redis.set("test-1", "111111");
                 System.out.println("code:" + code);
                 Thread.sleep(1000 * 3);
 
-                redis = redisService.redis(address, null, false);
+                redis = redisService.redis(address, null);
                 String value = redis.get("test-1");
                 Thread.sleep(1000 * 6);
 
-                redis = redisService.redis(address, null, false);
+                redis = redisService.redis(address, null);
                 redis.delete("test-1");
 
                 Thread.sleep(1000 * 6);
-                redis = redisService.redis(address, null, false);
+                redis = redisService.redis(address, null);
                 value = redis.get("test-1");
                 System.out.println("value:" + value);
 

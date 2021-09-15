@@ -286,4 +286,35 @@ export default {
   box-shadow: inset 0 0 10px #262626;
   background: #262626;
 }
+
+.worker-box .el-table,
+.worker-box .el-table__expanded-cell {
+  background: transparent;
+}
+.worker-box .el-table th,
+.worker-box .el-table tr {
+  background: transparent;
+}
+.worker-box .el-table .el-table__row:hover td {
+  background-color: #545454;
+}
+.worker-box .el-table {
+  color: unset;
+}
+.worker-box .el-table--mini td,
+.worker-box .el-table--mini th {
+  padding: 3px 0;
+}
+.worker-box .el-table--border::after,
+.worker-box .el-table--group::after,
+.worker-box .el-table::before {
+  background-color: transparent;
+}
+.worker-box .el-table td,
+.worker-box .el-table th.is-leaf {
+  border-bottom: 1px solid #404040;
+}
+.worker-box .el-divider {
+  background-color: #404040;
+}
 </style>
