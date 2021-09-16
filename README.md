@@ -14,19 +14,26 @@
 ## 功能描述
 
 1. Zookeeper
+![image](doc/images/zookeeper.png)
     * 工具可以连接Zookeeper（单机或集群）
-    * 新增、修改、删除节点
+    * 新增、修改、删除节点等
     * 树状展示节点
+
 2. Redis
+![image](doc/images/redis.png)
     * 工具可以连接Redis（单机或集群）
-    * 新增、修改、删除缓存
+    * 新增、修改、删除缓存等
     * 目前只支持string类型key和value
+
 3. MySql
     * 研发中
     * 目标：增删改查库信息，增删改查表信息，增删改查记录，导出导入库表脚本，导出导入数据，在线编辑数据等
 4. Kafka
-    * 研发中
-    * 目标：展示topic列表，自定义groupId拉取topic数据，任意记录提交等
+![image](doc/images/kafka.png)
+    * 工具可以连接Kafka（单机或集群）
+    * 展示Topic列表、删除Topic、设置Topic分区
+    * 拉取Topic消息、提交消息、删除消息、消息推送等
+
 5. RabbitMQ
     * 研发中
 6. Elasticsearch
