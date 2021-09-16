@@ -13,6 +13,10 @@ func Init() {
 	worker_.WorkMap["pull"] = pullWork
 	worker_.WorkMap["push"] = pushWork
 	worker_.WorkMap["commit"] = commitWork
+	worker_.WorkMap["reset"] = resetWork
+	worker_.WorkMap["deleteTopic"] = deleteTopicWork
+	worker_.WorkMap["createPartitions"] = createPartitionsWork
+	worker_.WorkMap["deleteRecords"] = deleteRecordsWork
 
 	worker.AddWorker(worker_)
 }

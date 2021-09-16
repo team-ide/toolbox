@@ -140,9 +140,10 @@ export default {
 }
 .body-main-wrap .el-tabs__header {
   height: 30px;
-  margin: 0px 10px;
-  padding: 0px;
+  margin: 0px;
+  padding: 0px 10px;
   position: relative;
+  border-bottom: 1px solid #4e4e4e;
 }
 .body-main-wrap .el-tabs__item.is-active {
   color: #ddd;

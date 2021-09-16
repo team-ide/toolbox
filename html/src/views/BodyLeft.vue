@@ -33,7 +33,7 @@ export default {
           children: [
             {
               name: "default",
-              title: "Redis Default",
+              title: "Redis",
               workerType: "redis",
               key: "redis/default",
             },
@@ -45,7 +45,7 @@ export default {
           children: [
             {
               name: "default",
-              title: "Zookeeper Default",
+              title: "Zookeeper",
               workerType: "zookeeper",
               key: "zookeeper/default",
             },
@@ -57,7 +57,7 @@ export default {
           children: [
             {
               name: "default",
-              title: "Database Default",
+              title: "Database",
               workerType: "database",
               key: "database/default",
             },
@@ -69,7 +69,7 @@ export default {
           children: [
             {
               name: "default",
-              title: "Elasticsearch Default",
+              title: "Elasticsearch",
               workerType: "elasticsearch",
               key: "elasticsearch/default",
             },
@@ -81,7 +81,7 @@ export default {
           children: [
             {
               name: "default",
-              title: "Mongo Default",
+              title: "Mongo",
               workerType: "mongo",
               key: "mongo/default",
             },
@@ -151,7 +151,11 @@ export default {
       }
       this.open(data);
     },
-    initExpands() {},
+    initExpands() {
+      this.expand("redis");
+      this.expand("zookeeper");
+      this.expand("kafka");
+    },
     expand(key) {
       if (this.expands.indexOf(key) < 0) {
         this.expands.push(key);

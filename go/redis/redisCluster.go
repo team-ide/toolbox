@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"base"
 	"context"
 	"strings"
 	"time"
@@ -63,6 +64,14 @@ func (service *RedisClusterService) Get(key string) (value string, err error) {
 	if err != nil {
 		if err == redis.Nil {
 			err = nil
+		} else if strings.Contains(err.Error(), "Operation against a key holding") {
+			cmd_ := service.redisCluster.HGetAll(context.TODO(), key)
+			var sets map[string]string
+			sets, err = cmd_.Result()
+			if err != nil {
+				return
+			}
+			value = base.ToJSON(sets)
 		}
 	}
 	return

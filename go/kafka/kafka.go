@@ -100,7 +100,7 @@ func (handler *consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSessi
 	return nil
 }
 
-func (service *KafkaService) Commit(groupId string, topic string, partition int32, offset int64) (err error) {
+func (service *KafkaService) MarkOffset(groupId string, topic string, partition int32, offset int64) (err error) {
 	var saramaClient sarama.Client
 	saramaClient, err = service.getClient()
 	if err != nil {
@@ -120,7 +120,27 @@ func (service *KafkaService) Commit(groupId string, topic string, partition int3
 	return
 }
 
-func (service *KafkaService) AddPartition(groupId string, topic string, partition int32, offset int64) (err error) {
+func (service *KafkaService) ResetOffset(groupId string, topic string, partition int32, offset int64) (err error) {
+	var saramaClient sarama.Client
+	saramaClient, err = service.getClient()
+	if err != nil {
+		return
+	}
+	defer saramaClient.Close()
+	offsetManager, err := sarama.NewOffsetManagerFromClient(groupId, saramaClient)
+	if err != nil {
+		return
+	}
+	partitionOffsetManager, err := offsetManager.ManagePartition(topic, partition)
+	if err != nil {
+		return
+	}
+	defer offsetManager.Close()
+	partitionOffsetManager.ResetOffset(offset, "")
+	return
+}
+
+func (service *KafkaService) CreatePartitions(topic string, count int32) (err error) {
 	var saramaClient sarama.Client
 	saramaClient, err = service.getClient()
 	if err != nil {
@@ -133,6 +153,65 @@ func (service *KafkaService) AddPartition(groupId string, topic string, partitio
 	}
 
 	defer admin.Close()
+
+	err = admin.CreatePartitions(topic, count, nil, false)
+
+	return
+}
+
+func (service *KafkaService) DeleteTopic(topic string) (err error) {
+	var saramaClient sarama.Client
+	saramaClient, err = service.getClient()
+	if err != nil {
+		return
+	}
+	defer saramaClient.Close()
+	admin, err := sarama.NewClusterAdminFromClient(saramaClient)
+	if err != nil {
+		return
+	}
+
+	defer admin.Close()
+
+	err = admin.DeleteTopic(topic)
+
+	return
+}
+
+func (service *KafkaService) DeleteConsumerGroup(groupId string) (err error) {
+	var saramaClient sarama.Client
+	saramaClient, err = service.getClient()
+	if err != nil {
+		return
+	}
+	defer saramaClient.Close()
+	admin, err := sarama.NewClusterAdminFromClient(saramaClient)
+	if err != nil {
+		return
+	}
+
+	defer admin.Close()
+
+	err = admin.DeleteConsumerGroup(groupId)
+
+	return
+}
+
+func (service *KafkaService) DeleteRecords(topic string, partitionOffsets map[int32]int64) (err error) {
+	var saramaClient sarama.Client
+	saramaClient, err = service.getClient()
+	if err != nil {
+		return
+	}
+	defer saramaClient.Close()
+	admin, err := sarama.NewClusterAdminFromClient(saramaClient)
+	if err != nil {
+		return
+	}
+
+	defer admin.Close()
+
+	err = admin.DeleteRecords(topic, partitionOffsets)
 
 	return
 }

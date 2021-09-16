@@ -1,136 +1,193 @@
 <template>
   <div class="worker-redis-wrap">
-    <div class="worker-redis-config pd-10 pdb-0">
-      <el-form
-        :inline="true"
-        :model="configForm"
-        size="mini"
-        @submit.native.prevent
-      >
-        <el-form-item label="address（多个使用“;”隔开）">
-          <el-input
-            v-model="configForm.address"
-            placeholder="address"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="auth">
-          <el-input v-model="configForm.auth" placeholder="auth"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <a class="tm-btn tm-btn-sm color-green" @click="doConnect"> 连接 </a>
-        </el-form-item>
-      </el-form>
-      <el-divider class="mg-0"></el-divider>
-    </div>
-    <div class="worker-redis-list-box" v-if="connect.open">
-      <el-form
-        :inline="true"
-        :model="searchForm"
-        size="mini"
-        @submit.native.prevent
-      >
-        <el-form-item label="搜索（*模糊匹配）">
-          <el-input
-            v-model="searchForm.pattern"
-            placeholder="pattern"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="展示数量">
-          <el-input v-model="searchForm.size" placeholder="size"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <a
-            class="tm-btn tm-btn-sm color-green mgl-5"
-            :class="{ 'tm-disabled': loading }"
-            @click="doSearch"
-          >
-            搜索
-          </a>
-          <a class="tm-btn tm-btn-sm color-red mgl-5" @click="deletePattern">
-            删除匹配
-          </a>
-          <a class="tm-btn tm-btn-sm color-blue mgl-5" @click="toInsert">
-            新增
-          </a>
-        </el-form-item>
-      </el-form>
-      <div class="ft-16 pdb-15 color-orange">Keys列表</div>
-      <el-divider class="mg-0 mgb-10"></el-divider>
-      <div class="worker-redis-list worker-scrollbar" ref="treeBox">
-        <el-tree
-          ref="tree"
-          :props="defaultProps"
-          :data="data"
-          :default-expanded-keys="expands"
-          node-key="key"
-          @node-click="nodeClick"
-          @current-change="currentChange"
-          :expand-on-click-node="false"
+    <tm-layout height="100%">
+      <tm-layout height="50px">
+        <el-form
+          class="pd-10"
+          :inline="true"
+          :model="configForm"
+          size="mini"
+          @submit.native.prevent
         >
-          <span class="worker-box-tree-span" slot-scope="{ node, data }">
-            <span>{{ node.label }}</span>
-            <span class="mgl-20">
-              <a
-                class="tm-link color-orange ft-15 mgr-2"
-                @click="toDelete(data)"
-              >
-                <i class="mdi mdi-delete-outline"></i>
-              </a>
-            </span>
-          </span>
-        </el-tree>
-      </div>
-      <div v-if="data != null" class="text-center pd-5 ft-12">
-        共搜索
-        <span class="color-orange ft-15 mglr-5">{{ count }}</span>
-        条记录
-      </div>
-    </div>
-    <div class="worker-redis-form" v-if="connect.open">
-      <div class="ft-16 pdb-15 color-orange">
-        <template v-if="readonlyOne">
-          <span>查看</span>
-        </template>
-        <template v-else-if="insertOne">
-          <span>新增</span>
-        </template>
-        <template v-else-if="updateOne">
-          <span>修改</span>
-        </template>
-      </div>
-      <el-divider class="mg-0"></el-divider>
-      <el-form :model="oneForm" size="lg" @submit.native.prevent>
-        <el-form-item label="key">
-          <el-input
-            v-model="oneForm.key"
-            placeholder="key"
-            :readonly="readonlyOne || updateOne"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="value">
-          <el-input
-            type="textarea"
-            v-model="oneForm.value"
-            placeholder="value"
-            :autosize="{ minRows: 3, maxRows: 3 }"
-            :readonly="readonlyOne"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="格式化JSON（只做查看，不保存）">
-          <el-input
-            type="textarea"
-            v-model="oneForm.json"
-            placeholder="格式化JSON"
-            :autosize="{ minRows: 6, maxRows: 6 }"
-          ></el-input>
-        </el-form-item>
-        <el-form-item>
-          <a v-if="!readonlyOne" class="tm-btn color-green" @click="doSave">
-            保存
-          </a>
-        </el-form-item>
-      </el-form>
-    </div>
+          <el-form-item label="address（多个使用“;”隔开）">
+            <el-input
+              v-model="configForm.address"
+              placeholder="address"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="auth">
+            <el-input v-model="configForm.auth" placeholder="auth"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <a class="tm-btn tm-btn-sm color-green" @click="doConnect">
+              连接
+            </a>
+          </el-form-item>
+        </el-form>
+      </tm-layout>
+      <tm-layout-bar bottom></tm-layout-bar>
+      <tm-layout height="auto">
+        <tm-layout height="100%" width="100%">
+          <tm-layout width="auto">
+            <tm-layout height="100%">
+              <tm-layout height="140px">
+                <div class="pdlr-10">
+                  <div class="worker-panel-title" v-if="connect.open">
+                    Keys搜索（{{ connect.form.address }}）
+                  </div>
+                  <el-divider class="mg-0"></el-divider>
+                  <el-form
+                    v-if="connect.open"
+                    class="pdt-10"
+                    :inline="true"
+                    :model="searchForm"
+                    size="mini"
+                    @submit.native.prevent
+                  >
+                    <el-form-item label="搜索（*模糊匹配）">
+                      <el-input
+                        v-model="searchForm.pattern"
+                        placeholder="pattern"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="展示数量">
+                      <el-input
+                        v-model="searchForm.size"
+                        placeholder="size"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                      <a
+                        class="tm-btn tm-btn-sm color-green mgl-5"
+                        :class="{ 'tm-disabled': loading }"
+                        @click="doSearch"
+                      >
+                        搜索
+                      </a>
+                      <a
+                        class="tm-btn tm-btn-sm color-red mgl-5"
+                        @click="deletePattern"
+                      >
+                        删除匹配
+                      </a>
+                      <a
+                        class="tm-btn tm-btn-sm color-blue mgl-5"
+                        @click="toInsert"
+                      >
+                        新增
+                      </a>
+                    </el-form-item>
+                  </el-form>
+                </div>
+              </tm-layout>
+              <tm-layout-bar bottom></tm-layout-bar>
+              <tm-layout height="45px">
+                <div class="worker-panel-title  pdlr-10" v-if="connect.open">
+                  Keys列表
+                </div>
+                <el-divider class="mg-0"></el-divider>
+              </tm-layout>
+              <tm-layout height="auto">
+                <div
+                  class="worker-redis-list worker-scrollbar"
+                  ref="treeBox"
+                  v-if="connect.open"
+                >
+                  <el-tree
+                    ref="tree"
+                    :props="defaultProps"
+                    :data="data"
+                    :default-expanded-keys="expands"
+                    node-key="key"
+                    @node-click="nodeClick"
+                    @current-change="currentChange"
+                    :expand-on-click-node="false"
+                  >
+                    <span
+                      class="worker-box-tree-span"
+                      slot-scope="{ node, data }"
+                    >
+                      <span>{{ node.label }}</span>
+                      <span class="mgl-20">
+                        <a
+                          class="tm-link color-orange ft-15 mgr-2"
+                          @click="toDelete(data)"
+                        >
+                          <i class="mdi mdi-delete-outline"></i>
+                        </a>
+                      </span>
+                    </span>
+                  </el-tree>
+                </div>
+              </tm-layout>
+              <tm-layout-bar top></tm-layout-bar>
+              <tm-layout height="30px">
+                <div
+                  v-if="connect.open && data != null"
+                  class="text-center pd-5 ft-12"
+                >
+                  共搜索
+                  <span class="color-orange ft-15 mglr-5">{{ count }}</span>
+                  条记录
+                </div>
+              </tm-layout>
+            </tm-layout>
+          </tm-layout>
+          <tm-layout-bar left></tm-layout-bar>
+          <tm-layout width="400px">
+            <div class="pdlr-10" v-if="connect.open">
+              <div class="worker-panel-title">
+                <template v-if="readonlyOne">
+                  <span>查看</span>
+                </template>
+                <template v-else-if="insertOne">
+                  <span>新增</span>
+                </template>
+                <template v-else-if="updateOne">
+                  <span>修改</span>
+                </template>
+              </div>
+              <el-divider class="mg-0"></el-divider>
+              <el-form :model="oneForm" size="lg" @submit.native.prevent>
+                <el-form-item label="key">
+                  <el-input
+                    v-model="oneForm.key"
+                    placeholder="key"
+                    :readonly="readonlyOne || updateOne"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="value">
+                  <el-input
+                    type="textarea"
+                    v-model="oneForm.value"
+                    placeholder="value"
+                    :autosize="{ minRows: 3, maxRows: 3 }"
+                    :readonly="readonlyOne"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="格式化JSON（只做查看，不保存）">
+                  <el-input
+                    type="textarea"
+                    v-model="oneForm.json"
+                    placeholder="格式化JSON"
+                    :autosize="{ minRows: 6, maxRows: 6 }"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <a
+                    v-if="!readonlyOne"
+                    class="tm-btn color-green"
+                    @click="doSave"
+                  >
+                    保存
+                  </a>
+                </el-form-item>
+              </el-form>
+            </div>
+          </tm-layout>
+        </tm-layout>
+      </tm-layout>
+    </tm-layout>
   </div>
 </template>
 
@@ -405,37 +462,12 @@ export default {
 <style>
 .worker-redis-wrap {
   height: 100%;
-  width: 100%;
   margin: 0px;
   padding: 0px;
   position: relative;
-}
-.worker-redis-wrap .worker-redis-list-box {
-  height: calc(100% - 100px);
-  width: calc(100% - 500px);
-  margin: 10px;
-  padding: 0px;
-  position: relative;
-  float: left;
-  overflow: hidden;
 }
 .worker-redis-wrap .worker-redis-list {
-  height: calc(100% - 200px);
-  min-width: 300px;
-  margin: 0px;
-  padding: 0px;
-  position: relative;
-  overflow-x: hidden !important;
-}
-.worker-redis-wrap .worker-redis-form {
-  height: calc(100% - 100px);
-  width: 400px;
-  margin: 0px;
-  padding: 0px;
-  position: relative;
-  float: left;
-  padding: 10px;
-  overflow: auto;
+  height: 100%;
 }
 .worker-redis-wrap .el-tree {
   /* border: 1px solid #f3f3f3; */
