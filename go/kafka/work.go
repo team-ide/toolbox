@@ -189,7 +189,131 @@ func commitWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 
-	err = service.Commit(request.GroupId, request.Topic, request.Partition, request.Offset)
+	err = service.MarkOffset(request.GroupId, request.Topic, request.Partition, request.Offset)
+	if err != nil {
+		return nil, err
+	}
+	res = response
+	return
+}
+
+type resetRequest struct {
+	Address   string `json:"address"`
+	GroupId   string `json:"groupId"`
+	Topic     string `json:"topic"`
+	Partition int32  `json:"partition"`
+	Offset    int64  `json:"offset"`
+}
+
+type resetResponse struct {
+}
+
+func resetWork(req interface{}) (res interface{}, err error) {
+	request := &resetRequest{}
+	response := &resetResponse{}
+	err = base.ToBean(req.([]byte), request)
+	if err != nil {
+		return
+	}
+	var service *KafkaService
+	service, err = getService(request.Address)
+	if err != nil {
+		return
+	}
+
+	err = service.ResetOffset(request.GroupId, request.Topic, request.Partition, request.Offset)
+	if err != nil {
+		return nil, err
+	}
+	res = response
+	return
+}
+
+type deleteTopicRequest struct {
+	Address string `json:"address"`
+	Topic   string `json:"topic"`
+}
+
+type deleteTopicResponse struct {
+}
+
+func deleteTopicWork(req interface{}) (res interface{}, err error) {
+	request := &deleteTopicRequest{}
+	response := &deleteTopicResponse{}
+	err = base.ToBean(req.([]byte), request)
+	if err != nil {
+		return
+	}
+	var service *KafkaService
+	service, err = getService(request.Address)
+	if err != nil {
+		return
+	}
+
+	err = service.DeleteTopic(request.Topic)
+	if err != nil {
+		return nil, err
+	}
+	res = response
+	return
+}
+
+type createPartitionsRequest struct {
+	Address string `json:"address"`
+	Topic   string `json:"topic"`
+	Count   int32  `json:"count"`
+}
+
+type createPartitionsResponse struct {
+}
+
+func createPartitionsWork(req interface{}) (res interface{}, err error) {
+	request := &createPartitionsRequest{}
+	response := &createPartitionsResponse{}
+	err = base.ToBean(req.([]byte), request)
+	if err != nil {
+		return
+	}
+	var service *KafkaService
+	service, err = getService(request.Address)
+	if err != nil {
+		return
+	}
+
+	err = service.CreatePartitions(request.Topic, request.Count)
+	if err != nil {
+		return nil, err
+	}
+	res = response
+	return
+}
+
+type deleteRecordsRequest struct {
+	Address   string `json:"address"`
+	Topic     string `json:"topic"`
+	Partition int32  `json:"partition"`
+	Offset    int64  `json:"offset"`
+}
+
+type deleteRecordsResponse struct {
+}
+
+func deleteRecordsWork(req interface{}) (res interface{}, err error) {
+	request := &deleteRecordsRequest{}
+	response := &deleteRecordsResponse{}
+	err = base.ToBean(req.([]byte), request)
+	if err != nil {
+		return
+	}
+	var service *KafkaService
+	service, err = getService(request.Address)
+	if err != nil {
+		return
+	}
+
+	partitionOffsets := make(map[int32]int64)
+	partitionOffsets[request.Partition] = request.Offset
+	err = service.DeleteRecords(request.Topic, partitionOffsets)
 	if err != nil {
 		return nil, err
 	}

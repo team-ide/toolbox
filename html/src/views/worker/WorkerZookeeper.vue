@@ -1,113 +1,144 @@
 <template>
   <div class="worker-zookeeper-wrap">
-    <div class="worker-zookeeper-config pd-10 pdb-0">
-      <el-form
-        :inline="true"
-        :model="configForm"
-        size="mini"
-        @submit.native.prevent
-      >
-        <el-form-item label="连接地址（多个使用“,”隔开）">
-          <el-input v-model="configForm.url" placeholder="连接地址"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <a class="tm-btn tm-btn-sm color-green" @click="doConnect"> 连接 </a>
-        </el-form-item>
-      </el-form>
-      <el-divider class="mg-0"></el-divider>
-    </div>
-    <div class="worker-zookeeper-list-box" v-if="connect.open">
-      <div class="ft-16 pdb-15 color-orange">节点信息</div>
-      <el-divider class="mg-0"></el-divider>
-      <div
-        class="worker-zookeeper-list worker-scrollbar"
-        ref="treeBox"
-        v-if="connect.open"
-      >
-        <el-tree
-          ref="tree"
-          :load="loadNode"
-          lazy
-          :props="defaultProps"
-          :default-expanded-keys="expands"
-          node-key="key"
-          @node-click="nodeClick"
-          @current-change="currentChange"
-          :expand-on-click-node="false"
+    <tm-layout height="100%">
+      <tm-layout height="50px">
+        <el-form
+          class="pd-10"
+          :inline="true"
+          :model="configForm"
+          size="mini"
+          @submit.native.prevent
         >
-          <span class="worker-box-tree-span" slot-scope="{ node, data }">
-            <template v-if="data.path == '/' && connect.form != null">
-              <span>{{ connect.form.url }}</span>
-            </template>
-            <template v-else>
-              <span>{{ node.label }}</span>
-            </template>
-            <span class="mgl-20">
-              <a
-                class="tm-link color-grey ft-14 mgr-2"
-                @click="toReloadChildren(data)"
+          <el-form-item label="连接地址（多个使用“,”隔开）">
+            <el-input
+              v-model="configForm.url"
+              placeholder="连接地址"
+            ></el-input>
+          </el-form-item>
+          <el-form-item>
+            <a class="tm-btn tm-btn-sm color-green" @click="doConnect">
+              连接
+            </a>
+          </el-form-item>
+        </el-form>
+      </tm-layout>
+      <tm-layout-bar bottom></tm-layout-bar>
+      <tm-layout height="auto">
+        <tm-layout height="100%" width="100%">
+          <tm-layout width="auto">
+            <tm-layout height="45px">
+              <div class="worker-panel-title pdlr-10" v-if="connect.open">
+                节点信息（{{ connect.form.url }}）
+              </div>
+              <el-divider class="mg-0"></el-divider>
+            </tm-layout>
+            <tm-layout height="auto">
+              <div
+                class="worker-zookeeper-list worker-scrollbar"
+                ref="treeBox"
+                v-if="connect.open"
               >
-                <i class="mdi mdi-reload"></i>
-              </a>
-              <a class="tm-link color-blue ft-16 mgr-2" @click="toInsert(data)">
-                <i class="mdi mdi-plus"></i>
-              </a>
-              <a
-                class="tm-link color-orange ft-15 mgr-2"
-                @click="toDelete(data)"
-              >
-                <i class="mdi mdi-delete-outline"></i>
-              </a>
-            </span>
-          </span>
-        </el-tree>
-      </div>
-    </div>
-    <div class="worker-zookeeper-form" v-if="connect.open">
-      <div class="ft-16 pdb-15 color-orange">
-        <template v-if="readonlyOne">
-          <span>查看节点</span>
-        </template>
-        <template v-else-if="insertOne">
-          <span>新增节点</span>
-        </template>
-        <template v-else-if="updateOne">
-          <span>修改节点</span>
-        </template>
-      </div>
-      <el-divider class="mg-0"></el-divider>
-      <el-form :model="oneForm" size="lg" @submit.native.prevent>
-        <el-form-item label="路径">
-          <el-input
-            v-model="oneForm.path"
-            placeholder="路径"
-            :readonly="readonlyOne || updateOne"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="数据">
-          <el-input
-            type="textarea"
-            v-model="oneForm.data"
-            placeholder="数据"
-            :autosize="{ minRows: 3, maxRows: 10 }"
-            :readonly="readonlyOne"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="格式化JSON（只做查看，不保存）">
-          <el-input
-            type="textarea"
-            v-model="oneForm.json"
-            placeholder="格式化JSON"
-            :autosize="{ minRows: 6, maxRows: 10 }"
-          ></el-input>
-        </el-form-item>
-        <el-form-item>
-          <a v-if="!readonlyOne" class="tm-btn color-green" @click="doSave">
-            保存
-          </a>
-        </el-form-item>
-      </el-form>
-    </div>
+                <el-tree
+                  ref="tree"
+                  :load="loadNode"
+                  lazy
+                  :props="defaultProps"
+                  :default-expanded-keys="expands"
+                  node-key="key"
+                  @node-click="nodeClick"
+                  @current-change="currentChange"
+                  :expand-on-click-node="false"
+                >
+                  <span
+                    class="worker-box-tree-span"
+                    slot-scope="{ node, data }"
+                  >
+                    <template v-if="data.path == '/' && connect.form != null">
+                      <span>/</span>
+                    </template>
+                    <template v-else>
+                      <span>{{ node.label }}</span>
+                    </template>
+                    <span class="mgl-20">
+                      <a
+                        class="tm-link color-grey ft-14 mgr-2"
+                        @click="toReloadChildren(data)"
+                      >
+                        <i class="mdi mdi-reload"></i>
+                      </a>
+                      <a
+                        class="tm-link color-blue ft-16 mgr-2"
+                        @click="toInsert(data)"
+                      >
+                        <i class="mdi mdi-plus"></i>
+                      </a>
+                      <a
+                        class="tm-link color-orange ft-15 mgr-2"
+                        @click="toDelete(data)"
+                      >
+                        <i class="mdi mdi-delete-outline"></i>
+                      </a>
+                    </span>
+                  </span>
+                </el-tree>
+              </div>
+            </tm-layout>
+          </tm-layout>
+          <tm-layout-bar left></tm-layout-bar>
+          <tm-layout width="400px">
+            <div class="pdlr-10" v-if="connect.open">
+              <div class="worker-panel-title">
+                <template v-if="readonlyOne">
+                  <span>查看节点</span>
+                </template>
+                <template v-else-if="insertOne">
+                  <span>新增节点</span>
+                </template>
+                <template v-else-if="updateOne">
+                  <span>修改节点</span>
+                </template>
+              </div>
+              <el-divider class="mg-0"></el-divider>
+              <el-form :model="oneForm" size="lg" @submit.native.prevent>
+                <el-form-item label="路径">
+                  <el-input
+                    v-model="oneForm.path"
+                    placeholder="路径"
+                    :readonly="readonlyOne || updateOne"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="数据">
+                  <el-input
+                    type="textarea"
+                    v-model="oneForm.data"
+                    placeholder="数据"
+                    :autosize="{ minRows: 3, maxRows: 10 }"
+                    :readonly="readonlyOne"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="格式化JSON（只做查看，不保存）">
+                  <el-input
+                    type="textarea"
+                    v-model="oneForm.json"
+                    placeholder="格式化JSON"
+                    :autosize="{ minRows: 6, maxRows: 10 }"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <a
+                    v-if="!readonlyOne"
+                    class="tm-btn color-green"
+                    @click="doSave"
+                  >
+                    保存
+                  </a>
+                </el-form-item>
+              </el-form>
+            </div>
+          </tm-layout>
+        </tm-layout>
+      </tm-layout>
+    </tm-layout>
   </div>
 </template>
 
@@ -388,37 +419,12 @@ export default {
 <style>
 .worker-zookeeper-wrap {
   height: 100%;
-  width: 100%;
   margin: 0px;
   padding: 0px;
   position: relative;
-}
-.worker-zookeeper-wrap .worker-zookeeper-list-box {
-  height: calc(100% - 100px);
-  width: calc(100% - 440px);
-  min-width: 300px;
-  margin: 10px;
-  padding: 0px;
-  position: relative;
-  float: left;
 }
 .worker-zookeeper-wrap .worker-zookeeper-list {
-  height: calc(100% - 50px);
-  width: 100%;
-  margin: 10px;
-  padding: 0px;
-  position: relative;
-  float: left;
-}
-.worker-zookeeper-wrap .worker-zookeeper-form {
-  height: calc(100% - 100px);
-  width: 400px;
-  margin: 0px;
-  padding: 0px;
-  position: relative;
-  float: left;
-  padding: 10px;
-  overflow: auto;
+  height: 100%;
 }
 .worker-zookeeper-wrap .el-tree {
   /* border: 1px solid #f3f3f3; */

@@ -1,18 +1,28 @@
 <template>
   <div class="worker-box" :style="boxStyleObject">
-    <div class="worker-header" :style="headerStyleObject"></div>
-    <div class="worker-body" :style="bodyStyleObject">
-      <div class="worker-left" :style="bodyLeftStyleObject">
-        <BodyLeft ref="BodyLeft" :style="style" @open="open"></BodyLeft>
-      </div>
-      <div class="worker-main" :style="bodyMainStyleObject">
-        <BodyMain ref="BodyMain" :style="style"></BodyMain>
-      </div>
-      <div class="worker-right" :style="bodyRightStyleObject">
-        <BodyRight ref="BodyRight" :style="style"></BodyRight>
-      </div>
-    </div>
-    <div class="worker-footer" :style="footerStyleObject"></div>
+    <tm-layout height="100%">
+      <tm-layout :height="style.header.height">
+        <div class="worker-header" :style="headerStyleObject">
+          <h2 class="mg-0 pd-0 pdlr-20" style="line-height: 40px;">Team IDE Toolbox</h2>
+        </div>
+      </tm-layout>
+      <tm-layout-bar bottom></tm-layout-bar>
+      <tm-layout height="auto">
+        <tm-layout height="100%">
+          <tm-layout :width="style.body.left.width">
+            <BodyLeft ref="BodyLeft" :style="style" @open="open"></BodyLeft>
+          </tm-layout>
+          <tm-layout-bar right></tm-layout-bar>
+          <tm-layout width="auto">
+            <BodyMain ref="BodyMain" :style="style"></BodyMain>
+          </tm-layout>
+          <!-- <tm-layout-bar left></tm-layout-bar> -->
+          <tm-layout :width="style.body.right.width">
+            <BodyRight ref="BodyRight" :style="style"></BodyRight>
+          </tm-layout>
+        </tm-layout>
+      </tm-layout>
+    </tm-layout>
   </div>
 </template>
 
@@ -35,27 +45,19 @@ export default {
         backgroundColor: "#2d2d2d",
         color: "#adadad",
         header: {
-          height: "29px",
-          borderBottom: "0px solid #6f6f6f",
-          borderSize: "1px",
+          height: "40px",
         },
         body: {
           left: {
-            width: "259px",
-            borderRight: "0px solid #6f6f6f",
-            borderSize: "1px",
+            width: "260px",
           },
           main: {},
           right: {
             width: "0px",
-            borderLeft: "0px solid #6f6f6f",
-            borderSize: "0px",
           },
         },
         footer: {
-          height: "29px",
-          borderTop: "0px solid #6f6f6f",
-          borderSize: "1px",
+          height: "30px",
         },
       },
     };
@@ -69,60 +71,22 @@ export default {
       };
     },
     headerStyleObject: function () {
-      return {
-        height: this.style.header.height,
-        borderBottom: this.style.header.borderBottom,
-        borderWidth: this.style.header.borderSize,
-      };
+      return {};
     },
     bodyStyleObject: function () {
-      return {
-        height:
-          "calc(100% - " +
-          this.style.header.height +
-          " - " +
-          this.style.header.borderSize +
-          " - " +
-          this.style.footer.height +
-          " - " +
-          this.style.footer.borderSize +
-          ")",
-      };
+      return {};
     },
     footerStyleObject: function () {
-      return {
-        height: this.style.footer.height,
-        borderTop: this.style.footer.borderTop,
-        borderWidth: this.style.footer.borderSize,
-      };
+      return {};
     },
     bodyLeftStyleObject: function () {
-      return {
-        width: this.style.body.left.width,
-        borderRight: this.style.body.left.borderRight,
-        borderWidth: this.style.body.left.borderSize,
-      };
+      return {};
     },
     bodyMainStyleObject: function () {
-      return {
-        width:
-          "calc(100% - " +
-          this.style.body.left.width +
-          " - " +
-          this.style.body.left.borderSize +
-          " - " +
-          this.style.body.right.width +
-          " - " +
-          this.style.body.right.borderSize +
-          ")",
-      };
+      return {};
     },
     bodyRightStyleObject: function () {
-      return {
-        width: this.style.body.right.width,
-        borderLeft: this.style.body.right.borderLeft,
-        borderWidth: this.style.body.right.borderSize,
-      };
+      return {};
     },
   },
   methods: {
@@ -147,42 +111,41 @@ export default {
 }
 .worker-box .worker-header {
   width: 100%;
+  height: 100%;
   margin: 0px;
   padding: 0px;
   position: relative;
 }
 .worker-box .worker-body {
   width: 100%;
+  height: 100%;
   margin: 0px;
   padding: 0px;
   position: relative;
 }
 .worker-box .worker-footer {
   width: 100%;
+  height: 100%;
   margin: 0px;
   padding: 0px;
   position: relative;
 }
-.worker-box .worker-body .worker-left {
-  height: 100%;
-  margin: 0px;
-  padding: 0px;
-  float: left;
-  position: relative;
+.worker-box .worker-panel-title {
+  font-size: 13px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #e0e0e0;
+  line-height: 40px;
 }
-.worker-box .worker-body .worker-main {
-  height: 100%;
-  margin: 0px;
-  padding: 0px;
-  float: left;
-  position: relative;
+.worker-box .tm-layout {
+  overflow: hidden;
 }
-.worker-box .worker-body .worker-right {
-  height: 100%;
-  margin: 0px;
-  padding: 0px;
-  float: right;
-  position: relative;
+.worker-box .tm-layout > .tm-layout-bar {
+  background-color: #4e4e4e;
+}
+.worker-box .tm-layout-bar > .tm-layout-bar-part {
+  background-color: #4e4e4e;
 }
 .worker-box .el-tree {
   background-color: transparent;
@@ -204,8 +167,6 @@ export default {
 }
 .worker-box .el-tree__empty-block {
   display: none;
-}
-.worker-box .el-tree-node__content {
 }
 .worker-box .el-tree-node__children {
   overflow: visible !important;
@@ -291,12 +252,19 @@ export default {
 .worker-box .el-table__expanded-cell {
   background: transparent;
 }
+.worker-box .el-table th.el-table__cell {
+  background: transparent;
+}
+.worker-box .el-table td.el-table__cell,
+.worker-box .el-table th.el-table__cell.is-leaf {
+  border-bottom: 1px solid #473939;
+}
 .worker-box .el-table th,
 .worker-box .el-table tr {
   background: transparent;
 }
-.worker-box .el-table .el-table__row:hover td {
-  background-color: #545454;
+.worker-box .el-table .el-table__row:hover td.el-table__cell {
+  background-color: #473939;
 }
 .worker-box .el-table {
   color: unset;
