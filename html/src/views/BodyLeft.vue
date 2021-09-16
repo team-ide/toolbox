@@ -93,7 +93,7 @@ export default {
           children: [
             {
               name: "default",
-              title: "Kafka Default",
+              title: "Kafka",
               workerType: "kafka",
               key: "kafka/default",
             },
@@ -105,7 +105,7 @@ export default {
           children: [
             {
               name: "default",
-              title: "Rabbit Default",
+              title: "Rabbit",
               workerType: "rabbit",
               key: "rabbit/default",
             },
