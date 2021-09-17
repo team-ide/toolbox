@@ -25,48 +25,43 @@
       <tm-layout-bar bottom></tm-layout-bar>
       <tm-layout height="auto">
         <tm-layout height="100%" width="100%">
-          <tm-layout width="300px">
-            <tm-layout height="45px">
-              <div class="worker-panel-title pdlr-10" v-if="connect.open">
-                Topics列表（{{ connect.form.address }}）
+          <tm-layout width="300px" v-loading="topics_loading">
+            <tm-layout height="40px">
+              <div class="pdlr-10">
+                <div class="worker-panel-title" v-if="connect.open">
+                  Topics列表（{{ connect.form.address }}）
+                </div>
               </div>
-              <el-divider class="mg-0"></el-divider>
             </tm-layout>
             <tm-layout height="auto">
-              <div
-                class="worker-kafka-topic-list worker-scrollbar"
-                v-if="connect.open"
-                ref="treeBox"
-              >
-                <el-tree
-                  ref="topic_tree"
-                  :props="defaultProps"
+              <div class="worker-kafka-topic-list" v-if="connect.open">
+                <el-table
                   :data="topics"
-                  node-key="key"
-                  @node-click="topicNodeClick"
-                  @current-change="topicCurrentChange"
-                  :expand-on-click-node="false"
+                  height="100%"
+                  style="width: 100%"
+                  size="mini"
                 >
-                  <span class="worker-box-tree-span" slot-scope="{ data }">
-                    <span>{{ data.topic }}</span>
-                    <span class="mgl-20">
+                  <el-table-column prop="topic" label="topic">
+                  </el-table-column>
+                  <el-table-column width="60">
+                    <template slot-scope="scope">
                       <a
                         class="tm-link color-green ft-15 mgr-2"
-                        @click="toCreatePartitions(data)"
-                        title="创建Topic分区"
+                        title="查看消息"
+                        @click="selectTopic(scope.row)"
                       >
-                        <i class="mdi mdi-database-plus-outline"></i>
+                        <i class="mdi mdi-eye-outline"></i>
                       </a>
                       <a
                         class="tm-link color-orange ft-15 mgr-2"
-                        title="删除Topic"
-                        @click="toDeleteTopic(data)"
+                        title="删除"
+                        @click="toDeleteTopic(scope.row)"
                       >
                         <i class="mdi mdi-delete-outline"></i>
                       </a>
-                    </span>
-                  </span>
-                </el-tree>
+                    </template>
+                  </el-table-column>
+                </el-table>
               </div>
             </tm-layout>
           </tm-layout>
@@ -75,9 +70,7 @@
             <tm-layout height="100%">
               <tm-layout height="140px">
                 <div class="pdlr-10" v-if="connect.open">
-                  <div class="worker-panel-title" v-if="connect.open">
-                    Msgs搜索
-                  </div>
+                  <div class="worker-panel-title">Msgs搜索</div>
                   <el-divider class="mg-0"></el-divider>
                   <el-form
                     class="pdt-10"
@@ -141,16 +134,14 @@
                 </div>
               </tm-layout>
               <tm-layout-bar bottom></tm-layout-bar>
-              <tm-layout height="45px">
-                <div
-                  class="worker-panel-title pdlr-10"
-                  v-if="connect.open && datas != null"
-                >
-                  Msgs列表（{{ datasTopic }}）
+              <tm-layout height="40px">
+                <div class="pdlr-10">
+                  <div class="worker-panel-title" v-if="connect.open">
+                    Msgs列表（{{ datasTopic }}）
+                  </div>
                 </div>
-                <el-divider class="mg-0"></el-divider>
               </tm-layout>
-              <tm-layout height="auto">
+              <tm-layout height="auto" v-loading="datas_loading">
                 <div
                   class="worker-kafka-data-list"
                   v-if="connect.open && datas != null"
@@ -301,7 +292,7 @@ export default {
         open: false,
         form: null,
       },
-      loading: false,
+      topics_loading: false,
       searchForm: {
         topic: "test-topic",
         groupId: "test-group",
@@ -323,11 +314,6 @@ export default {
       datasTopic: null,
       datas: null,
       datas_loading: false,
-      defaultProps: {
-        children: "children",
-        label: "name",
-        isLeaf: "leaf",
-      },
     };
   },
   watch: {
@@ -410,7 +396,7 @@ export default {
               tool.error(res.msg);
             } else {
               tool.success("删除成功");
-              this.loadKafka();
+              this.initTopics();
             }
           });
         })
@@ -510,21 +496,19 @@ export default {
         })
         .catch(() => {});
     },
-    topicNodeClick() {},
-    dataNodeClick() {},
     doSearch() {
-      this.loadKafka();
+      this.initTopics();
     },
     reload() {
-      this.loadKafka();
+      this.initTopics();
     },
-    loadKafka() {
+    initTopics() {
       this.topics = null;
       this.datas = null;
-      this.loading = true;
+      this.topics_loading = true;
       this.loadTopics()
         .then((res) => {
-          this.loading = false;
+          this.topics_loading = false;
           if (res.code != 0) {
             tool.error(res.msg);
           } else {
@@ -539,7 +523,7 @@ export default {
           }
         })
         .catch(() => {
-          this.loading = false;
+          this.topics_loading = false;
         });
     },
     loadDatas() {
@@ -587,7 +571,7 @@ export default {
       this.$nextTick(() => {
         this.connect.form = Object.assign({}, this.configForm);
         this.connect.open = true;
-        this.loadKafka();
+        this.initTopics();
         tool.setCache(this.getCacheKey(), JSON.stringify(this.connect.form));
       });
     },
@@ -617,13 +601,9 @@ export default {
       this.insertOne = true;
       this.readonlyOne = false;
     },
-    topicCurrentChange(data) {
-      for (var key in data) {
-        this.searchForm[key] = data[key];
-      }
-    },
-    dataCurrentChange(data) {
-      this.toUpdate(data);
+    selectTopic(data) {
+      this.searchForm.topic = data.topic;
+      this.loadDatas();
     },
     toUpdate(data) {
       this.oneForm.key = data.key;

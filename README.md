@@ -25,9 +25,13 @@
     * 新增、修改、删除缓存等
     * 目前只支持string类型key和value
 
-3. MySql
-    * 研发中
-    * 目标：增删改查库信息，增删改查表信息，增删改查记录，导出导入库表脚本，导出导入数据，在线编辑数据等
+3. Database
+![image](doc/images/database.png)
+    * 工具可以连接 数据库（目前支持Mysql）
+    * 展示库表信息
+    * 持续更新
+    * 目标在线建库、建表、查看库表SQL、修改表、修改SQL、表数据查看、表数据在线编辑、自定义SQL、数据导入导出等
+
 4. Kafka
 ![image](doc/images/kafka.png)
     * 工具可以连接Kafka（单机或集群）

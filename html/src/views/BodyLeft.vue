@@ -155,6 +155,7 @@ export default {
       this.expand("redis");
       this.expand("zookeeper");
       this.expand("kafka");
+      this.expand("database");
     },
     expand(key) {
       if (this.expands.indexOf(key) < 0) {

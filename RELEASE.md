@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.15 -m "Toolbox完成Redis、Zookeeper、Kafka在线管理"
+git tag -a v1.1.16 -m "Toolbox添加Database库表查看功能"
 
 # 推送标签
-git push origin v1.1.15
+git push origin v1.1.16
 ```
