@@ -81,49 +81,47 @@
                 </div>
               </tm-layout>
               <tm-layout-bar bottom></tm-layout-bar>
-              <tm-layout height="45px">
-                <div class="worker-panel-title  pdlr-10" v-if="connect.open">
-                  Keys列表
+              <tm-layout height="40px">
+                <div class="pdlr-10">
+                  <div class="worker-panel-title" v-if="connect.open">
+                    Keys列表
+                  </div>
                 </div>
-                <el-divider class="mg-0"></el-divider>
               </tm-layout>
-              <tm-layout height="auto">
-                <div
-                  class="worker-redis-list worker-scrollbar"
-                  ref="treeBox"
-                  v-if="connect.open"
-                >
-                  <el-tree
-                    ref="tree"
-                    :props="defaultProps"
-                    :data="data"
-                    :default-expanded-keys="expands"
-                    node-key="key"
-                    @node-click="nodeClick"
-                    @current-change="currentChange"
-                    :expand-on-click-node="false"
+              <tm-layout height="auto" v-loading="loading">
+                <div class="worker-redis-list" v-if="connect.open">
+                  <el-table
+                    :data="keys"
+                    height="100%"
+                    style="width: 100%"
+                    size="mini"
                   >
-                    <span
-                      class="worker-box-tree-span"
-                      slot-scope="{ node, data }"
-                    >
-                      <span>{{ node.label }}</span>
-                      <span class="mgl-20">
+                    <el-table-column prop="key" label="Key"> </el-table-column>
+                    <el-table-column width="60">
+                      <template slot-scope="scope">
+                        <a
+                          class="tm-link color-green ft-15 mgr-2"
+                          title="编辑"
+                          @click="toUpdate(scope.row)"
+                        >
+                          <i class="mdi mdi-playlist-edit"></i>
+                        </a>
                         <a
                           class="tm-link color-orange ft-15 mgr-2"
-                          @click="toDelete(data)"
+                          title="删除"
+                          @click="toDelete(scope.row)"
                         >
                           <i class="mdi mdi-delete-outline"></i>
                         </a>
-                      </span>
-                    </span>
-                  </el-tree>
+                      </template>
+                    </el-table-column>
+                  </el-table>
                 </div>
               </tm-layout>
               <tm-layout-bar top></tm-layout-bar>
               <tm-layout height="30px">
                 <div
-                  v-if="connect.open && data != null"
+                  v-if="connect.open && keys != null"
                   class="text-center pd-5 ft-12"
                 >
                   共搜索
@@ -221,15 +219,8 @@ export default {
         value: null,
         json: null,
       },
-      expands: [],
-      opens: [],
-      data: null,
+      keys: null,
       count: 0,
-      defaultProps: {
-        children: "children",
-        label: "name",
-        isLeaf: "leaf",
-      },
     };
   },
   watch: {
@@ -256,7 +247,7 @@ export default {
     },
   },
   methods: {
-    keys(pattern, size) {
+    loadKeys(pattern, size) {
       let data = {};
       Object.assign(data, this.connect.form);
       data.pattern = pattern;
@@ -344,7 +335,6 @@ export default {
         })
         .catch(() => {});
     },
-    nodeClick() {},
     doSearch() {
       this.load();
     },
@@ -357,7 +347,7 @@ export default {
       this.data = null;
       this.count = 0;
       this.loading = true;
-      this.keys(data.pattern, data.size)
+      this.loadKeys(data.pattern, data.size)
         .then((res) => {
           this.loading = false;
           if (res.code != 0) {
@@ -371,7 +361,7 @@ export default {
             keys.forEach((name) => {
               datas.push({ key: name, name: name });
             });
-            this.data = datas;
+            this.keys = datas;
           }
         })
         .catch(() => {
@@ -414,9 +404,6 @@ export default {
       this.updateOne = false;
       this.insertOne = true;
       this.readonlyOne = false;
-    },
-    currentChange(data) {
-      this.toUpdate(data);
     },
     toUpdate(data) {
       this.oneForm.key = data.key;

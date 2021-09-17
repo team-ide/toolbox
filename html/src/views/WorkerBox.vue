@@ -285,4 +285,7 @@ export default {
 .worker-box .el-divider {
   background-color: #404040;
 }
+.worker-box .el-loading-mask{
+    background-color: rgba(255,255,255,.1);
+}
 </style>
