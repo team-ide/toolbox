@@ -307,7 +307,7 @@ export default {
         if (res.code != 0) {
           tool.error(res.msg);
           resolve([]);
-          tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
+          this.initTreeWidth();
         } else {
           let value = res.value || {};
           let list = value.children || [];
@@ -317,9 +317,16 @@ export default {
           });
           this.formatDatas(parent, datas);
           resolve(datas);
-          tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
+          this.initTreeWidth();
         }
       });
+    },
+    initTreeWidth() {
+      setTimeout(() => {
+        this.$nextTick(() => {
+          tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
+        });
+      }, 100);
     },
     formatDatas(parent, datas) {
       datas = datas || [];

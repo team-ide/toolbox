@@ -64,3 +64,66 @@ func tablesWork(req interface{}) (res interface{}, err error) {
 	res = response
 	return
 }
+
+type showCreateDatabaseRequest struct {
+	Config   DatabaseConfig `json:"config"`
+	Database string         `json:"database"`
+}
+
+type showCreateDatabaseResponse struct {
+	Create string `json:"create"`
+}
+
+func showCreateDatabaseWork(req interface{}) (res interface{}, err error) {
+	request := &showCreateDatabaseRequest{}
+	response := &showCreateDatabaseResponse{}
+	err = base.ToBean(req.([]byte), request)
+	if err != nil {
+		return
+	}
+	var service DatabaseService
+	service, err = getService(request.Config)
+	if err != nil {
+		return
+	}
+	var create string
+	create, err = service.ShowCreateDatabase(request.Database)
+	if err != nil {
+		return
+	}
+	response.Create = create
+	res = response
+	return
+}
+
+type showCreateTableRequest struct {
+	Config   DatabaseConfig `json:"config"`
+	Database string         `json:"database"`
+	Table    string         `json:"table"`
+}
+
+type showCreateTableResponse struct {
+	Create string `json:"create"`
+}
+
+func showCreateTableWork(req interface{}) (res interface{}, err error) {
+	request := &showCreateTableRequest{}
+	response := &showCreateTableResponse{}
+	err = base.ToBean(req.([]byte), request)
+	if err != nil {
+		return
+	}
+	var service DatabaseService
+	service, err = getService(request.Config)
+	if err != nil {
+		return
+	}
+	var create string
+	create, err = service.ShowCreateTable(request.Database, request.Table)
+	if err != nil {
+		return
+	}
+	response.Create = create
+	res = response
+	return
+}

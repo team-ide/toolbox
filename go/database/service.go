@@ -60,6 +60,8 @@ type DatabaseService interface {
 	Close() error
 	Databases() ([]DatabaseInfo, error)
 	Tables(database string) ([]TableInfo, error)
+	ShowCreateDatabase(database string) (string, error)
+	ShowCreateTable(database string, table string) (string, error)
 }
 
 type DatabaseConfig struct {

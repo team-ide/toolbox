@@ -51,9 +51,52 @@ func (service *MysqlService) Databases() (databases []DatabaseInfo, err error) {
 		return
 	}
 	for _, one := range res {
+		keys := make([]string, 0, len(one))
+		for k := range one {
+			keys = append(keys, k)
+		}
 		info := DatabaseInfo{}
-		info.Name = string(one["Database"])
+		info.Name = string(one[keys[0]])
 		databases = append(databases, info)
+	}
+	return
+}
+
+func (service *MysqlService) ShowCreateDatabase(database string) (create string, err error) {
+	sqlParam := SqlParam{
+		Sql:    "show create database `" + database + "`",
+		Params: []interface{}{},
+	}
+	res, err := service.Query(sqlParam)
+	if err != nil {
+		return
+	}
+	for _, one := range res {
+		keys := make([]string, 0, len(one))
+		for k := range one {
+			keys = append(keys, k)
+		}
+		create = string(one[keys[1]])
+	}
+	return
+}
+
+func (service *MysqlService) ShowCreateTable(database string, table string) (create string, err error) {
+	sqlParam := SqlParam{
+		Sql:    "show create table `" + database + "`.`" + table + "`",
+		Params: []interface{}{},
+	}
+	res, err := service.Query(sqlParam)
+	if err != nil {
+		return
+	}
+	for _, one := range res {
+		keys := make([]string, 0, len(one))
+		for k := range one {
+			keys = append(keys, k)
+		}
+
+		create = string(one[keys[1]])
 	}
 	return
 }
