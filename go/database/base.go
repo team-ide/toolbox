@@ -21,7 +21,7 @@ func ResultToMap(rows *sql.Rows) ([]map[string][]byte, error) {
 	}
 	values := []interface{}{}
 
-	for _, _ = range columnTypes {
+	for range columnTypes {
 		var value sql.RawBytes
 		values = append(values, &value)
 	}
