@@ -72,6 +72,7 @@
             >
               <div
                 class="worker-database-database-list worker-scrollbar"
+                style="overflow-x: hidden"
                 ref="treeBox"
                 v-if="connect.open"
               >
@@ -87,7 +88,7 @@
                     <span
                       class="worker-box-tree-span"
                       :style="{
-                        'margin-left': data.isTable ? '-18px' : 'auto',
+                        'margin-left': data.isTable ? '-18px' : 'unset',
                       }"
                     >
                       <span
@@ -98,7 +99,7 @@
                           >
                         </template>
                       </span>
-                      <span class="mgl-20">
+                      <span class="worker-btn-group">
                         <template v-if="data.isDatabase || data.isTable">
                           <a
                             class="tm-link color-grey ft-14 mgr-2"
@@ -388,11 +389,11 @@ export default {
       this.initTreeWidth();
     },
     initTreeWidth() {
-      setTimeout(() => {
-        this.$nextTick(() => {
-          tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
-        });
-      }, 100);
+      // setTimeout(() => {
+      //   this.$nextTick(() => {
+      //     tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
+      //   });
+      // }, 100);
     },
     getCacheKey() {
       return "teamide-toolbox-" + this.workerKey;

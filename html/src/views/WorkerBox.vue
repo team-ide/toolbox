@@ -3,7 +3,9 @@
     <tm-layout height="100%">
       <tm-layout :height="style.header.height">
         <div class="worker-header" :style="headerStyleObject">
-          <h2 class="mg-0 pd-0 pdlr-20" style="line-height: 40px;">Team IDE Toolbox</h2>
+          <h2 class="mg-0 pd-0 pdlr-20" style="line-height: 40px">
+            Team IDE Toolbox
+          </h2>
         </div>
       </tm-layout>
       <tm-layout-bar bottom></tm-layout-bar>
@@ -156,14 +158,34 @@ export default {
 .worker-box .el-tree .mdi {
   vertical-align: middle;
 }
+.worker-box tr .worker-btn-group {
+  transform: scale(0);
+}
+.worker-box tr:hover .worker-btn-group {
+  transform: scale(1);
+}
 
+.worker-box .el-tree-node__content {
+  position: relative;
+}
+
+.worker-box .el-tree-node__content .worker-btn-group {
+  display: none;
+}
+.worker-box .el-tree-node__content:hover .worker-btn-group {
+  display: block;
+}
+.worker-box .worker-box-tree-span .worker-btn-group {
+  position: absolute;
+  right: 5px;
+  top: 0px;
+}
 .worker-box .worker-box-tree-span {
-  flex: 1;
+  /* flex: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; */
   font-size: 14px;
-  padding-right: 8px;
 }
 .worker-box .el-tree__empty-block {
   display: none;
@@ -285,7 +307,7 @@ export default {
 .worker-box .el-divider {
   background-color: #404040;
 }
-.worker-box .el-loading-mask{
-    background-color: rgba(255,255,255,.1);
+.worker-box .el-loading-mask {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 </style>

@@ -99,20 +99,22 @@
                     <el-table-column prop="key" label="Key"> </el-table-column>
                     <el-table-column width="60">
                       <template slot-scope="scope">
-                        <a
-                          class="tm-link color-green ft-15 mgr-2"
-                          title="编辑"
-                          @click="toUpdate(scope.row)"
-                        >
-                          <i class="mdi mdi-playlist-edit"></i>
-                        </a>
-                        <a
-                          class="tm-link color-orange ft-15 mgr-2"
-                          title="删除"
-                          @click="toDelete(scope.row)"
-                        >
-                          <i class="mdi mdi-delete-outline"></i>
-                        </a>
+                        <div class="worker-btn-group">
+                          <a
+                            class="tm-link color-green ft-15 mgr-2"
+                            title="编辑"
+                            @click="toUpdate(scope.row)"
+                          >
+                            <i class="mdi mdi-playlist-edit"></i>
+                          </a>
+                          <a
+                            class="tm-link color-orange ft-15 mgr-2"
+                            title="删除"
+                            @click="toDelete(scope.row)"
+                          >
+                            <i class="mdi mdi-delete-outline"></i>
+                          </a>
+                        </div>
                       </template>
                     </el-table-column>
                   </el-table>

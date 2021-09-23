@@ -35,6 +35,7 @@
             <tm-layout height="auto">
               <div
                 class="worker-zookeeper-list worker-scrollbar"
+                style="overflow-x: hidden"
                 ref="treeBox"
                 v-if="connect.open"
               >
@@ -59,7 +60,7 @@
                     <template v-else>
                       <span>{{ node.label }}</span>
                     </template>
-                    <span class="mgl-20">
+                    <div class="worker-btn-group">
                       <a
                         class="tm-link color-grey ft-14 mgr-2"
                         @click="toReloadChildren(data)"
@@ -78,7 +79,7 @@
                       >
                         <i class="mdi mdi-delete-outline"></i>
                       </a>
-                    </span>
+                    </div>
                   </span>
                 </el-tree>
               </div>
@@ -322,11 +323,11 @@ export default {
       });
     },
     initTreeWidth() {
-      setTimeout(() => {
-        this.$nextTick(() => {
-          tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
-        });
-      }, 100);
+      // setTimeout(() => {
+      //   this.$nextTick(() => {
+      //     tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
+      //   });
+      // }, 100);
     },
     formatDatas(parent, datas) {
       datas = datas || [];

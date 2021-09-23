@@ -45,20 +45,22 @@
                   </el-table-column>
                   <el-table-column width="60">
                     <template slot-scope="scope">
-                      <a
-                        class="tm-link color-green ft-15 mgr-2"
-                        title="查看消息"
-                        @click="selectTopic(scope.row)"
-                      >
-                        <i class="mdi mdi-eye-outline"></i>
-                      </a>
-                      <a
-                        class="tm-link color-orange ft-15 mgr-2"
-                        title="删除"
-                        @click="toDeleteTopic(scope.row)"
-                      >
-                        <i class="mdi mdi-delete-outline"></i>
-                      </a>
+                      <div class="worker-btn-group">
+                        <a
+                          class="tm-link color-green ft-15 mgr-2"
+                          title="查看消息"
+                          @click="selectTopic(scope.row)"
+                        >
+                          <i class="mdi mdi-eye-outline"></i>
+                        </a>
+                        <a
+                          class="tm-link color-orange ft-15 mgr-2"
+                          title="删除"
+                          @click="toDeleteTopic(scope.row)"
+                        >
+                          <i class="mdi mdi-delete-outline"></i>
+                        </a>
+                      </div>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -166,27 +168,29 @@
                     </el-table-column>
                     <el-table-column width="90">
                       <template slot-scope="scope">
-                        <a
-                          class="tm-link color-grey-1 ft-15 mgr-5"
-                          @click="toShow(scope.row)"
-                          title="查看"
-                        >
-                          <i class="mdi mdi-eye"></i>
-                        </a>
-                        <a
-                          class="tm-link color-orange ft-15 mgr-5"
-                          @click="toCommit(scope.row)"
-                          title="提交"
-                        >
-                          <i class="mdi mdi-send-check"></i>
-                        </a>
-                        <a
-                          class="tm-link color-red-3 ft-15 mgr-5"
-                          title="删除数据"
-                          @click="toDeleteData(scope.row)"
-                        >
-                          <i class="mdi mdi-delete-outline"></i>
-                        </a>
+                        <div class="worker-btn-group">
+                          <a
+                            class="tm-link color-grey-1 ft-15 mgr-5"
+                            @click="toShow(scope.row)"
+                            title="查看"
+                          >
+                            <i class="mdi mdi-eye"></i>
+                          </a>
+                          <a
+                            class="tm-link color-orange ft-15 mgr-5"
+                            @click="toCommit(scope.row)"
+                            title="提交"
+                          >
+                            <i class="mdi mdi-send-check"></i>
+                          </a>
+                          <a
+                            class="tm-link color-red-3 ft-15 mgr-5"
+                            title="删除数据"
+                            @click="toDeleteData(scope.row)"
+                          >
+                            <i class="mdi mdi-delete-outline"></i>
+                          </a>
+                        </div>
                       </template>
                     </el-table-column>
                   </el-table>
