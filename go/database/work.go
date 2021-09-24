@@ -127,3 +127,35 @@ func showCreateTableWork(req interface{}) (res interface{}, err error) {
 	res = response
 	return
 }
+
+type tableDetailRequest struct {
+	Config   DatabaseConfig `json:"config"`
+	Database string         `json:"database"`
+	Table    string         `json:"table"`
+}
+
+type tableDetailResponse struct {
+	Table TableDetailInfo `json:"table"`
+}
+
+func tableDetailWork(req interface{}) (res interface{}, err error) {
+	request := &tableDetailRequest{}
+	response := &tableDetailResponse{}
+	err = base.ToBean(req.([]byte), request)
+	if err != nil {
+		return
+	}
+	var service DatabaseService
+	service, err = getService(request.Config)
+	if err != nil {
+		return
+	}
+	var table TableDetailInfo
+	table, err = service.TableDetail(request.Database, request.Table)
+	if err != nil {
+		return
+	}
+	response.Table = table
+	res = response
+	return
+}

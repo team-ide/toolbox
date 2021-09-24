@@ -128,6 +128,12 @@
                         </template>
                         <template v-if="data.isTable">
                           <a
+                            class="tm-link color-green ft-15 mgr-2"
+                            @click="toShowTableData(data)"
+                          >
+                            <i class="mdi mdi-database-outline"></i>
+                          </a>
+                          <a
                             class="tm-link color-orange ft-15 mgr-2"
                             @click="toDelete(data)"
                           >
@@ -143,7 +149,7 @@
           </tm-layout>
           <tm-layout-bar right></tm-layout-bar>
           <tm-layout width="auto">
-            <tm-layout height="100%"> </tm-layout>
+            <TableData ref="TableData"></TableData>
           </tm-layout>
         </tm-layout>
       </tm-layout>
@@ -182,9 +188,11 @@ import server from "@/server";
 import tool from "@/tool";
 import source from "@/source";
 
+import TableData from "./database/TableData";
+
 export default {
-  components: {},
   props: ["workerKey"],
+  components: { TableData },
   data() {
     return {
       tool,
@@ -237,6 +245,14 @@ export default {
       data.database = database;
       return server.database.tables(data);
     },
+    loadTableDetail(database, table) {
+      let data = {};
+      data.config = this.getConfig();
+      data.database = database;
+      data.table = table;
+      return server.database.tableDetail(data);
+    },
+
     initDatabases(resolve) {
       this.databases_loading = true;
       this.loadDatabases()
@@ -394,6 +410,20 @@ export default {
       //     tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
       //   });
       // }, 100);
+    },
+    toShowTableData(table) {
+      let database = table.database;
+      this.loadTableDetail(database.name, table.name)
+        .then((res) => {
+          if (res.code != 0) {
+            tool.error(res.msg);
+          } else {
+            let value = res.value || {};
+            let table = value.table;
+            this.$refs.TableData.init(this.getConfig(), database, table);
+          }
+        })
+        .catch(() => {});
     },
     getCacheKey() {
       return "teamide-toolbox-" + this.workerKey;

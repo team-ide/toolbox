@@ -103,10 +103,10 @@ func (service *MysqlService) ShowCreateTable(database string, table string) (cre
 
 func (service *MysqlService) Tables(database string) (tables []TableInfo, err error) {
 
-	sql_ := `select TABLE_NAME name,TABLE_COMMENT comment from information_schema.tables  where TABLE_SCHEMA=? and TABLE_TYPE='BASE TABLE'`
+	sql_ := "show table status from `" + database + "`"
 	sqlParam := SqlParam{
 		Sql:    sql_,
-		Params: []interface{}{database},
+		Params: []interface{}{},
 	}
 	res, err := service.Query(sqlParam)
 	if err != nil {
@@ -114,10 +114,90 @@ func (service *MysqlService) Tables(database string) (tables []TableInfo, err er
 	}
 	for _, one := range res {
 		info := TableInfo{
-			Name:    string(one["name"]),
-			Comment: string(one["comment"]),
+			Name:    string(one["Name"]),
+			Comment: string(one["Comment"]),
 		}
 		tables = append(tables, info)
+	}
+	return
+}
+
+func (service *MysqlService) TableDetail(database string, table string) (tableDetail TableDetailInfo, err error) {
+
+	sql_ := "show table status from `" + database + "` where Name=?"
+	sqlParam := SqlParam{
+		Sql:    sql_,
+		Params: []interface{}{table},
+	}
+	res, err := service.Query(sqlParam)
+	if err != nil {
+		return
+	}
+	if len(res) == 0 {
+		return
+	}
+	tableDetail = TableDetailInfo{
+		Name:    string(res[0]["Name"]),
+		Comment: string(res[0]["Comment"]),
+	}
+	var columns []TableColumnInfo
+	columns, err = service.TableColumns(database, table)
+	if err != nil {
+		return
+	}
+	tableDetail.Columns = columns
+
+	var indexs []TableIndexInfo
+	indexs, err = service.TableIndexs(database, table)
+	if err != nil {
+		return
+	}
+	tableDetail.Indexs = indexs
+	return
+}
+
+func (service *MysqlService) TableColumns(database string, table string) (columns []TableColumnInfo, err error) {
+
+	sql_ := "show full columns from  `" + database + "`.`" + table + "`"
+	sqlParam := SqlParam{
+		Sql:    sql_,
+		Params: []interface{}{},
+	}
+	res, err := service.Query(sqlParam)
+	if err != nil {
+		return
+	}
+	for _, one := range res {
+		info := TableColumnInfo{
+			Name:    string(one["Field"]),
+			Comment: string(one["Comment"]),
+		}
+		columns = append(columns, info)
+	}
+	return
+}
+
+func (service *MysqlService) TableIndexs(database string, table string) (indexs []TableIndexInfo, err error) {
+
+	sql_ := "show indexes from  `" + database + "`.`" + table + "`"
+	sqlParam := SqlParam{
+		Sql:    sql_,
+		Params: []interface{}{},
+	}
+	res, err := service.Query(sqlParam)
+	if err != nil {
+		return
+	}
+	for _, one := range res {
+		Key_name := string(one["Key_name"])
+		if Key_name == "PRIMARY" {
+			continue
+		}
+		info := TableIndexInfo{
+			Name:    Key_name,
+			Comment: string(one["Comment"]),
+		}
+		indexs = append(indexs, info)
 	}
 	return
 }

@@ -13,6 +13,7 @@ func Init() {
 	worker_.WorkMap["tables"] = tablesWork
 	worker_.WorkMap["showCreateDatabase"] = showCreateDatabaseWork
 	worker_.WorkMap["showCreateTable"] = showCreateTableWork
+	worker_.WorkMap["tableDetail"] = tableDetailWork
 
 	worker.AddWorker(worker_)
 }
