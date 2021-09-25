@@ -2,7 +2,7 @@ let source = {};
 
 source.served = false;
 source.inited = false;
-source.ENUM_MAP = null;
+source.enum_map = null;
 
 source.contextmenu = {
     menus: null

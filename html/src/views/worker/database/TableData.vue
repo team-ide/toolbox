@@ -1,13 +1,60 @@
 <template>
   <tm-layout height="100%">
-    <tm-layout height="200px">
+    <tm-layout height="40px">
       <div class="pdlr-10" v-if="database != null && table != null">
         <div class="worker-panel-title">
           Database：<span class="mgr-10 color-orange">{{ database.name }}</span>
           Table：<span class="mgr-10 color-orange">{{ table.name }}</span>
         </div>
-        <el-divider class="mg-0"></el-divider>
       </div>
+    </tm-layout>
+    <tm-layout height="200px">
+      <tm-layout width="400px">
+        <ul class="part-box" v-if="database != null && table != null">
+          <li>
+            <input type="checkbox" />
+            <select @change="tool.initInputWidth">
+              <template v-for="(one, index) in table.columns">
+                <option :key="index" :value="one.name">
+                  {{ one.name }}
+                  <template v-if="tool.isNotEmpty(one.comment)">
+                    （{{ one.comment }}）
+                  </template>
+                </option>
+              </template>
+            </select>
+            <select @change="tool.initInputWidth">
+              <template
+                v-for="(one, index) in source.enum_map.sqlConditionalOperations"
+              >
+                <option :key="index" :value="one.value">
+                  {{ one.text }}
+                  <template v-if="tool.isNotEmpty(one.comment)">
+                    （{{ one.comment }}）
+                  </template>
+                </option>
+              </template>
+            </select>
+            <input
+              type="text"
+              @input="tool.initInputWidth"
+              @change="tool.initInputWidth"
+            />
+          </li>
+        </ul>
+      </tm-layout>
+      <tm-layout-bar right></tm-layout-bar>
+      <tm-layout width="400px">
+        <ul class="part-box" v-if="database != null && table != null">
+          <li></li>
+        </ul>
+      </tm-layout>
+      <tm-layout-bar right></tm-layout-bar>
+      <tm-layout>
+        <ul class="part-box" v-if="database != null && table != null">
+          <li></li>
+        </ul>
+      </tm-layout>
     </tm-layout>
     <tm-layout-bar bottom></tm-layout-bar>
     <tm-layout height="auto" v-loading="datas_loading">
@@ -82,6 +129,11 @@ export default {
   watch: {},
   computed: {},
   methods: {
+    initWidth(event) {
+      let target = event.target;
+      let value = target.value;
+      tool.initInputWidth(event);
+    },
     init(config, database, table) {
       this.config = config;
       this.database = database;

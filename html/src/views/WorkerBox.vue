@@ -310,4 +310,69 @@ export default {
 .worker-box .el-loading-mask {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+.part-box {
+  line-height: 20px;
+  font-size: 12px;
+}
+.part-box,
+.part-box li {
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+  list-style: none;
+}
+.part-box li {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.part-box input,
+.part-box select {
+  color: #ffffff;
+  width: 50px;
+  min-width: 50px;
+  border: 1px dashed transparent;
+  background-color: transparent;
+  text-align: center;
+  height: 20px;
+  max-width: 100%;
+  padding: 0px;
+  padding-left: 2px;
+  padding-right: 2px;
+  box-sizing: border-box;
+  outline: none;
+  font-size: 12px;
+}
+
+.part-box input {
+  border-bottom: 1px dashed #636363;
+}
+.part-box select {
+  -moz-appearance: auto;
+  -webkit-appearance: auto;
+}
+.part-box option {
+  background-color: #ffffff;
+  color: #3e3e3e;
+}
+.part-box input[type="checkbox"] {
+  width: 15px;
+  min-width: 15px;
+  height: 15px;
+  vertical-align: bottom;
+}
+
+.part-box textarea {
+  color: #ffffff;
+  height: 70px;
+  border: 1px dashed #636363;
+  text-align: left;
+  padding: 5px;
+  min-width: 500px;
+  background-color: transparent;
+  font-size: 12px;
+  vertical-align: text-top;
+}
 </style>

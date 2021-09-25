@@ -34,6 +34,8 @@ func handleOpen(rw http.ResponseWriter, r *http.Request) {
 	}
 	data["workers"] = workers
 
+	enum_map := map[string]interface{}{}
+
 	sqlConditionalOperations := []base.Option{}
 	sqlConditionalOperations = append(sqlConditionalOperations, base.Option{Text: "等于", Value: "="})
 	sqlConditionalOperations = append(sqlConditionalOperations, base.Option{Text: "不等于", Value: "<>"})
@@ -56,7 +58,10 @@ func handleOpen(rw http.ResponseWriter, r *http.Request) {
 	sqlConditionalOperations = append(sqlConditionalOperations, base.Option{Text: "在列表", Value: "in"})
 	sqlConditionalOperations = append(sqlConditionalOperations, base.Option{Text: "不在列表", Value: "not in"})
 	sqlConditionalOperations = append(sqlConditionalOperations, base.Option{Text: "自定义", Value: "custom"})
-	data["sqlConditionalOperations"] = sqlConditionalOperations
+
+	enum_map["sqlConditionalOperations"] = sqlConditionalOperations
+
+	data["enum_map"] = enum_map
 
 	outJSON(rw, data, nil)
 }
