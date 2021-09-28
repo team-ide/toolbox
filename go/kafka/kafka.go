@@ -67,10 +67,10 @@ func (service *KafkaService) Pull(groupId string, topics []string) (msgs []*sara
 	startTime := base.GetNowTime()
 	for {
 		time.Sleep(200 * time.Millisecond)
-		if len(handler.msgs) > 0 {
+		nowTime := base.GetNowTime()
+		if len(handler.msgs) > 0 && nowTime-startTime > 2*1000 {
 			break
 		}
-		nowTime := base.GetNowTime()
 		if nowTime-startTime > 5*1000 {
 			break
 		}

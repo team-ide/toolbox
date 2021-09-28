@@ -15,8 +15,9 @@ type BaseResponse struct {
 }
 
 var (
-	OK_RESULT    = "{\"msg\": \"\",\"code\":\"0\"}"
-	ERROR_RESULT = "{\"msg\": \"服务异常\",\"code\":\"-1\"}"
+	OK_RESULT        = "{\"msg\": \"\",\"code\":\"0\"}"
+	NOT_LOGIN_RESULT = "{\"msg\": \"未检测到登录用户，请先登录\",\"code\":100}"
+	ERROR_RESULT     = "{\"msg\": \"服务异常\",\"code\":\"-1\"}"
 )
 
 func getPostBody(r *http.Request) (data []byte, err error) {

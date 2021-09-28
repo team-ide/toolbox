@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.17 -m "Kafka操作添加设置Topic分区数量，推送和查看消息添加Header"
+git tag -a v1.1.18 -m "Kafka拉取消息设置拉取2秒时间"
 
 # 推送标签
-git push origin v1.1.17
+git push origin v1.1.18
 ```

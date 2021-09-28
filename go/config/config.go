@@ -26,6 +26,7 @@ type server struct {
 type user struct {
 	Name string
 	Auth string
+	Role int
 }
 
 type redis struct {

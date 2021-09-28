@@ -38,6 +38,8 @@ func StartServer() {
 
 	r.HandleFunc(context+"/server/open", handleOpen)
 	r.HandleFunc(context+"/server/session", handleSession)
+	r.HandleFunc(context+"/server/login", handleLogin)
+	r.HandleFunc(context+"/server/logout", handleLogout)
 
 	workerCache := worker.WorkerCache
 	for workerName, oneWorker := range workerCache {

@@ -100,6 +100,16 @@ let server = {
             headers: {}
         });
     },
+    login(param) {
+        return http.post('server/login', param, {
+            headers: {}
+        });
+    },
+    logout(param) {
+        return http.post('server/logout', param, {
+            headers: {}
+        });
+    },
     workerWork(worker, work, param) {
         return http.post('server/worker/' + worker + '/' + work, param, {
             headers: {}

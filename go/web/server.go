@@ -2,8 +2,13 @@ package web
 
 import (
 	"base"
+	"config"
+	"errors"
+	"io"
 	"net/http"
 	"worker"
+
+	"github.com/gorilla/sessions"
 )
 
 func handleOpen(rw http.ResponseWriter, r *http.Request) {
@@ -22,7 +27,7 @@ func handleOpen(rw http.ResponseWriter, r *http.Request) {
 		workerData["configs"] = oneWorker.Configs
 
 		workerWorks := []map[string]interface{}{}
-		for workName, _ := range workMap {
+		for workName := range workMap {
 			workData := make(map[string]interface{})
 
 			workData["name"] = workName
@@ -67,8 +72,102 @@ func handleOpen(rw http.ResponseWriter, r *http.Request) {
 	outJSON(rw, data, nil)
 }
 
+var sessionStore = sessions.NewCookieStore([]byte("TEAMIDE-TOOLBOX"))
+
+func init() {
+	sessionStore.MaxAge(60 * 60 * 2)
+}
+
+func SetSessionUser(w http.ResponseWriter, r *http.Request, user *base.LoginUser) error {
+	param := GetSessionParam(r)
+	param.User = user
+	return SetSessionParam(w, r, param)
+}
+
+func SetSessionParam(w http.ResponseWriter, r *http.Request, sessionParam *base.SessionParam) error {
+	var err error
+	session, _ := sessionStore.Get(r, "teamide-toolbox")
+	value := ""
+	if sessionParam != nil {
+		var by []byte
+		by, err = base.JSON.Marshal(sessionParam)
+		if err != nil {
+			return err
+		}
+		value = string(by)
+	}
+	session.Values["session"] = value
+	err = session.Save(r, w)
+	return err
+}
+func GetSessionParam(r *http.Request) *base.SessionParam {
+	session, _ := sessionStore.Get(r, "teamide-toolbox")
+	value, ok := session.Values["session"]
+	sessionParam := &base.SessionParam{}
+	if ok && value != "" {
+		base.JSON.Unmarshal([]byte(value.(string)), sessionParam)
+	} else {
+		sessionParam = &base.SessionParam{}
+	}
+	return sessionParam
+}
+
 func handleSession(rw http.ResponseWriter, r *http.Request) {
-	data := make(map[string]interface{})
-	data["A"] = 1
-	outJSON(rw, data, nil)
+	sessionParam := GetSessionParam(r)
+	outJSON(rw, sessionParam, nil)
+}
+
+func GetLoginUser(r *http.Request) *base.LoginUser {
+	sessionParam := GetSessionParam(r)
+	if sessionParam != nil && sessionParam.User != nil {
+		return sessionParam.User
+	}
+	return nil
+}
+func ValidateLogin(w http.ResponseWriter, r *http.Request) bool {
+	res := GetLoginUser(r) != nil
+	if !res {
+		w.Header().Set("Content-Type", "application/json")
+		io.WriteString(w, NOT_LOGIN_RESULT)
+	}
+	return res
+}
+
+func handleLogin(rw http.ResponseWriter, r *http.Request) {
+	request := &base.UserLoginReqeust{}
+	response := make(map[string]interface{})
+	err := ToBean(r, request)
+	if err != nil {
+		outJSON(rw, response, err)
+		return
+	}
+	var loginUser *base.LoginUser
+
+	for _, user := range config.Config.User {
+		if user.Name == request.Name && user.Auth == request.Auth {
+			loginUser = &base.LoginUser{
+				Name: user.Name,
+				Role: user.Role,
+			}
+		}
+	}
+
+	if loginUser == nil {
+		outJSON(rw, response, errors.New("用户名或密码错误！"))
+		return
+	}
+
+	SetSessionUser(rw, r, loginUser)
+
+	outJSON(rw, response, nil)
+
+}
+
+func handleLogout(rw http.ResponseWriter, r *http.Request) {
+	response := make(map[string]interface{})
+
+	SetSessionUser(rw, r, nil)
+
+	outJSON(rw, response, nil)
+
 }
