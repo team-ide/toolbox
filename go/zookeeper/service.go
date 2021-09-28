@@ -6,12 +6,12 @@ import (
 )
 
 type Automatic struct {
-	url               string
+	address           string
 	automaticShutdown *worker.AutomaticShutdown
 }
 
 func (automatic *Automatic) CreateAutomaticShutdown(automaticShutdown *worker.AutomaticShutdown) error {
-	service, err := CreateZKService(automatic.url)
+	service, err := CreateZKService(automatic.address)
 	if err != nil {
 		return err
 	}
@@ -31,11 +31,11 @@ func (automatic *Automatic) CreateAutomaticShutdown(automaticShutdown *worker.Au
 	return err
 }
 
-func getService(url string) (service *ZKService, err error) {
+func getService(address string) (service *ZKService, err error) {
 	automatic := &Automatic{
-		url: url,
+		address: address,
 	}
-	key := "zookeeper-" + url
+	key := "zookeeper-" + address
 	var automaticShutdown *worker.AutomaticShutdown
 	automaticShutdown, err = worker.GetAutomaticShutdown(key, automatic.CreateAutomaticShutdown)
 	if err != nil {

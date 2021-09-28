@@ -14,15 +14,15 @@ type ZKService struct {
 	connEvent <-chan zk.Event // zk事件通知管道
 }
 
-func CreateZKService(server string) (*ZKService, error) {
+func CreateZKService(address string) (*ZKService, error) {
 	service := &ZKService{}
-	err := service.init(server)
+	err := service.init(address)
 	return service, err
 }
 
-func (service *ZKService) init(server string) error {
+func (service *ZKService) init(address string) error {
 	var err error
-	service.conn, service.connEvent, err = zk.Connect(strings.Split(server, ","), time.Second*3)
+	service.conn, service.connEvent, err = zk.Connect(strings.Split(address, ","), time.Second*3)
 	return err
 }
 

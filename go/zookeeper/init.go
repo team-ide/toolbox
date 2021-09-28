@@ -1,6 +1,7 @@
 package zookeeper
 
 import (
+	"config"
 	"worker"
 )
 
@@ -8,6 +9,7 @@ func Init() {
 	worker_ := &worker.Worker{
 		Name:    "zookeeper",
 		Text:    "Zookeeper",
+		Configs: config.Config.Zookeeper,
 		WorkMap: map[string]func(interface{}) (interface{}, error){},
 	}
 	worker_.WorkMap["get"] = getWork

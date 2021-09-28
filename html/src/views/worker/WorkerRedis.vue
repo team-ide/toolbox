@@ -2,28 +2,12 @@
   <div class="worker-redis-wrap">
     <tm-layout height="100%">
       <tm-layout height="50px">
-        <el-form
-          class="pd-10"
-          :inline="true"
-          :model="configForm"
-          size="mini"
-          @submit.native.prevent
-        >
-          <el-form-item label="address（多个使用“;”隔开）">
-            <el-input
-              v-model="configForm.address"
-              placeholder="address"
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="auth">
-            <el-input v-model="configForm.auth" placeholder="auth"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <a class="tm-btn tm-btn-sm color-green" @click="doConnect">
-              连接
-            </a>
-          </el-form-item>
-        </el-form>
+        <WorkerConfig
+          :workerKey="workerKey"
+          workerType="redis"
+          :connect="connect"
+          @connect="doConnect"
+        ></WorkerConfig>
       </tm-layout>
       <tm-layout-bar bottom></tm-layout-bar>
       <tm-layout height="auto">
@@ -33,7 +17,7 @@
               <tm-layout height="140px">
                 <div class="pdlr-10">
                   <div class="worker-panel-title" v-if="connect.open">
-                    Keys搜索（{{ connect.form.address }}）
+                    Keys搜索（{{ connect.title }}）
                   </div>
                   <el-divider class="mg-0"></el-divider>
                   <el-form
@@ -196,20 +180,19 @@ import server from "@/server";
 import tool from "@/tool";
 import source from "@/source";
 
+import WorkerConfig from "./WorkerConfig";
+
 export default {
-  components: {},
+  components: { WorkerConfig },
   props: ["workerKey"],
   data() {
     return {
       tool,
       source,
-      configForm: {
-        address: "127.0.0.1:6379",
-        auth: "",
-      },
       connect: {
         open: false,
-        form: null,
+        config: null,
+        title: null,
       },
       loading: false,
       searchForm: { pattern: "*", size: 20 },
@@ -243,28 +226,24 @@ export default {
       }
     },
   },
-  computed: {
-    treeStyleObject: function () {
-      return {};
-    },
-  },
+  computed: {},
   methods: {
     loadKeys(pattern, size) {
       let data = {};
-      Object.assign(data, this.connect.form);
+      Object.assign(data, this.connect.config);
       data.pattern = pattern;
       data.size = Number(size);
       return server.redis.keys(data);
     },
     get(key) {
       let data = {};
-      Object.assign(data, this.connect.form);
+      Object.assign(data, this.connect.config);
       data.key = key;
       return server.redis.get(data);
     },
     doSave() {
       let data = {};
-      Object.assign(data, this.connect.form);
+      Object.assign(data, this.connect.config);
       Object.assign(data, this.oneForm);
       if (tool.isEmpty(data.key)) {
         tool.error("Key不能为空！");
@@ -284,7 +263,7 @@ export default {
         window.event.stopPropagation && window.event.stopPropagation();
       }
       let data = {};
-      Object.assign(data, this.connect.form);
+      Object.assign(data, this.connect.config);
       data.key = one.key;
       if (tool.isEmpty(data.key)) {
         tool.error("Key不能为空！");
@@ -309,7 +288,7 @@ export default {
         window.event.stopPropagation && window.event.stopPropagation();
       }
       let data = {};
-      Object.assign(data, this.connect.form);
+      Object.assign(data, this.connect.config);
       Object.assign(data, this.searchForm);
       if (tool.isEmpty(data.pattern)) {
         tool.error("匹配字符不能为空！");
@@ -349,53 +328,40 @@ export default {
       this.data = null;
       this.count = 0;
       this.loading = true;
-      this.loadKeys(data.pattern, data.size)
-        .then((res) => {
-          this.loading = false;
-          if (res.code != 0) {
-            tool.error(res.msg);
-          } else {
-            let value = res.value || {};
-            let keys = value.keys || [];
-            this.count = value.count;
-            let datas = [];
+      return new Promise((resolve, reject) => {
+        this.loadKeys(data.pattern, data.size)
+          .then((res) => {
+            this.loading = false;
+            if (res.code != 0) {
+              tool.error(res.msg);
+            } else {
+              let value = res.value || {};
+              let keys = value.keys || [];
+              this.count = value.count;
+              let datas = [];
 
-            keys.forEach((name) => {
-              datas.push({ key: name, name: name });
-            });
-            this.keys = datas;
-          }
-        })
-        .catch(() => {
-          this.loading = false;
-        });
-    },
-    doConnect() {
-      this.connect.open = false;
-      tool.trimList(this.expands);
-      tool.trimList(this.opens);
-
-      this.toInsert();
-
-      this.$nextTick(() => {
-        this.connect.form = Object.assign({}, this.configForm);
-        this.connect.open = true;
-        this.load();
-        tool.setCache(this.getCacheKey(), JSON.stringify(this.connect.form));
+              keys.forEach((name) => {
+                datas.push({ key: name, name: name });
+              });
+              this.keys = datas;
+            }
+            resolve && resolve(res);
+          })
+          .catch((e) => {
+            this.loading = false;
+            reject && reject(e);
+          });
       });
     },
-    initConnect() {
-      let value = tool.getCache(this.getCacheKey());
-      if (tool.isNotEmpty(value)) {
-        let data = JSON.parse(value);
-        for (var key in this.configForm) {
-          this.configForm[key] = data[key];
-        }
-        //this.doConnect();
-      }
-    },
-    getCacheKey() {
-      return "teamide-toolbox-" + this.workerKey;
+    doConnect(config, callback) {
+      this.toInsert();
+      this.load()
+        .then((res) => {
+          callback(res);
+        })
+        .catch((e) => {
+          callback(e);
+        });
     },
     toInsert() {
       if (window.event) {
@@ -438,9 +404,7 @@ export default {
         }
       });
     },
-    init() {
-      this.initConnect();
-    },
+    init() {},
   },
   mounted() {
     this.init();

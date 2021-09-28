@@ -11,6 +11,7 @@ type Worker struct {
 	Text    string
 	Icon    string
 	Comment string
+	Configs interface{}
 	WorkMap map[string]func(interface{}) (interface{}, error)
 }
 

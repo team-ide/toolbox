@@ -19,6 +19,7 @@ func handleOpen(rw http.ResponseWriter, r *http.Request) {
 		workerData["icon"] = oneWorker.Icon
 		workerData["comment"] = oneWorker.Comment
 		workerData["text"] = oneWorker.Text
+		workerData["configs"] = oneWorker.Configs
 
 		workerWorks := []map[string]interface{}{}
 		for workName, _ := range workMap {

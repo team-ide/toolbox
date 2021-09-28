@@ -35,6 +35,11 @@ tool.setSource = function (value) {
         source.TIMESTAMP = value.TIMESTAMP;
         source.enum_map = value.enum_map || {};
         server.initWorkers(value.workers);
+
+        value.workers = value.workers || [];
+        value.workers.forEach(worker => {
+            source[worker.name] = { configs: worker.configs };
+        });
     } else {
         source.served = false;
         source.inited = true;
