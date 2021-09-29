@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.19 -m "添加自动发布Docker"
+git tag -a v1.1.20 -m "添加自动发布Docker"
 
 # 推送标签
-git push origin v1.1.19
+git push origin v1.1.20
 ```
