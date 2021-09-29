@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.18 -m "Kafka拉取消息设置拉取2秒时间"
+git tag -a v1.1.19 -m "添加自动发布Docker"
 
 # 推送标签
-git push origin v1.1.18
+git push origin v1.1.19
 ```
