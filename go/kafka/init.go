@@ -1,12 +1,16 @@
 package kafka
 
-import "worker"
+import (
+	"config"
+	"worker"
+)
 
 func Init() {
 
 	worker_ := &worker.Worker{
 		Name:    "kafka",
 		Text:    "Kafka",
+		Configs: config.Config.Kafka,
 		WorkMap: map[string]func(interface{}) (interface{}, error){},
 	}
 	worker_.WorkMap["topics"] = topicsWork

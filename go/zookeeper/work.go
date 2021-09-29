@@ -5,8 +5,8 @@ import (
 )
 
 type getRequest struct {
-	Url  string `json:"url"`
-	Path string `json:"path"`
+	Address string `json:"address"`
+	Path    string `json:"path"`
 }
 
 type getResponse struct {
@@ -21,7 +21,7 @@ func getWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 	var service *ZKService
-	service, err = getService(request.Url)
+	service, err = getService(request.Address)
 	if err != nil {
 		return
 	}
@@ -43,8 +43,8 @@ func getWork(req interface{}) (res interface{}, err error) {
 }
 
 type getChildrenRequest struct {
-	Url  string `json:"url"`
-	Path string `json:"path"`
+	Address string `json:"address"`
+	Path    string `json:"path"`
 }
 
 type getChildrenResponse struct {
@@ -59,7 +59,7 @@ func getChildrenWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 	var service *ZKService
-	service, err = getService(request.Url)
+	service, err = getService(request.Address)
 	if err != nil {
 		return
 	}
@@ -81,9 +81,9 @@ func getChildrenWork(req interface{}) (res interface{}, err error) {
 }
 
 type saveRequest struct {
-	Url  string `json:"url"`
-	Path string `json:"path"`
-	Data string `json:"data"`
+	Address string `json:"address"`
+	Path    string `json:"path"`
+	Data    string `json:"data"`
 }
 
 type saveResponse struct {
@@ -97,7 +97,7 @@ func saveWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 	var service *ZKService
-	service, err = getService(request.Url)
+	service, err = getService(request.Address)
 	if err != nil {
 		return
 	}
@@ -116,8 +116,8 @@ func saveWork(req interface{}) (res interface{}, err error) {
 }
 
 type deleteRequest struct {
-	Url  string `json:"url"`
-	Path string `json:"path"`
+	Address string `json:"address"`
+	Path    string `json:"path"`
 }
 
 type deleteResponse struct {
@@ -131,7 +131,7 @@ func deleteWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 	var service *ZKService
-	service, err = getService(request.Url)
+	service, err = getService(request.Address)
 	if err != nil {
 		return
 	}

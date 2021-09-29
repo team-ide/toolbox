@@ -60,6 +60,9 @@ type DatabaseService interface {
 	Close() error
 	Databases() ([]DatabaseInfo, error)
 	Tables(database string) ([]TableInfo, error)
+	TableDetail(database string, table string) (TableDetailInfo, error)
+	ShowCreateDatabase(database string) (string, error)
+	ShowCreateTable(database string, table string) (string, error)
 }
 
 type DatabaseConfig struct {
@@ -75,6 +78,23 @@ type DatabaseInfo struct {
 }
 
 type TableInfo struct {
+	Name    string `json:"name"`
+	Comment string `json:"comment"`
+}
+
+type TableDetailInfo struct {
+	Name    string            `json:"name"`
+	Comment string            `json:"comment"`
+	Columns []TableColumnInfo `json:"columns"`
+	Indexs  []TableIndexInfo  `json:"indexs"`
+}
+
+type TableColumnInfo struct {
+	Name    string `json:"name"`
+	Comment string `json:"comment"`
+}
+
+type TableIndexInfo struct {
 	Name    string `json:"name"`
 	Comment string `json:"comment"`
 }

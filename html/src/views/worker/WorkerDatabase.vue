@@ -56,7 +56,7 @@
       <tm-layout-bar bottom></tm-layout-bar>
       <tm-layout height="auto">
         <tm-layout height="100%" width="100%">
-          <tm-layout width="250px">
+          <tm-layout width="350px">
             <tm-layout height="40px">
               <div class="pdlr-10">
                 <div class="worker-panel-title" v-if="connect.open">
@@ -65,179 +65,121 @@
                 </div>
               </div>
             </tm-layout>
-            <tm-layout height="auto" v-loading="databases_loading">
-              <div class="worker-database-database-list" v-if="connect.open">
-                <el-table
-                  :data="databases"
-                  height="100%"
-                  style="width: 100%"
-                  size="mini"
+            <tm-layout
+              height="auto"
+              v-loading="databases_loading"
+              @change="treeLayoutChange"
+            >
+              <div
+                class="worker-database-database-list worker-scrollbar"
+                style="overflow-x: hidden"
+                ref="treeBox"
+                v-if="connect.open"
+              >
+                <el-tree
+                  ref="tree"
+                  lazy
+                  :load="loadNode"
+                  :props="treeProps"
+                  node-key="key"
+                  :expand-on-click-node="false"
                 >
-                  <el-table-column prop="name" label="库名"> </el-table-column>
-                  <el-table-column width="60">
-                    <template slot-scope="scope">
-                      <a
-                        class="tm-link color-green ft-15 mgr-2"
-                        title="查看库表"
-                        @click="selectDatabase(scope.row)"
-                      >
-                        <i class="mdi mdi-eye-outline"></i>
-                      </a>
-                      <a
-                        class="tm-link color-orange ft-15 mgr-2"
-                        title="删除Database"
-                        @click="toDeleteDatabase(scope.row)"
-                      >
-                        <i class="mdi mdi-delete-outline"></i>
-                      </a>
-                    </template>
-                  </el-table-column>
-                </el-table>
+                  <template slot-scope="{ data }">
+                    <span
+                      class="worker-box-tree-span"
+                      :style="{
+                        'margin-left': data.isTable ? '-18px' : 'unset',
+                      }"
+                    >
+                      <span
+                        >{{ data.name }}
+                        <template v-if="tool.isNotEmpty(data.comment)">
+                          <span class="ft-12 mgl-5"
+                            >（{{ data.comment }}）</span
+                          >
+                        </template>
+                      </span>
+                      <span class="worker-btn-group">
+                        <template v-if="data.isDatabase || data.isTable">
+                          <a
+                            class="tm-link color-grey ft-14 mgr-2"
+                            @click="toShowCreateSql(data)"
+                            title="查看创建SQL"
+                          >
+                            <i class="mdi mdi-eye"></i>
+                          </a>
+                        </template>
+                        <template v-if="data.isDatabase || data.isTableFolder">
+                          <a
+                            class="tm-link color-grey ft-14 mgr-2"
+                            @click="toReloadChildren(data)"
+                            title="刷新"
+                          >
+                            <i class="mdi mdi-reload"></i>
+                          </a>
+                        </template>
+                        <template v-if="data.isTableFolder">
+                          <a
+                            class="tm-link color-blue ft-16 mgr-2"
+                            @click="toInsertTable(data)"
+                          >
+                            <i class="mdi mdi-plus"></i>
+                          </a>
+                        </template>
+                        <template v-if="data.isTable">
+                          <a
+                            class="tm-link color-green ft-15 mgr-2"
+                            @click="toShowTableData(data)"
+                          >
+                            <i class="mdi mdi-database-outline"></i>
+                          </a>
+                          <a
+                            class="tm-link color-orange ft-15 mgr-2"
+                            @click="toDelete(data)"
+                          >
+                            <i class="mdi mdi-delete-outline"></i>
+                          </a>
+                        </template>
+                      </span>
+                    </span>
+                  </template>
+                </el-tree>
               </div>
-            </tm-layout>
-          </tm-layout>
-          <tm-layout-bar right></tm-layout-bar>
-          <tm-layout width="430px">
-            <tm-layout height="100%">
-              <tm-layout height="140px">
-                <div class="pdlr-10" v-if="connect.open">
-                  <div class="worker-panel-title" v-if="connect.open">
-                    Tables搜索
-                  </div>
-                  <el-divider class="mg-0"></el-divider>
-                  <el-form
-                    class="pdt-10"
-                    :inline="true"
-                    :model="tableSearchForm"
-                    size="mini"
-                    @submit.native.prevent
-                  >
-                    <el-form-item label="database">
-                      <el-input
-                        v-model="tableSearchForm.database"
-                        placeholder="database"
-                        style="width: 120px"
-                      ></el-input>
-                    </el-form-item>
-                    <el-form-item label="name">
-                      <el-input
-                        v-model="tableSearchForm.name"
-                        placeholder="name"
-                        style="width: 120px"
-                      ></el-input>
-                    </el-form-item>
-                    <el-form-item label="comment">
-                      <el-input
-                        v-model="tableSearchForm.comment"
-                        placeholder="comment"
-                        style="width: 120px"
-                      ></el-input>
-                    </el-form-item>
-                    <el-form-item>
-                      <a
-                        class="tm-btn tm-btn-sm color-green mgl-5"
-                        @click="searchTables"
-                        :class="{ 'tm-disabled': tables_loading }"
-                      >
-                        查询
-                      </a>
-                      <a
-                        class="tm-btn tm-btn-sm color-blue mgl-5"
-                        @click="toInsertTable"
-                      >
-                        新增
-                      </a>
-                    </el-form-item>
-                  </el-form>
-                </div>
-              </tm-layout>
-              <tm-layout-bar bottom></tm-layout-bar>
-              <tm-layout height="40px">
-                <div class="pdlr-10">
-                  <div
-                    class="worker-panel-title"
-                    v-if="connect.open && tables != null"
-                  >
-                    Tables列表（{{ tablesDatabase }}）
-                  </div>
-                </div>
-              </tm-layout>
-              <tm-layout height="auto" v-loading="tables_loading">
-                <div
-                  class="worker-database-table-list"
-                  v-if="connect.open && tables != null"
-                >
-                  <el-table
-                    :data="tables"
-                    height="100%"
-                    style="width: 100%"
-                    size="mini"
-                  >
-                    <el-table-column prop="name" label="表名">
-                    </el-table-column>
-                    <el-table-column prop="comment" label="注释">
-                    </el-table-column>
-                    <el-table-column width="60">
-                      <template slot-scope="scope">
-                        <a
-                          class="tm-link color-green ft-15 mgr-2"
-                          title="查看表"
-                          @click="selectTable(scope.row)"
-                        >
-                          <i class="mdi mdi-eye-outline"></i>
-                        </a>
-                        <a
-                          class="tm-link color-orange ft-15 mgr-2"
-                          title="删除Table"
-                          @click="toDeleteTable(scope.row)"
-                        >
-                          <i class="mdi mdi-delete-outline"></i>
-                        </a>
-                      </template>
-                    </el-table-column>
-                  </el-table>
-                </div>
-              </tm-layout>
             </tm-layout>
           </tm-layout>
           <tm-layout-bar right></tm-layout-bar>
           <tm-layout width="auto">
-            <div class="pdlr-10" v-if="connect.open">
-              <div class="worker-panel-title">
-                <template v-if="readonlyOne">
-                  <span>查看</span>
-                </template>
-                <template v-else-if="insertOne">
-                  <span>新增</span>
-                </template>
-                <template v-else-if="updateOne">
-                  <span>修改</span>
-                </template>
-              </div>
-              <el-divider class="mg-0"></el-divider>
-              <el-form :model="tableForm" size="lg" @submit.native.prevent>
-                <el-form-item label="name">
-                  <el-input
-                    v-model="tableForm.name"
-                    placeholder="name"
-                    :readonly="readonlyOne || updateOne"
-                  ></el-input>
-                </el-form-item>
-                <el-form-item>
-                  <a
-                    v-if="!readonlyOne"
-                    class="tm-btn color-green"
-                    @click="saveTable"
-                  >
-                    保存
-                  </a>
-                </el-form-item>
-              </el-form>
-            </div>
+            <TableData ref="TableData"></TableData>
           </tm-layout>
         </tm-layout>
       </tm-layout>
     </tm-layout>
+    <el-dialog
+      title="Show Create Database"
+      destroy-on-close
+      :visible.sync="showCreateDatabase"
+      width="900"
+    >
+      <el-input
+        type="textarea"
+        class="color-orange"
+        v-model="showCreateDatabaseSql"
+        :autosize="{ minRows: 6, maxRows: 15 }"
+      ></el-input>
+    </el-dialog>
+    <el-dialog
+      title="Show Create Table"
+      destroy-on-close
+      :visible.sync="showCreateTable"
+      width="900"
+    >
+      <el-input
+        type="textarea"
+        class="color-orange"
+        v-model="showCreateTableSql"
+        :autosize="{ minRows: 6, maxRows: 15 }"
+      ></el-input>
+    </el-dialog>
   </div>
 </template>
 
@@ -246,9 +188,11 @@ import server from "@/server";
 import tool from "@/tool";
 import source from "@/source";
 
+import TableData from "./database/TableData";
+
 export default {
-  components: {},
   props: ["workerKey"],
+  components: { TableData },
   data() {
     return {
       tool,
@@ -264,20 +208,17 @@ export default {
         open: false,
         form: null,
       },
-      tableSearchForm: {
-        database: "",
-        name: "",
-        comment: "",
-      },
-      readonlyOne: true,
-      insertOne: true,
-      updateOne: true,
       tableForm: {},
       databases_loading: false,
-      databases: null,
-      tablesDatabase: null,
-      tables: null,
-      tables_loading: false,
+      treeProps: {
+        children: "children",
+        label: "name",
+        isLeaf: "leaf",
+      },
+      showCreateDatabase: false,
+      showCreateDatabaseSql: null,
+      showCreateTable: false,
+      showCreateTableSql: null,
     };
   },
   watch: {},
@@ -298,77 +239,115 @@ export default {
       data.config = this.getConfig();
       return server.database.databases(data);
     },
-    loadTables() {
+    loadTables(database) {
       let data = {};
       data.config = this.getConfig();
-      Object.assign(data, this.tableSearchForm);
+      data.database = database;
       return server.database.tables(data);
     },
-    searchDatabases() {
-      this.databases = null;
-      this.tables = null;
+    loadTableDetail(database, table) {
+      let data = {};
+      data.config = this.getConfig();
+      data.database = database;
+      data.table = table;
+      return server.database.tableDetail(data);
+    },
+
+    initDatabases(resolve) {
       this.databases_loading = true;
       this.loadDatabases()
         .then((res) => {
           this.databases_loading = false;
+          let list = [];
           if (res.code != 0) {
             tool.error(res.msg);
           } else {
             let value = res.value || {};
-            let databases = value.databases || [];
-            let datas = [];
-
-            databases.forEach((one) => {
-              datas.push(one);
-            });
-            this.databases = datas;
+            list = value.databases || [];
           }
+          list.forEach((one) => {
+            one.isDatabase = true;
+            one.leaf = false;
+            one.key = "database-" + one.name;
+          });
+          this.resolveData(resolve, list);
         })
         .catch(() => {
           this.databases_loading = false;
+          this.resolveData(resolve, []);
         });
     },
-    selectDatabase(data) {
-      this.tableSearchForm.database = data.name;
-      this.searchTables();
-    },
-    searchTables() {
-      if (tool.isEmpty(this.tableSearchForm.database)) {
+    initTables(database, resolve) {
+      if (database == null || tool.isEmpty(database.name)) {
         tool.error("database不能为空！");
         return;
       }
-      this.tables = null;
       this.tables_loading = true;
-      this.tablesDatabase = this.tableSearchForm.database;
-      this.loadTables()
+      this.loadTables(database.name)
         .then((res) => {
           this.tables_loading = false;
+          let list = [];
           if (res.code != 0) {
             tool.error(res.msg);
           } else {
             let value = res.value || {};
-            let tables = value.tables || [];
-            let datas = [];
-
-            tables.forEach((one) => {
-              datas.push(one);
-            });
-            this.tables = datas;
+            list = value.tables || [];
           }
+          list.forEach((one) => {
+            one.isTable = true;
+            one.leaf = true;
+            one.key = database.key + "-table-" + one.name;
+            one.database = database;
+          });
+          this.resolveData(resolve, list);
         })
         .catch(() => {
           this.tables_loading = false;
+          this.resolveData(resolve, []);
         });
+    },
+    toShowCreateSql(data) {
+      let param = {};
+      param.config = this.getConfig();
+      if (data.isDatabase) {
+        this.showCreateDatabaseSql = null;
+        param.database = data.name;
+        server.database
+          .showCreateDatabase(param)
+          .then((res) => {
+            if (res.code != 0) {
+              tool.error(res.msg);
+            } else {
+              let value = res.value || {};
+              this.showCreateDatabaseSql = value.create;
+              this.showCreateDatabase = true;
+            }
+          })
+          .catch(() => {});
+      } else if (data.isTable) {
+        this.showCreateTableSql = null;
+        param.database = data.database.name;
+        param.table = data.name;
+        server.database
+          .showCreateTable(param)
+          .then((res) => {
+            if (res.code != 0) {
+              tool.error(res.msg);
+            } else {
+              let value = res.value || {};
+              this.showCreateTableSql = value.create;
+              this.showCreateTable = true;
+            }
+          })
+          .catch(() => {});
+      }
     },
     doConnect() {
       this.connect.open = false;
-      tool.trimList(this.expands);
-      tool.trimList(this.opens);
 
       this.$nextTick(() => {
         this.connect.form = Object.assign({}, this.configForm);
         this.connect.open = true;
-        this.searchDatabases();
         tool.setCache(this.getCacheKey(), JSON.stringify(this.connect.form));
       });
     },
@@ -382,9 +361,70 @@ export default {
         //this.doConnect();
       }
     },
-    tableNodeClick() {},
-    tableCurrentChange() {},
-    toInsertTable() {},
+    toReloadChildren(data) {
+      if (window.event) {
+        window.event.stopPropagation && window.event.stopPropagation();
+      }
+      this.reloadChildren(data);
+    },
+    reloadChildren(data) {
+      if (window.event) {
+        window.event.stopPropagation && window.event.stopPropagation();
+      }
+      let node = this.$refs.tree.getNode(data.key || data);
+      if (node) {
+        node.loaded = false;
+        node.expand();
+      }
+    },
+    loadNode(node, resolve) {
+      if (node.level === 0) {
+        this.initDatabases(resolve);
+        return;
+      }
+      if (node.data.isDatabase) {
+        let list = [];
+        list.push({
+          database: node.data,
+          key: node.data.key + "-folder-table",
+          name: "表",
+          leaf: false,
+          isTableFolder: true,
+        });
+        this.resolveData(resolve, list);
+        return;
+      } else if (node.data.isTableFolder) {
+        this.initTables(node.data.database, resolve);
+      }
+    },
+    resolveData(resolve, data) {
+      resolve && resolve(data);
+      this.initTreeWidth();
+    },
+    treeLayoutChange() {
+      this.initTreeWidth();
+    },
+    initTreeWidth() {
+      // setTimeout(() => {
+      //   this.$nextTick(() => {
+      //     tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
+      //   });
+      // }, 100);
+    },
+    toShowTableData(table) {
+      let database = table.database;
+      this.loadTableDetail(database.name, table.name)
+        .then((res) => {
+          if (res.code != 0) {
+            tool.error(res.msg);
+          } else {
+            let value = res.value || {};
+            let table = value.table;
+            this.$refs.TableData.init(this.getConfig(), database, table);
+          }
+        })
+        .catch(() => {});
+    },
     getCacheKey() {
       return "teamide-toolbox-" + this.workerKey;
     },
@@ -406,9 +446,6 @@ export default {
   position: relative;
 }
 .worker-database-wrap .worker-database-database-list {
-  height: 100%;
-}
-.worker-database-wrap .worker-database-table-list {
   height: 100%;
 }
 .worker-database-wrap .el-tree {

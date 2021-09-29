@@ -3,7 +3,15 @@
     <tm-layout height="100%">
       <tm-layout :height="style.header.height">
         <div class="worker-header" :style="headerStyleObject">
-          <h2 class="mg-0 pd-0 pdlr-20" style="line-height: 40px;">Team IDE Toolbox</h2>
+          <h2 class="mg-0 pd-0 pdlr-20" style="line-height: 40px">
+            Team IDE Toolbox
+            <a
+              class="tm-link color-green ft-12"
+              href="https://github.com/team-ide/toolbox"
+              target="_blank"
+              >https://github.com/team-ide/toolbox</a
+            >
+          </h2>
         </div>
       </tm-layout>
       <tm-layout-bar bottom></tm-layout-bar>
@@ -156,14 +164,34 @@ export default {
 .worker-box .el-tree .mdi {
   vertical-align: middle;
 }
+.worker-box tr .worker-btn-group {
+  transform: scale(0);
+}
+.worker-box tr:hover .worker-btn-group {
+  transform: scale(1);
+}
 
+.worker-box .el-tree-node__content {
+  position: relative;
+}
+
+.worker-box .el-tree-node__content .worker-btn-group {
+  display: none;
+}
+.worker-box .el-tree-node__content:hover .worker-btn-group {
+  display: block;
+}
+.worker-box .worker-box-tree-span .worker-btn-group {
+  position: absolute;
+  right: 5px;
+  top: 0px;
+}
 .worker-box .worker-box-tree-span {
-  flex: 1;
+  /* flex: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; */
   font-size: 14px;
-  padding-right: 8px;
 }
 .worker-box .el-tree__empty-block {
   display: none;
@@ -285,7 +313,72 @@ export default {
 .worker-box .el-divider {
   background-color: #404040;
 }
-.worker-box .el-loading-mask{
-    background-color: rgba(255,255,255,.1);
+.worker-box .el-loading-mask {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.part-box {
+  line-height: 20px;
+  font-size: 12px;
+}
+.part-box,
+.part-box li {
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+  list-style: none;
+}
+.part-box li {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.part-box input,
+.part-box select {
+  color: #ffffff;
+  width: 50px;
+  min-width: 50px;
+  border: 1px dashed transparent;
+  background-color: transparent;
+  text-align: center;
+  height: 20px;
+  max-width: 100%;
+  padding: 0px;
+  padding-left: 2px;
+  padding-right: 2px;
+  box-sizing: border-box;
+  outline: none;
+  font-size: 12px;
+}
+
+.part-box input {
+  border-bottom: 1px dashed #636363;
+}
+.part-box select {
+  -moz-appearance: auto;
+  -webkit-appearance: auto;
+}
+.part-box option {
+  background-color: #ffffff;
+  color: #3e3e3e;
+}
+.part-box input[type="checkbox"] {
+  width: 15px;
+  min-width: 15px;
+  height: 15px;
+  vertical-align: bottom;
+}
+
+.part-box textarea {
+  color: #ffffff;
+  height: 70px;
+  border: 1px dashed #636363;
+  text-align: left;
+  padding: 5px;
+  min-width: 500px;
+  background-color: transparent;
+  font-size: 12px;
+  vertical-align: text-top;
 }
 </style>

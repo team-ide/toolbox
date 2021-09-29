@@ -1,11 +1,15 @@
 package redis
 
-import "worker"
+import (
+	"config"
+	"worker"
+)
 
 func Init() {
 	worker_ := &worker.Worker{
 		Name:    "redis",
 		Text:    "Redis",
+		Configs: config.Config.Redis,
 		WorkMap: map[string]func(interface{}) (interface{}, error){},
 	}
 	worker_.WorkMap["get"] = getWork

@@ -2,25 +2,12 @@
   <div class="worker-zookeeper-wrap">
     <tm-layout height="100%">
       <tm-layout height="50px">
-        <el-form
-          class="pd-10"
-          :inline="true"
-          :model="configForm"
-          size="mini"
-          @submit.native.prevent
-        >
-          <el-form-item label="连接地址（多个使用“,”隔开）">
-            <el-input
-              v-model="configForm.url"
-              placeholder="连接地址"
-            ></el-input>
-          </el-form-item>
-          <el-form-item>
-            <a class="tm-btn tm-btn-sm color-green" @click="doConnect">
-              连接
-            </a>
-          </el-form-item>
-        </el-form>
+        <WorkerConfig
+          :workerKey="workerKey"
+          workerType="zookeeper"
+          :connect="connect"
+          @connect="doConnect"
+        ></WorkerConfig>
       </tm-layout>
       <tm-layout-bar bottom></tm-layout-bar>
       <tm-layout height="auto">
@@ -28,13 +15,14 @@
           <tm-layout width="auto">
             <tm-layout height="45px">
               <div class="worker-panel-title pdlr-10" v-if="connect.open">
-                节点信息（{{ connect.form.url }}）
+                节点信息（{{ connect.title }}）
               </div>
               <el-divider class="mg-0"></el-divider>
             </tm-layout>
             <tm-layout height="auto">
               <div
                 class="worker-zookeeper-list worker-scrollbar"
+                style="overflow-x: hidden"
                 ref="treeBox"
                 v-if="connect.open"
               >
@@ -59,7 +47,7 @@
                     <template v-else>
                       <span>{{ node.label }}</span>
                     </template>
-                    <span class="mgl-20">
+                    <div class="worker-btn-group">
                       <a
                         class="tm-link color-grey ft-14 mgr-2"
                         @click="toReloadChildren(data)"
@@ -78,7 +66,7 @@
                       >
                         <i class="mdi mdi-delete-outline"></i>
                       </a>
-                    </span>
+                    </div>
                   </span>
                 </el-tree>
               </div>
@@ -147,17 +135,19 @@ import server from "@/server";
 import tool from "@/tool";
 import source from "@/source";
 
+import WorkerConfig from "./WorkerConfig";
+
 export default {
-  components: {},
+  components: { WorkerConfig },
   props: ["workerKey"],
   data() {
     return {
       tool,
       source,
-      configForm: { url: "127.0.0.1:2181" },
       connect: {
         open: false,
-        form: null,
+        config: null,
+        title: null,
       },
       readonlyOne: true,
       insertOne: true,
@@ -202,19 +192,19 @@ export default {
   methods: {
     loadChildren(path) {
       let data = {};
-      Object.assign(data, this.connect.form);
+      Object.assign(data, this.connect.config);
       data.path = path;
       return server.zookeeper.getChildren(data);
     },
     get(path) {
       let data = {};
-      Object.assign(data, this.connect.form);
+      Object.assign(data, this.connect.config);
       data.path = path;
       return server.zookeeper.get(data);
     },
     doSave() {
       let data = {};
-      Object.assign(data, this.connect.form);
+      Object.assign(data, this.connect.config);
       Object.assign(data, this.oneForm);
       if (tool.isEmpty(data.path)) {
         tool.error("路径不能为空！");
@@ -245,7 +235,7 @@ export default {
         window.event.stopPropagation && window.event.stopPropagation();
       }
       let data = {};
-      Object.assign(data, this.connect.form);
+      Object.assign(data, this.connect.config);
       data.path = one.path;
       if (tool.isEmpty(data.path)) {
         tool.error("路径不能为空！");
@@ -303,23 +293,32 @@ export default {
       }
       let parent = node.data;
       let path = parent.path;
-      this.loadChildren(path).then((res) => {
-        if (res.code != 0) {
-          tool.error(res.msg);
-          resolve([]);
-          tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
-        } else {
-          let value = res.value || {};
-          let list = value.children || [];
-          let datas = [];
-          list.forEach((name) => {
-            datas.push({ name: name });
-          });
-          this.formatDatas(parent, datas);
-          resolve(datas);
-          tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
-        }
-      });
+      this.loadChildren(path)
+        .then((res) => {
+          if (res.code != 0) {
+            tool.error(res.msg);
+            resolve([]);
+            this.initTreeWidth();
+          } else {
+            let value = res.value || {};
+            let list = value.children || [];
+            let datas = [];
+            list.forEach((name) => {
+              datas.push({ name: name });
+            });
+            this.formatDatas(parent, datas);
+            resolve(datas);
+            this.initTreeWidth();
+          }
+        })
+        .catch((e) => {});
+    },
+    initTreeWidth() {
+      // setTimeout(() => {
+      //   this.$nextTick(() => {
+      //     tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
+      //   });
+      // }, 100);
     },
     formatDatas(parent, datas) {
       datas = datas || [];
@@ -335,29 +334,21 @@ export default {
       data.key = data.path;
     },
     nodeClick() {},
-    doConnect() {
-      this.connect.open = false;
+    doConnect(config, callback) {
       tool.trimList(this.expands);
       tool.trimList(this.opens);
 
       this.toInsert();
-
-      this.$nextTick(() => {
-        this.connect.form = Object.assign({}, this.configForm);
-        this.connect.open = true;
-        tool.setCache(this.getCacheKey(), JSON.stringify(this.connect.form));
-      });
-    },
-    initConnect() {
-      let value = tool.getCache(this.getCacheKey());
-      if (tool.isNotEmpty(value)) {
-        let data = JSON.parse(value);
-        Object.assign(this.configForm, data);
-        // this.doConnect();
-      }
-    },
-    getCacheKey() {
-      return "teamide-toolbox-" + this.workerKey;
+      this.get("/")
+        .then((res) => {
+          if (res.code != 0) {
+            tool.error(res.msg);
+          }
+          callback(res);
+        })
+        .catch((e) => {
+          callback(e);
+        });
     },
     toInsert(parent) {
       if (window.event) {
@@ -406,9 +397,7 @@ export default {
         }
       });
     },
-    init() {
-      this.initConnect();
-    },
+    init() {},
   },
   mounted() {
     this.init();

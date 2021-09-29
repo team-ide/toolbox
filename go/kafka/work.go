@@ -37,14 +37,18 @@ func topicsWork(req interface{}) (res interface{}, err error) {
 }
 
 type KafkaMessage struct {
-	Key       interface{}       `json:"key"`
-	Value     interface{}       `json:"value"`
-	Topic     string            `json:"topic"`
-	Partition int32             `json:"partition"`
-	Offset    int64             `json:"offset"`
-	Header    map[string]string `json:"header"`
+	Key       interface{} `json:"key"`
+	Value     interface{} `json:"value"`
+	Topic     string      `json:"topic"`
+	Partition int32       `json:"partition"`
+	Offset    int64       `json:"offset"`
+	Headers   []Header    `json:"headers"`
 }
 
+type Header struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
 type pullRequest struct {
 	Address   string `json:"address"`
 	GroupId   string `json:"groupId"`
@@ -96,7 +100,7 @@ func pullWork(req interface{}) (res interface{}, err error) {
 		}
 		if kafkaMsg.Headers != nil {
 			for _, header := range kafkaMsg.Headers {
-				msg.Header[string(header.Key)] = string(header.Value)
+				msg.Headers = append(msg.Headers, Header{Key: string(header.Key), Value: string(header.Value)})
 			}
 		}
 		msgs = append(msgs, msg)
@@ -107,14 +111,15 @@ func pullWork(req interface{}) (res interface{}, err error) {
 }
 
 type pushRequest struct {
-	Address   string `json:"address"`
-	Topic     string `json:"topic"`
-	KeyType   string `json:"keyType"`
-	ValueType string `json:"valueType"`
-	Key       string `json:"key"`
-	Value     string `json:"value"`
-	Partition int32  `json:"partition"`
-	Offset    int64  `json:"offset"`
+	Address   string   `json:"address"`
+	Topic     string   `json:"topic"`
+	KeyType   string   `json:"keyType"`
+	ValueType string   `json:"valueType"`
+	Headers   []Header `json:"headers"`
+	Key       string   `json:"key"`
+	Value     string   `json:"value"`
+	Partition int32    `json:"partition"`
+	Offset    int64    `json:"offset"`
 }
 
 type pushResponse struct {
@@ -155,6 +160,14 @@ func pushWork(req interface{}) (res interface{}, err error) {
 	}
 	if request.Offset >= 0 {
 		kafkaMsg.Offset = request.Offset
+	}
+	if request.Headers != nil {
+		for _, one := range request.Headers {
+			kafkaMsg.Headers = append(kafkaMsg.Headers, sarama.RecordHeader{
+				Key:   []byte(one.Key),
+				Value: []byte(one.Value),
+			})
+		}
 	}
 
 	err = service.Push(kafkaMsg)

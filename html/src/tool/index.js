@@ -32,9 +32,14 @@ tool.initSession = function () {
 
 tool.setSource = function (value) {
     if (value != null) {
-        tool.TIMESTAMP = value.TIMESTAMP;
-        source.ENUM_MAP = value.ENUM_MAP || {};
+        source.TIMESTAMP = value.TIMESTAMP;
+        source.enum_map = value.enum_map || {};
         server.initWorkers(value.workers);
+
+        value.workers = value.workers || [];
+        value.workers.forEach(worker => {
+            source[worker.name] = { configs: worker.configs };
+        });
     } else {
         source.served = false;
         source.inited = true;
@@ -107,9 +112,72 @@ tool.getElementBottom = (e) => {
     return bh
 };
 
+tool.change = (obj, name, value) => {
+    obj = obj || {};
+    obj[name] = value;
+};
+tool.changeForMap = (obj, map) => {
+    obj = obj || {};
+    for (let name in map) {
+        obj[name] = map[name];
+    }
+
+};
+tool.push = (parent, name, value) => {
+    parent = parent || {};
+    parent[name] = parent[name] || [];
+    value = value || {};
+    parent[name].push(value);
+};
+tool.del = (parent, name, value) => {
+    parent = parent || {};
+    parent[name] = parent[name] || [];
+    value = value || {};
+    let index = parent[name].indexOf(value);
+    if (index >= 0) {
+        parent[name].splice(index, 1);
+    }
+};
+tool.up = (parent, name, value) => {
+    parent = parent || {};
+    parent[name] = parent[name] || [];
+    value = value || {};
+    let index = parent[name].indexOf(value);
+    if (index > 0) {
+        parent[name].splice(index, 1);
+        parent[name].splice(index - 1, 0, value);
+    }
+};
+tool.down = (parent, name, value) => {
+    parent = parent || {};
+    parent[name] = parent[name] || [];
+    value = value || {};
+    let index = parent[name].indexOf(value);
+    if (index >= 0 && index < parent[name].length - 1) {
+        parent[name].splice(index, 1);
+        parent[name].splice(index + 1, 0, value);
+    }
+};
+tool.initInputWidth = (event, options) => {
+    let target = tool.jQuery(event.target);
+    let value = target.val();
+    let str = value;
+    let w = 10;
+    if (target.find('option').length > 0) {
+        w = 30;
+        target.find('option').each(one => {
+            one = tool.jQuery(one);
+            if (one.attr('value') == value) {
+                str = one.text();
+            }
+        });
+    }
+    let compute = tool.computeFontSize(str, "12px");
+    tool.jQuery(target).css('width', (compute.width + w) + 'px')
+};
 tool.getEnum = (type, value) => {
     let result = null;
-    let options = source.ENUM_MAP[type];
+    let options = source.enum_map[type];
     if (options) {
         options.forEach(one => {
             if (one.value == value) {
