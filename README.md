@@ -2,6 +2,12 @@
 
 在线连接MySql、Redis、Zookeeper、Kafka、RabbitMQ、MongoDB、Elasticsearch等
 
+## 演示环境
+
+[Team IDE Toolbox](https://teamide.com/toolbox/)
+
+如需要登录，使用：admin/123456、user1/123456、user2/123456
+
 ## 目录结构说明
 
 ```js
