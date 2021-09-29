@@ -17,34 +17,34 @@ role = 2
 
 # Redis配置，默认填充该配置在页面，可以配置多个
 [[redis]]
-address = '127.0.0.1:6379'
+address = 'redis:6379'
 auth = ''
 [[redis]]
-address = '127.0.0.2:6379'
+address = '127.0.0.1:6379'
 auth = ''
 
 # Zookeeper配置，默认填充该配置在页面，可以配置多个
 [[zookeeper]]
-address = '127.0.0.1:2181'
+address = 'zookeeper:2181'
 [[zookeeper]]
-address = '127.0.0.2:2181'
+address = '127.0.0.1:2181'
 
 # Kafka配置，默认填充该配置在页面，可以配置多个
 [[kafka]]
-address = '127.0.0.1:9092'
+address = 'kafka:9092'
 [[kafka]]
-address = '127.0.0.2:9092'
+address = '127.0.0.1:9092'
 
 # Database配置，默认填充该配置在页面，可以配置多个
 [[database]]
 type = 'mysql'
-host = '127.0.0.1'
+host = 'mysql'
 port = 3306
 username = 'root'
 password = '123456'
 [[database]]
 type = 'mysql'
-host = '127.0.0.2'
+host = '127.0.0.1'
 port = 3306
 username = 'root'
 password = '123456'

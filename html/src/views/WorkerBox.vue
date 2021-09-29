@@ -5,6 +5,12 @@
         <div class="worker-header" :style="headerStyleObject">
           <h2 class="mg-0 pd-0 pdlr-20" style="line-height: 40px">
             Team IDE Toolbox
+            <a
+              class="tm-link color-green ft-12"
+              href="https://github.com/team-ide/toolbox"
+              target="_blank"
+              >https://github.com/team-ide/toolbox</a
+            >
           </h2>
         </div>
       </tm-layout>

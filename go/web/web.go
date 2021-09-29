@@ -27,6 +27,15 @@ func (workerWork *WorkerWork) handle(rw http.ResponseWriter, r *http.Request) {
 	outJSON(rw, res, err)
 }
 
+func handleIndex(rw http.ResponseWriter, r *http.Request) {
+	context := config.Config.Server.Context
+	if context == "" || context == "/" {
+		context = ""
+	}
+	rw.Header().Set("refresh", "0.1;"+context+"/")
+	rw.WriteHeader(200)
+}
+
 func StartServer() {
 
 	context := config.Config.Server.Context
@@ -36,6 +45,7 @@ func StartServer() {
 
 	r := mux.NewRouter()
 
+	r.HandleFunc(context+"", handleIndex)
 	r.HandleFunc(context+"/server/open", handleOpen)
 	r.HandleFunc(context+"/server/session", handleSession)
 	r.HandleFunc(context+"/server/login", handleLogin)
