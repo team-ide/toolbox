@@ -32,7 +32,7 @@ func (service *RedisService) init() (err error) {
 				return nil, err
 			}
 			if service.auth != "" {
-				if _, err := c.Do("AUTH", service.auth); err != nil {
+				if _, err := c.Do("auth", service.auth); err != nil {
 					c.Close()
 					return nil, err
 				}
@@ -40,7 +40,7 @@ func (service *RedisService) init() (err error) {
 			return c, err
 		},
 		TestOnBorrow: func(c redigo.Conn, t time.Time) error {
-			_, err := c.Do("PING")
+			_, err := c.Do("ping")
 			return err
 		},
 	}
@@ -53,7 +53,7 @@ func (service *RedisService) Keys(pattern string, size int) (count int, keys []s
 	client := service.pool.Get()
 	defer client.Close()
 	var reply interface{}
-	reply, err = client.Do("KEYS", pattern)
+	reply, err = client.Do("keys", pattern)
 	if err != nil {
 		return
 	}
@@ -75,18 +75,48 @@ func (service *RedisService) Keys(pattern string, size int) (count int, keys []s
 	}
 	return
 }
-func (service *RedisService) Get(key string) (value string, err error) {
+
+func (service *RedisService) KeyType(key string) (keyType string, err error) {
 
 	client := service.pool.Get()
 	defer client.Close()
 	var reply interface{}
-	reply, err = client.Do("GET", key)
+	reply, err = client.Do("type", key)
 	if err != nil {
 		return
 	}
 	if reply != nil {
-		value, err = redigo.String(reply, err)
+		keyType, err = redigo.String(reply, err)
 	}
+	return
+}
+
+func (service *RedisService) Get(key string) (valueInfo ValueInfo, err error) {
+	var keyType string
+	keyType, err = service.KeyType(key)
+	if err != nil {
+		return
+	}
+	var value interface{}
+	client := service.pool.Get()
+	defer client.Close()
+	if keyType == "none" {
+
+	} else if keyType == "string" {
+		var reply interface{}
+		reply, err = client.Do("get", key)
+		if err != nil {
+			return
+		}
+		if reply != nil {
+			value, err = redigo.String(reply, err)
+		}
+	} else {
+		println(keyType)
+	}
+	valueInfo.Type = keyType
+	valueInfo.Value = value
+
 	return
 }
 
@@ -94,7 +124,71 @@ func (service *RedisService) Set(key string, value string) (err error) {
 
 	client := service.pool.Get()
 	defer client.Close()
-	_, err = client.Do("SET", key, value)
+	_, err = client.Do("set", key, value)
+	return
+}
+
+func (service *RedisService) Sadd(key string, value string) (err error) {
+
+	client := service.pool.Get()
+	defer client.Close()
+	_, err = client.Do("sadd", key, value)
+	return
+}
+
+func (service *RedisService) Srem(key string, value string) (err error) {
+
+	client := service.pool.Get()
+	defer client.Close()
+	_, err = client.Do("srem", key, value)
+	return
+}
+
+func (service *RedisService) Lpush(key string, value string) (err error) {
+
+	client := service.pool.Get()
+	defer client.Close()
+	_, err = client.Do("lpush", key, value)
+	return
+}
+
+func (service *RedisService) Rpush(key string, value string) (err error) {
+
+	client := service.pool.Get()
+	defer client.Close()
+	_, err = client.Do("rpush", key, value)
+	return
+}
+
+func (service *RedisService) Lset(key string, index int64, value string) (err error) {
+
+	client := service.pool.Get()
+	defer client.Close()
+	_, err = client.Do("lset", key, index, value)
+	return
+}
+
+func (service *RedisService) Lrem(key string, count int64, value string) (err error) {
+
+	client := service.pool.Get()
+	defer client.Close()
+	_, err = client.Do("lrem", key, count, value)
+	return
+}
+
+func (service *RedisService) Hset(key string, field string, value string) (err error) {
+
+	client := service.pool.Get()
+	defer client.Close()
+	_, err = client.Do("hset", key, field, value)
+	return
+}
+
+func (service *RedisService) Hdel(key string, field string) (err error) {
+
+	client := service.pool.Get()
+	defer client.Close()
+	_, err = client.Do("hdel", key, field)
 	return
 }
 
@@ -102,7 +196,7 @@ func (service *RedisService) Del(key string) (count int, err error) {
 	count = 0
 	client := service.pool.Get()
 	defer client.Close()
-	_, err = client.Do("DEL", key)
+	_, err = client.Do("del", key)
 	if err == nil {
 		count++
 	}
@@ -118,7 +212,7 @@ func (service *RedisService) DelPattern(pattern string) (count int, err error) {
 	defer client.Close()
 
 	for _, key := range list {
-		_, err = client.Do("DEL", key)
+		_, err = client.Do("del", key)
 		if err == nil {
 			count++
 		} else {

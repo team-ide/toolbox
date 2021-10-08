@@ -118,7 +118,7 @@
             </tm-layout>
           </tm-layout>
           <tm-layout-bar left></tm-layout-bar>
-          <tm-layout width="400px">
+          <tm-layout width="500px">
             <div class="pdlr-10" v-if="connect.open">
               <div class="worker-panel-title">
                 <template v-if="readonlyOne">
@@ -140,32 +140,43 @@
                     :readonly="readonlyOne || updateOne"
                   ></el-input>
                 </el-form-item>
-                <el-form-item label="value">
-                  <el-input
-                    type="textarea"
-                    v-model="oneForm.value"
-                    placeholder="value"
-                    :autosize="{ minRows: 3, maxRows: 3 }"
-                    :readonly="readonlyOne"
-                  ></el-input>
+                <el-form-item label="type">
+                  <el-select v-model="oneForm.type" placeholder="选择类型">
+                    <el-option label="string" value="string"></el-option>
+                    <el-option label="list" value="list"></el-option>
+                    <el-option label="set" value="set"></el-option>
+                    <el-option label="hash" value="hash"></el-option>
+                  </el-select>
                 </el-form-item>
-                <el-form-item label="格式化JSON（只做查看，不保存）">
-                  <el-input
-                    type="textarea"
-                    v-model="oneForm.json"
-                    placeholder="格式化JSON"
-                    :autosize="{ minRows: 6, maxRows: 6 }"
-                  ></el-input>
-                </el-form-item>
-                <el-form-item>
-                  <a
-                    v-if="!readonlyOne"
-                    class="tm-btn color-green"
-                    @click="doSave"
-                  >
-                    保存
-                  </a>
-                </el-form-item>
+                <template v-if="oneForm.type == 'string'">
+                  <el-form-item label="value">
+                    <el-input
+                      type="textarea"
+                      v-model="oneForm.value"
+                      placeholder="value"
+                      :autosize="{ minRows: 3, maxRows: 3 }"
+                      :readonly="readonlyOne"
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item label="格式化JSON（只做查看，不保存）">
+                    <el-input
+                      type="textarea"
+                      v-model="oneForm.json"
+                      placeholder="格式化JSON"
+                      :autosize="{ minRows: 6, maxRows: 6 }"
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <a
+                      v-if="!readonlyOne"
+                      class="tm-btn color-green"
+                      @click="doSave"
+                    >
+                      保存
+                    </a>
+                  </el-form-item>
+                </template>
+                <template v-if="oneForm.type == 'set'"> </template>
               </el-form>
             </div>
           </tm-layout>
@@ -202,6 +213,10 @@ export default {
       oneForm: {
         key: null,
         value: null,
+        set: null,
+        list: null,
+        hash: null,
+        type: null,
         json: null,
       },
       keys: null,
@@ -368,6 +383,7 @@ export default {
         window.event.stopPropagation && window.event.stopPropagation();
       }
       this.oneForm.key = "";
+      this.oneForm.type = "string";
       this.oneForm.value = "";
       this.updateOne = false;
       this.insertOne = true;
@@ -384,6 +400,7 @@ export default {
           tool.error(res.msg);
         } else {
           let value = res.value || {};
+          this.oneForm.type = value.type;
           this.oneForm.value = value.value;
           this.readonlyOne = false;
           this.updateOne = true;
@@ -400,6 +417,7 @@ export default {
           tool.error(res.msg);
         } else {
           let value = res.value || {};
+          this.oneForm.type = value.type;
           this.oneForm.value = value.value;
         }
       });
