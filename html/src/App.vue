@@ -1,7 +1,12 @@
 <template>
   <div class="app">
     <template v-if="source.served">
-      <router-view></router-view>
+      <template v-if="source.login_user != null">
+        <router-view></router-view>
+      </template>
+      <template v-else>
+        <Login></Login>
+      </template>
     </template>
     <template v-else>
       <div class="text-center pdtb-100 ft-20 color-grey">
@@ -20,9 +25,10 @@ import server from "@/server";
 import tool from "@/tool";
 import source from "@/source";
 
+import Login from "@/views/Login";
 export default {
   name: "App",
-  components: {},
+  components: { Login },
   data() {
     return {
       tool,

@@ -12,6 +12,21 @@
               >https://github.com/team-ide/toolbox</a
             >
           </h2>
+          <div style="float: right; margin-top: -37px; margin-right: 10px">
+            <el-dropdown
+              @command="checkUserBtn"
+              trigger="click"
+              class="color-grey-3"
+            >
+              <div class="el-dropdown-link">
+                {{ source.login_user.name }}
+                <i class="el-icon-arrow-down el-icon--right"></i>
+              </div>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="logout">退出</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
         </div>
       </tm-layout>
       <tm-layout-bar bottom></tm-layout-bar>
@@ -98,6 +113,11 @@ export default {
     },
   },
   methods: {
+    checkUserBtn(command) {
+      if (command == "logout") {
+        tool.doLogout();
+      }
+    },
     open(data) {
       this.$refs.BodyMain.onOpen(data);
     },

@@ -3,8 +3,10 @@ import source from "@/source/index.js";
 import teamide from 'teamide-ui'
 import jQuery from 'jquery'
 
+import md5 from 'js-md5';
 let tool = {};
 tool.jQuery = jQuery;
+tool.md5 = md5;
 for (let key in teamide) {
     tool[key] = teamide[key];
 }
@@ -48,10 +50,17 @@ tool.setSource = function (value) {
 
 tool.setSession = function (value) {
     value = value || {};
+    source.login_user = value.user;
     source.served = true;
     source.inited = true;
 };
 
+tool.doLogout = function () {
+    server.logout().then(res => {
+        tool.initSession();
+    }).catch(e => {
+    });
+};
 tool.replaceAll = function (str, s1, s2) {
     if (str == null) {
         return str;

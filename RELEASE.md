@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.22 -m "修改默认连接信息，服务端跳转web如果无连接自动重定向至/"
+git tag -a v1.1.23 -m "添加用户登录，登录凭证配置MD5"
 
 # 推送标签
-git push origin v1.1.22
+git push origin v1.1.23
 ```

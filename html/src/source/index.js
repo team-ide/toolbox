@@ -1,5 +1,6 @@
 let source = {};
 
+source.login_user = null;
 source.served = false;
 source.inited = false;
 source.enum_map = null;
