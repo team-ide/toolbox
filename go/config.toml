@@ -8,11 +8,11 @@ data = './data'
 # 用户配置，配置用户名密码进行登录，角色：1：管理员（所有功能）、2：观察员（只读功能）
 [[user]]
 name = 'admin'
-auth = '123456'
+auth = 'e10adc3949ba59abbe56e057f20f883e'  # 密码使用MD5加密
 role = 1
 [[user]]
 name = 'user1'
-auth = '123456'
+auth = 'e10adc3949ba59abbe56e057f20f883e'  # 密码使用MD5加密
 role = 2
 
 # Redis配置，默认填充该配置在页面，可以配置多个
