@@ -11,7 +11,13 @@ type getRequest struct {
 }
 
 type getResponse struct {
-	Value string `json:"value"`
+	Type  string      `json:"type"`
+	Value interface{} `json:"value"`
+}
+
+type ValueInfo struct {
+	Type  string      `json:"type"`
+	Value interface{} `json:"value"`
 }
 
 func getWork(req interface{}) (res interface{}, err error) {
@@ -26,12 +32,13 @@ func getWork(req interface{}) (res interface{}, err error) {
 	if err != nil {
 		return
 	}
-	var value string
-	value, err = service.Get(request.Key)
+	var valueInfo ValueInfo
+	valueInfo, err = service.Get(request.Key)
 	if err != nil {
 		return
 	}
-	response.Value = value
+	response.Type = valueInfo.Type
+	response.Value = valueInfo.Value
 	res = response
 	return
 }
@@ -72,19 +79,23 @@ func keysWork(req interface{}) (res interface{}, err error) {
 	return
 }
 
-type saveRequest struct {
+type doRequest struct {
 	Address string `json:"address"`
 	Auth    string `json:"auth"`
 	Key     string `json:"key"`
+	Type    string `json:"type"`
+	Index   int64  `json:"index"`
+	Count   int64  `json:"count"`
+	Field   string `json:"field"`
 	Value   string `json:"value"`
 }
 
-type saveResponse struct {
+type doResponse struct {
 }
 
-func saveWork(req interface{}) (res interface{}, err error) {
-	request := &saveRequest{}
-	response := &saveResponse{}
+func doWork(req interface{}) (res interface{}, err error) {
+	request := &doRequest{}
+	response := &doResponse{}
 	err = base.ToBean(req.([]byte), request)
 	if err != nil {
 		return
@@ -94,7 +105,25 @@ func saveWork(req interface{}) (res interface{}, err error) {
 	if err != nil {
 		return
 	}
-	err = service.Set(request.Key, request.Value)
+	if request.Type == "set" {
+		err = service.Set(request.Key, request.Value)
+	} else if request.Type == "sadd" {
+		err = service.Sadd(request.Key, request.Value)
+	} else if request.Type == "srem" {
+		err = service.Srem(request.Key, request.Value)
+	} else if request.Type == "lpush" {
+		err = service.Lpush(request.Key, request.Value)
+	} else if request.Type == "rpush" {
+		err = service.Rpush(request.Key, request.Value)
+	} else if request.Type == "lset" {
+		err = service.Lset(request.Key, request.Index, request.Value)
+	} else if request.Type == "lrem" {
+		err = service.Lrem(request.Key, request.Count, request.Value)
+	} else if request.Type == "hset" {
+		err = service.Hset(request.Key, request.Field, request.Value)
+	} else if request.Type == "hdel" {
+		err = service.Hdel(request.Key, request.Field)
+	}
 	if err != nil {
 		return
 	}

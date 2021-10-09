@@ -97,7 +97,7 @@ export default {
     connectCallback(res) {
       if (res.code == 0) {
         let config = Object.assign(this.connect.config);
-        config.index = this.config.index;
+        config.configIndex = this.config.index;
         tool.setCache(this.getCacheKey(), JSON.stringify(config));
         this.connect.open = true;
         delete this.doConnectConfig;

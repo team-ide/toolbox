@@ -13,7 +13,7 @@ func Init() {
 		WorkMap: map[string]func(interface{}) (interface{}, error){},
 	}
 	worker_.WorkMap["get"] = getWork
-	worker_.WorkMap["save"] = saveWork
+	worker_.WorkMap["do"] = doWork
 	worker_.WorkMap["keys"] = keysWork
 	worker_.WorkMap["delete"] = deleteWork
 	worker_.WorkMap["deletePattern"] = deletePatternWork

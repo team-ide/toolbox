@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"base"
 	"context"
 	"strings"
 	"time"
@@ -57,28 +56,101 @@ func (service *RedisClusterService) Keys(pattern string, size int) (count int, k
 	}
 	return
 }
-func (service *RedisClusterService) Get(key string) (value string, err error) {
 
-	cmd := service.redisCluster.Get(context.TODO(), key)
-	value, err = cmd.Result()
+func (service *RedisClusterService) KeyType(key string) (keyType string, err error) {
+	cmd := service.redisCluster.Type(context.TODO(), key)
+	keyType, err = cmd.Result()
+	return
+}
+
+func (service *RedisClusterService) Get(key string) (valueInfo ValueInfo, err error) {
+	var keyType string
+	keyType, err = service.KeyType(key)
 	if err != nil {
-		if err == redis.Nil {
-			err = nil
-		} else if strings.Contains(err.Error(), "Operation against a key holding") {
-			cmd_ := service.redisCluster.HGetAll(context.TODO(), key)
-			var sets map[string]string
-			sets, err = cmd_.Result()
-			if err != nil {
-				return
-			}
-			value = base.ToJSON(sets)
-		}
+		return
 	}
+	var value interface{}
+
+	if keyType == "none" {
+
+	} else if keyType == "string" {
+		cmd := service.redisCluster.Get(context.TODO(), key)
+		value, err = cmd.Result()
+	} else if keyType == "list" {
+
+		cmd := service.redisCluster.LLen(context.TODO(), key)
+
+		var len int64
+		len, err = cmd.Result()
+		if err != nil {
+			return
+		}
+		cmdRange := service.redisCluster.LRange(context.TODO(), key, 0, len)
+		value, err = cmdRange.Result()
+	} else if keyType == "set" {
+		cmd := service.redisCluster.SMembers(context.TODO(), key)
+		value, err = cmd.Result()
+	} else if keyType == "hash" {
+		cmd := service.redisCluster.HGetAll(context.TODO(), key)
+		value, err = cmd.Result()
+	} else {
+		println(keyType)
+	}
+	valueInfo.Type = keyType
+	valueInfo.Value = value
 	return
 }
 
 func (service *RedisClusterService) Set(key string, value string) (err error) {
 	cmd := service.redisCluster.Set(context.TODO(), key, value, time.Duration(0))
+	_, err = cmd.Result()
+	return
+}
+
+func (service *RedisClusterService) Sadd(key string, value string) (err error) {
+	cmd := service.redisCluster.SAdd(context.TODO(), key, value)
+	_, err = cmd.Result()
+	return
+}
+
+func (service *RedisClusterService) Srem(key string, value string) (err error) {
+	cmd := service.redisCluster.SRem(context.TODO(), key, value)
+	_, err = cmd.Result()
+	return
+}
+
+func (service *RedisClusterService) Lpush(key string, value string) (err error) {
+	cmd := service.redisCluster.LPush(context.TODO(), key, value)
+	_, err = cmd.Result()
+	return
+}
+
+func (service *RedisClusterService) Rpush(key string, value string) (err error) {
+	cmd := service.redisCluster.RPush(context.TODO(), key, value)
+	_, err = cmd.Result()
+	return
+}
+
+func (service *RedisClusterService) Lset(key string, index int64, value string) (err error) {
+	cmd := service.redisCluster.LSet(context.TODO(), key, index, value)
+	_, err = cmd.Result()
+	return
+}
+
+func (service *RedisClusterService) Lrem(key string, count int64, value string) (err error) {
+	cmd := service.redisCluster.LRem(context.TODO(), key, count, value)
+	_, err = cmd.Result()
+	return
+}
+
+func (service *RedisClusterService) Hset(key string, field string, value string) (err error) {
+	cmd := service.redisCluster.HSet(context.TODO(), key, field, value)
+	_, err = cmd.Result()
+	return
+}
+
+func (service *RedisClusterService) Hdel(key string, field string) (err error) {
+	cmd := service.redisCluster.HDel(context.TODO(), key, field)
 	_, err = cmd.Result()
 	return
 }
