@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.23 -m "添加用户登录，登录凭证配置MD5"
+git tag -a v1.1.24 -m "Redis操作模块，添加Set、List、Hash等值类型操作"
 
 # 推送标签
-git push origin v1.1.23
+git push origin v1.1.24
 ```

@@ -17,6 +17,10 @@ type WorkerWork struct {
 }
 
 func (workerWork *WorkerWork) handle(rw http.ResponseWriter, r *http.Request) {
+
+	if !ValidateLogin(rw, r) {
+		return
+	}
 	body, err := getPostBody(r)
 	if err != nil {
 		outJSON(rw, nil, err)

@@ -111,6 +111,36 @@ func (service *RedisService) Get(key string) (valueInfo ValueInfo, err error) {
 		if reply != nil {
 			value, err = redigo.String(reply, err)
 		}
+	} else if keyType == "list" {
+		var reply interface{}
+		reply, err = client.Do("llen", key)
+		if err != nil {
+			return
+		}
+		var len int64
+		len, err = redigo.Int64(reply, err)
+		if err != nil {
+			return
+		}
+		reply, err = client.Do("lrange", key, 0, len)
+		if err != nil {
+			return
+		}
+		value, err = redigo.Strings(reply, err)
+	} else if keyType == "set" {
+		var reply interface{}
+		reply, err = client.Do("smembers", key)
+		if err != nil {
+			return
+		}
+		value, err = redigo.Strings(reply, err)
+	} else if keyType == "hash" {
+		var reply interface{}
+		reply, err = client.Do("hgetall", key)
+		if err != nil {
+			return
+		}
+		value, err = redigo.StringMap(reply, err)
 	} else {
 		println(keyType)
 	}

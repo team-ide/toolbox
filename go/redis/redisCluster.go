@@ -76,6 +76,23 @@ func (service *RedisClusterService) Get(key string) (valueInfo ValueInfo, err er
 	} else if keyType == "string" {
 		cmd := service.redisCluster.Get(context.TODO(), key)
 		value, err = cmd.Result()
+	} else if keyType == "list" {
+
+		cmd := service.redisCluster.LLen(context.TODO(), key)
+
+		var len int64
+		len, err = cmd.Result()
+		if err != nil {
+			return
+		}
+		cmdRange := service.redisCluster.LRange(context.TODO(), key, 0, len)
+		value, err = cmdRange.Result()
+	} else if keyType == "set" {
+		cmd := service.redisCluster.SMembers(context.TODO(), key)
+		value, err = cmd.Result()
+	} else if keyType == "hash" {
+		cmd := service.redisCluster.HGetAll(context.TODO(), key)
+		value, err = cmd.Result()
 	} else {
 		println(keyType)
 	}
