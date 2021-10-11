@@ -83,6 +83,7 @@
                   :props="treeProps"
                   node-key="key"
                   :expand-on-click-node="false"
+                  @node-click="databaseNodeClick"
                 >
                   <template slot-scope="{ data }">
                     <span
@@ -410,6 +411,34 @@ export default {
       //     tool.initTreeWidth(this.$refs.tree, this.$refs.treeBox);
       //   });
       // }, 100);
+    },
+    databaseNodeClick(data, node, nodeView) {
+      let nowTime = new Date().getTime();
+      let clickTime = node.clickTime;
+      node.clickTime = nowTime;
+      if (clickTime) {
+        let timeout = nowTime - clickTime;
+        if (timeout < 300) {
+          node.clickTime = null;
+          this.databaseNodeDbClick(data, node, nodeView);
+        }
+      } else {
+      }
+    },
+    databaseNodeDbClick(data, node, nodeView) {
+      if (data.isDatabase) {
+        if (node.expanded) {
+          node.collapse();
+        } else {
+          node.expand();
+        }
+      } else if (data.isTableFolder) {
+        if (node.expanded) {
+          node.collapse();
+        } else {
+          node.expand();
+        }
+      }
     },
     toShowTableData(table) {
       let database = table.database;
