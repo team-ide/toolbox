@@ -119,7 +119,11 @@
           </tm-layout>
           <tm-layout-bar left></tm-layout-bar>
           <tm-layout width="500px">
-            <div class="pdlr-10" v-if="connect.open">
+            <div
+              class="pdlr-10"
+              v-if="connect.open"
+              style="overflow: auto; height: 100%"
+            >
               <div class="worker-panel-title">
                 <template v-if="readonlyOne">
                   <span>查看</span>

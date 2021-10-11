@@ -140,12 +140,10 @@ export default {
     },
     nodeDbclick(data, node, nodeView) {
       if (data.children && data.children.length > 0) {
-        let key = data.key;
-        let index = this.expands.indexOf(key);
-        if (index < 0) {
-          this.expands.push(key);
+        if (node.expanded) {
+          node.collapse();
         } else {
-          this.expands.splice(index, 1);
+          node.expand();
         }
         return;
       }
