@@ -4,8 +4,8 @@
 
 ```shell
 # 创建标签
-git tag -a v1.1.24 -m "Redis操作模块，添加Set、List、Hash等值类型操作"
+git tag -a v1.1.25 -m "双击打开或关闭树形目录，Redis右侧添加滚动条，解决value多的情况无法展示全面"
 
 # 推送标签
-git push origin v1.1.24
+git push origin v1.1.25
 ```
