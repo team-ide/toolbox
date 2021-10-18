@@ -2,6 +2,8 @@ package database_
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -172,6 +174,23 @@ func (service *MysqlService) TableColumns(database string, table string) (column
 			Name:    string(one["Field"]),
 			Comment: string(one["Comment"]),
 		}
+		columnTypeStr := string(one["Type"])
+		columnType := columnTypeStr
+
+		if strings.Contains(columnTypeStr, "(") {
+			columnType = columnTypeStr[0:strings.Index(columnTypeStr, "(")]
+			lengthStr := columnTypeStr[strings.Index(columnTypeStr, "(")+1:]
+			if strings.Contains(lengthStr, ",") {
+				length, _ := strconv.Atoi(lengthStr[0:strings.Index(lengthStr, ",")])
+				decimal, _ := strconv.Atoi(lengthStr[strings.Index(lengthStr, ",")+1:])
+				info.Length = length
+				info.Decimal = decimal
+			} else {
+				length, _ := strconv.Atoi(lengthStr)
+				info.Length = length
+			}
+		}
+		info.Type = columnType
 		columns = append(columns, info)
 	}
 	return
@@ -199,6 +218,65 @@ func (service *MysqlService) TableIndexs(database string, table string) (indexs 
 		}
 		indexs = append(indexs, info)
 	}
+	return
+}
+
+func (service *MysqlService) Datas(datasParam DatasParam) (datasResult DatasResult, err error) {
+
+	sql_ := "select "
+	params_ := []interface{}{}
+
+	columnMap := make(map[string]TableColumnInfo)
+
+	for _, column := range datasParam.Columns {
+		columnMap[column.Name] = column
+		sql_ += column.Name + ","
+	}
+	sql_ = sql_[0 : len(sql_)-1]
+
+	sql_ += " from `" + datasParam.Database + "`.`" + datasParam.Table + "` "
+
+	if len(datasParam.Wheres) > 0 {
+		sql_ += " where "
+		for index, where := range datasParam.Wheres {
+			sql_ += where.Name + " "
+			sql_ += where.SqlConditionalOperation + " ? "
+			params_ = append(params_, where.Value)
+			if index < len(datasParam.Wheres)-1 {
+				sql_ += " " + where.AndOr + " "
+			}
+		}
+	}
+	sql_ = fmt.Sprint(sql_, " limit ", (datasParam.PageIndex-1)*datasParam.PageSize, ",", datasParam.PageSize)
+
+	sqlParam := SqlParam{
+		Sql:    sql_,
+		Params: params_,
+	}
+	res, err := service.Query(sqlParam)
+	if err != nil {
+		return
+	}
+	datas := []map[string]interface{}{}
+	for _, one := range res {
+		data := make(map[string]interface{})
+		for key, value := range one {
+			column := columnMap[key]
+			var value_ interface{}
+			if value != nil {
+				if column.Type != "" {
+					value_ = string(value)
+				} else {
+					value_ = value
+				}
+			}
+			data[key] = value_
+		}
+		datas = append(datas, data)
+	}
+	datasResult.Sql = sql_
+	datasResult.Params = params_
+	datasResult.Datas = datas
 	return
 }
 

@@ -168,16 +168,16 @@ tool.down = (parent, name, value) => {
     }
 };
 tool.initInputWidth = (event, options) => {
-    let target = tool.jQuery(event.target);
+    let target = tool.jQuery(event.target || event);
     let value = target.val();
     let str = value;
     let w = 10;
     if (target.find('option').length > 0) {
         w = 30;
-        target.find('option').each(one => {
+        target.find('option').each((index, one) => {
             one = tool.jQuery(one);
             if (one.attr('value') == value) {
-                str = one.text();
+                str = one.attr('text') || one.text();
             }
         });
     }

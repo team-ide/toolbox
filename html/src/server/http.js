@@ -47,6 +47,7 @@ axiosInstance.interceptors.response.use(function (response) {
 				return response.data;
 			case "10101":
 				tool.error('暂无登录信息，请先登录！');
+				source.login_user = null;
 				return response.data;
 			case "10102":
 				tool.error('暂无权限执行此次操作！');
