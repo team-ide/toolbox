@@ -326,9 +326,20 @@ export default {
 .worker-box .el-table::before {
   background-color: transparent;
 }
+.worker-box .el-table--border,
+.worker-box .el-table--group {
+  border: 1px solid #404040;
+}
 .worker-box .el-table td,
 .worker-box .el-table th.is-leaf {
   border-bottom: 1px solid #404040;
+}
+.worker-box .el-table--border .el-table__cell,
+.worker-box
+  .el-table__body-wrapper
+  .el-table--border.is-scrolling-left
+  ~ .el-table__fixed {
+  border-right: 1px solid #404040;
 }
 .worker-box .el-divider {
   background-color: #404040;
@@ -357,11 +368,10 @@ export default {
 .part-box input,
 .part-box select {
   color: #ffffff;
-  width: 50px;
-  min-width: 50px;
+  width: 40px;
+  min-width: 40px;
   border: 1px dashed transparent;
   background-color: transparent;
-  text-align: center;
   height: 20px;
   max-width: 100%;
   padding: 0px;
@@ -384,10 +394,11 @@ export default {
   color: #3e3e3e;
 }
 .part-box input[type="checkbox"] {
-  width: 15px;
-  min-width: 15px;
-  height: 15px;
+  width: 10px;
+  min-width: 10px;
+  height: 13px;
   vertical-align: bottom;
+  margin-left: 6px;
 }
 
 .part-box textarea {

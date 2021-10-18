@@ -63,6 +63,7 @@ type DatabaseService interface {
 	TableDetail(database string, table string) (TableDetailInfo, error)
 	ShowCreateDatabase(database string) (string, error)
 	ShowCreateTable(database string, table string) (string, error)
+	Datas(datasParam DatasParam) (DatasResult, error)
 }
 
 type DatabaseConfig struct {
@@ -92,9 +93,37 @@ type TableDetailInfo struct {
 type TableColumnInfo struct {
 	Name    string `json:"name"`
 	Comment string `json:"comment"`
+	Type    string `json:"type"`
+	Length  int    `json:"length"`
+	Decimal int    `json:"decimal"`
 }
 
 type TableIndexInfo struct {
 	Name    string `json:"name"`
 	Comment string `json:"comment"`
+}
+
+type DatasParam struct {
+	Database  string            `json:"database"`
+	Table     string            `json:"table"`
+	Columns   []TableColumnInfo `json:"columns"`
+	Wheres    []Where           `json:"wheres"`
+	PageIndex int               `json:"pageIndex"`
+	PageSize  int               `json:"pageSize"`
+}
+
+type DatasResult struct {
+	Sql    string                   `json:"sql"`
+	Params []interface{}            `json:"params"`
+	Datas  []map[string]interface{} `json:"datas"`
+}
+
+type Where struct {
+	Name                    string `json:"name"`
+	Value                   string `json:"value"`
+	Before                  string `json:"before"`
+	After                   string `json:"after"`
+	CustomSql               string `json:"customSql"`
+	SqlConditionalOperation string `json:"sqlConditionalOperation"`
+	AndOr                   string `json:"andOr"`
 }

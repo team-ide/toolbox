@@ -43,6 +43,45 @@
         ></el-input>
       </el-form-item>
     </template>
+    <template v-if="workerType == 'database'">
+      <el-form-item label="type">
+        <el-select
+          v-model="config[workerType].type"
+          placeholder="type"
+          style="width: 80px"
+        >
+          <el-option label="Mysql" value="mysql"> </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="host">
+        <el-input
+          v-model="config[workerType].host"
+          placeholder="host"
+          style="width: 100px"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="port">
+        <el-input
+          v-model="config[workerType].port"
+          placeholder="port"
+          style="width: 60px"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="username">
+        <el-input
+          v-model="config[workerType].username"
+          placeholder="username"
+          style="width: 100px"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="password">
+        <el-input
+          v-model="config[workerType].password"
+          placeholder="password"
+          style="width: 100px"
+        ></el-input>
+      </el-form-item>
+    </template>
     <el-form-item>
       <a class="tm-btn tm-btn-sm color-green" @click="doConnect">连接</a>
     </el-form-item>
@@ -72,6 +111,13 @@ export default {
         },
         kafka: {
           address: "127.0.0.1:9092",
+        },
+        database: {
+          type: "mysql",
+          host: "127.0.0.1",
+          port: 3306,
+          username: "root",
+          password: "123456",
         },
       },
     };

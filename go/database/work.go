@@ -4,6 +4,30 @@ import (
 	"base"
 )
 
+type checkConnectRequest struct {
+	Config DatabaseConfig `json:"config"`
+}
+
+type checkConnectResponse struct {
+}
+
+func checkConnectWork(req interface{}) (res interface{}, err error) {
+	request := &checkConnectRequest{}
+	response := &checkConnectResponse{}
+	err = base.ToBean(req.([]byte), request)
+	if err != nil {
+		return
+	}
+	var service DatabaseService
+	service, err = getService(request.Config)
+	if err != nil {
+		return
+	}
+	res = service.Open()
+	res = response
+	return
+}
+
 type databasesRequest struct {
 	Config DatabaseConfig `json:"config"`
 }
@@ -156,6 +180,53 @@ func tableDetailWork(req interface{}) (res interface{}, err error) {
 		return
 	}
 	response.Table = table
+	res = response
+	return
+}
+
+type datasRequest struct {
+	Config    DatabaseConfig    `json:"config"`
+	Database  string            `json:"database"`
+	Table     string            `json:"table"`
+	Columns   []TableColumnInfo `json:"columns"`
+	Wheres    []Where           `json:"wheres"`
+	PageIndex int               `json:"pageIndex"`
+	PageSize  int               `json:"pageSize"`
+}
+
+type datasResponse struct {
+	Sql    string                   `json:"sql"`
+	Params []interface{}            `json:"params"`
+	Datas  []map[string]interface{} `json:"datas"`
+}
+
+func datasWork(req interface{}) (res interface{}, err error) {
+	request := &datasRequest{}
+	response := &datasResponse{}
+	err = base.ToBean(req.([]byte), request)
+	if err != nil {
+		return
+	}
+	var service DatabaseService
+	service, err = getService(request.Config)
+	if err != nil {
+		return
+	}
+	var datasRequest DatasResult
+	datasRequest, err = service.Datas(DatasParam{
+		Database:  request.Database,
+		Table:     request.Table,
+		Columns:   request.Columns,
+		Wheres:    request.Wheres,
+		PageIndex: request.PageIndex,
+		PageSize:  request.PageSize,
+	})
+	if err != nil {
+		return
+	}
+	response.Sql = datasRequest.Sql
+	response.Params = datasRequest.Params
+	response.Datas = datasRequest.Datas
 	res = response
 	return
 }

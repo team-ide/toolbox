@@ -19,14 +19,15 @@ func ResultToMap(rows *sql.Rows) ([]map[string][]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	values := []interface{}{}
-
-	for range columnTypes {
-		var value sql.RawBytes
-		values = append(values, &value)
-	}
 	list := []map[string][]byte{}
 	for rows.Next() {
+
+		values := []interface{}{}
+
+		for range columnTypes {
+			var value sql.RawBytes
+			values = append(values, &value)
+		}
 		err = rows.Scan(values...)
 		if err != nil {
 			return nil, err
@@ -39,7 +40,7 @@ func ResultToMap(rows *sql.Rows) ([]map[string][]byte, error) {
 			if value != nil {
 				one[column] = (*value)
 			} else {
-				one[column] = []byte{}
+				one[column] = nil
 			}
 		}
 

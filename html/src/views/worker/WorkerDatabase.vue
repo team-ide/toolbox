@@ -2,56 +2,12 @@
   <div class="worker-database-wrap">
     <tm-layout height="100%">
       <tm-layout height="50px">
-        <el-form
-          class="pd-10"
-          :inline="true"
-          :model="configForm"
-          size="mini"
-          @submit.native.prevent
-        >
-          <el-form-item label="type">
-            <el-select
-              v-model="configForm.type"
-              placeholder="type"
-              style="width: 80px"
-            >
-              <el-option label="Mysql" value="mysql"> </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="host">
-            <el-input
-              v-model="configForm.host"
-              placeholder="host"
-              style="width: 100px"
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="port">
-            <el-input
-              v-model="configForm.port"
-              placeholder="port"
-              style="width: 60px"
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="username">
-            <el-input
-              v-model="configForm.username"
-              placeholder="username"
-              style="width: 100px"
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="password">
-            <el-input
-              v-model="configForm.password"
-              placeholder="password"
-              style="width: 100px"
-            ></el-input>
-          </el-form-item>
-          <el-form-item>
-            <a class="tm-btn tm-btn-sm color-green" @click="doConnect">
-              连接
-            </a>
-          </el-form-item>
-        </el-form>
+        <WorkerConfig
+          :workerKey="workerKey"
+          workerType="database"
+          :connect="connect"
+          @connect="doConnect"
+        ></WorkerConfig>
       </tm-layout>
       <tm-layout-bar bottom></tm-layout-bar>
       <tm-layout height="auto">
@@ -60,8 +16,7 @@
             <tm-layout height="40px">
               <div class="pdlr-10">
                 <div class="worker-panel-title" v-if="connect.open">
-                  Databases列表（{{ connect.form.host }} :
-                  {{ connect.form.port }}）
+                  Databases列表（{{ connect.title }}）
                 </div>
               </div>
             </tm-layout>
@@ -189,25 +144,20 @@ import server from "@/server";
 import tool from "@/tool";
 import source from "@/source";
 
+import WorkerConfig from "./WorkerConfig";
 import TableData from "./database/TableData";
 
 export default {
   props: ["workerKey"],
-  components: { TableData },
+  components: { WorkerConfig, TableData },
   data() {
     return {
       tool,
       source,
-      configForm: {
-        type: "mysql",
-        host: "127.0.0.1",
-        port: 3306,
-        username: "root",
-        password: "123456",
-      },
       connect: {
         open: false,
-        form: null,
+        config: null,
+        title: null,
       },
       tableForm: {},
       databases_loading: false,
@@ -231,7 +181,7 @@ export default {
   methods: {
     getConfig() {
       let config = {};
-      Object.assign(config, this.connect.form);
+      Object.assign(config, this.connect.config);
       config.port = Number(config.port);
       return config;
     },
@@ -239,6 +189,11 @@ export default {
       let data = {};
       data.config = this.getConfig();
       return server.database.databases(data);
+    },
+    checkConnect() {
+      let data = {};
+      data.config = this.getConfig();
+      return server.database.checkConnect(data);
     },
     loadTables(database) {
       let data = {};
@@ -343,24 +298,17 @@ export default {
           .catch(() => {});
       }
     },
-    doConnect() {
-      this.connect.open = false;
-
-      this.$nextTick(() => {
-        this.connect.form = Object.assign({}, this.configForm);
-        this.connect.open = true;
-        tool.setCache(this.getCacheKey(), JSON.stringify(this.connect.form));
-      });
-    },
-    initConnect() {
-      let value = tool.getCache(this.getCacheKey());
-      if (tool.isNotEmpty(value)) {
-        let data = JSON.parse(value);
-        for (var key in this.configForm) {
-          this.configForm[key] = data[key];
-        }
-        //this.doConnect();
-      }
+    doConnect(config, callback) {
+      this.checkConnect()
+        .then((res) => {
+          if (res.code != 0) {
+            tool.error(res.msg);
+          }
+          callback(res);
+        })
+        .catch((e) => {
+          callback(e);
+        });
     },
     toReloadChildren(data) {
       if (window.event) {
@@ -454,12 +402,7 @@ export default {
         })
         .catch(() => {});
     },
-    getCacheKey() {
-      return "teamide-toolbox-" + this.workerKey;
-    },
-    init() {
-      this.initConnect();
-    },
+    init() {},
   },
   mounted() {
     this.init();
