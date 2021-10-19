@@ -1,17 +1,20 @@
 <template>
   <tm-layout height="100%">
-    <tm-layout height="40px">
+    <tm-layout height="20px">
       <div class="pdlr-10" v-if="database != null && table != null">
-        <div class="worker-panel-title">
+        <div class="ft-12" style="line-height: 19px">
           Database：<span class="mgr-10 color-orange">{{ database.name }}</span>
           Table：<span class="mgr-10 color-orange">{{ table.name }}</span>
         </div>
       </div>
+      <el-divider class="mg-0"></el-divider>
     </tm-layout>
-    <tm-layout height="200px">
+    <tm-layout height="120px">
       <tm-layout width="400px">
-        <el-divider class="mg-0"></el-divider>
-        <ul class="part-box" v-if="database != null && table != null">
+        <ul
+          class="part-box worker-scrollbar"
+          v-if="database != null && table != null"
+        >
           <template v-for="(one, index) in form.wheres">
             <li :key="index">
               <input v-model="one.checked" type="checkbox" />
@@ -20,9 +23,10 @@
               <template v-else>
                 <select
                   v-model="one.name"
-                  @change="tool.initInputWidth"
+                  @change="initInputWidth"
                   class="part-form-input"
                 >
+                  <option :value="null" text="请选择">请选择</option>
                   <template v-for="(one, index) in table.columns">
                     <option
                       :key="index"
@@ -39,7 +43,7 @@
               </template>
               <select
                 v-model="one.sqlConditionalOperation"
-                @change="tool.initInputWidth"
+                @change="initInputWidth"
                 class="part-form-input"
               >
                 <template
@@ -72,16 +76,16 @@
                 <input
                   v-model="one.before"
                   type="text"
-                  @input="tool.initInputWidth"
-                  @change="tool.initInputWidth"
+                  @input="initInputWidth"
+                  @change="initInputWidth"
                   class="part-form-input"
                 />
                 <span class="mglr-5">,</span>
                 <input
                   v-model="one.after"
                   type="text"
-                  @input="tool.initInputWidth"
-                  @change="tool.initInputWidth"
+                  @input="initInputWidth"
+                  @change="initInputWidth"
                   class="part-form-input"
                 />
               </template>
@@ -89,8 +93,8 @@
                 <input
                   v-model="one.customSql"
                   type="text"
-                  @input="tool.initInputWidth"
-                  @change="tool.initInputWidth"
+                  @input="initInputWidth"
+                  @change="initInputWidth"
                   class="part-form-input"
                 />
               </template>
@@ -98,19 +102,19 @@
                 <input
                   v-model="one.value"
                   type="text"
-                  @input="tool.initInputWidth"
-                  @change="tool.initInputWidth"
+                  @input="initInputWidth"
+                  @change="initInputWidth"
                   class="part-form-input"
                 />
               </template>
 
               <select
                 v-model="one.andOr"
-                @change="tool.initInputWidth"
+                @change="initInputWidth"
                 class="part-form-input"
               >
-                <option value="and">and</option>
-                <option value="or">or</option>
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
               </select>
             </li>
           </template>
@@ -122,50 +126,108 @@
       </tm-layout>
       <tm-layout-bar right></tm-layout-bar>
       <tm-layout width="400px">
-        <el-divider class="mg-0"></el-divider>
-        <ul class="part-box" v-if="database != null && table != null">
+        <ul
+          class="part-box worker-scrollbar"
+          v-if="database != null && table != null"
+        >
           <li></li>
         </ul>
       </tm-layout>
       <tm-layout-bar right></tm-layout-bar>
       <tm-layout>
-        <ul class="part-box" v-if="database != null && table != null">
+        <ul
+          class="part-box worker-scrollbar"
+          v-if="database != null && table != null"
+        >
           <li></li>
         </ul>
       </tm-layout>
     </tm-layout>
     <tm-layout-bar bottom></tm-layout-bar>
+    <tm-layout height="20px">
+      <div class="ft-12 pdl-10" v-if="database != null && table != null">
+        <a class="color-red tm-link mgr-10">删除</a>
+        <a class="color-green tm-link mgr-10">保存修改</a>
+        <a class="color-blue tm-link mgr-10">新增</a>
+      </div>
+    </tm-layout>
     <tm-layout height="auto" v-loading="datas_loading">
       <div
         class="worker-database-data-list"
-        v-if="database != null && table != null && result != null"
+        v-if="database != null && table != null"
       >
         <el-table
-          :data="result.datas"
+          :data="datas"
           :border="true"
           height="100%"
           style="width: 100%"
           size="mini"
         >
-          <template v-for="(column, index) in result.columns">
-            <el-table-column
-              :key="index"
-              :prop="column.name"
-              :label="column.name"
-              width="150"
-            >
-              <template slot-scope="scope">
-                <div class="">
-                  <input
-                    v-model="scope.row[column.name]"
-                    :placeholder="scope.row[column.name] == null ? 'null' : ''"
-                    type="text"
-                  />
-                </div>
+          <el-table-column width="70">
+            <template slot-scope="scope" label="">
+              <input
+                :checked="selects.indexOf(scope.row) >= 0"
+                type="checkbox"
+              />
+              <template v-if="updates.indexOf(scope.row) >= 0">
+                <i class="mdi mdi-text-box-outline"></i>
               </template>
-            </el-table-column>
+              <template v-if="inserts.indexOf(scope.row) >= 0">
+                <i class="mdi mdi-text-box-plus-outline"></i>
+              </template>
+            </template>
+          </el-table-column>
+          <template v-for="(column, index) in form.columns">
+            <template v-if="column.checked">
+              <el-table-column
+                :key="index"
+                :prop="column.name"
+                :label="column.name"
+                width="150"
+              >
+                <template slot-scope="scope">
+                  <div class="">
+                    <input
+                      v-model="scope.row[column.name]"
+                      :placeholder="
+                        scope.row[column.name] == null ? 'null' : ''
+                      "
+                      type="text"
+                    />
+                  </div>
+                </template>
+              </el-table-column>
+            </template>
           </template>
         </el-table>
+      </div>
+    </tm-layout>
+    <tm-layout height="30px">
+      <div
+        class="ft-12 pdt-2 text-center worker-database-data-pagination"
+        v-if="database != null && table != null && total > 0"
+      >
+        <el-pagination
+          small
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="pageIndex"
+          :page-sizes="[10, 50, 100, 200, 500]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+        >
+        </el-pagination>
+      </div>
+    </tm-layout>
+    <tm-layout height="25px">
+      <div
+        class="ft-12 pdl-10"
+        v-if="database != null && table != null && sql != null"
+      >
+        <div style="line-height: 25px">
+          <span>{{ sql }}</span>
+        </div>
       </div>
     </tm-layout>
   </tm-layout>
@@ -187,7 +249,15 @@ export default {
       database: null,
       table: null,
       datas_loading: false,
-      result: null,
+      datas: null,
+      sql: null,
+      params: null,
+      inserts: [],
+      updates: [],
+      selects: [],
+      pageSize: 100,
+      pageIndex: 1,
+      total: 0,
       form: {
         wheres: [],
         orders: [],
@@ -198,6 +268,24 @@ export default {
   watch: {},
   computed: {},
   methods: {
+    handleSizeChange(pageSize) {
+      this.pageSize = pageSize;
+      this.doSearch();
+    },
+    handleCurrentChange(pageIndex) {
+      this.pageIndex = pageIndex;
+      this.doSearch();
+    },
+    initInputWidth() {
+      this.$nextTick(() => {
+        let es = this.$el.getElementsByClassName("part-form-input");
+        if (es) {
+          es.forEach((one) => {
+            this.initWidth(one);
+          });
+        }
+      });
+    },
     initWidth(event) {
       let target = event;
       if (event.target) {
@@ -242,12 +330,12 @@ export default {
         });
       }
       if (column == null) {
-        return;
+      } else {
+        where.name = column.name;
       }
-      where.name = column.name;
 
       this.form.wheres.push(where);
-      this.initFormInputWidth();
+      this.initInputWidth();
     },
     doSearch() {
       let wheres = [];
@@ -255,6 +343,9 @@ export default {
       let columns = [];
       this.form.wheres.forEach((where) => {
         if (!where.checked) {
+          return;
+        }
+        if (tool.isEmpty(where.name)) {
           return;
         }
         wheres.push(where);
@@ -277,33 +368,33 @@ export default {
       data.wheres = wheres;
       data.orders = orders;
       data.columns = columns;
-      data.pageIndex = 1;
-      data.pageSize = 100;
+      data.pageIndex = this.pageIndex;
+      data.pageSize = this.pageSize;
       this.datas_loading = true;
+
+      this.datas = null;
+      this.sql = null;
+      this.total = 0;
+      this.params = null;
+      this.updates = [];
+      this.inserts = [];
+      this.selects = [];
+
       this.loadDatas(data)
         .then((res) => {
           this.datas_loading = false;
           if (res.code != 0) {
             tool.error(res.msg);
           }
-          this.result = res.value;
-          if (this.result != null) {
-            this.result.columns = columns;
-          }
+          let value = res.value || {};
+          this.datas = value.datas;
+          this.sql = value.sql;
+          this.total = Number(value.total || 0);
+          this.params = value.params;
         })
         .catch(() => {
           this.datas_loading = false;
         });
-    },
-    initFormInputWidth() {
-      this.$nextTick(() => {
-        let es = this.$el.getElementsByClassName("part-form-input");
-        if (es) {
-          es.forEach((one) => {
-            this.initWidth(one);
-          });
-        }
-      });
     },
     init(config, database, table) {
       this.config = config;
@@ -347,5 +438,33 @@ export default {
   box-sizing: border-box;
   outline: none;
   font-size: 12px;
+}
+.worker-database-data-pagination .el-pagination {
+  color: #929292;
+}
+.worker-database-data-pagination .el-pagination .el-input__inner {
+  height: 22px !important;
+  line-height: 22px !important;
+}
+.worker-database-data-pagination .el-pagination .el-input__icon {
+  line-height: 22px !important;
+}
+.worker-database-data-pagination .el-pagination button:disabled {
+  background-color: transparent;
+}
+.worker-database-data-pagination .el-pagination .btn-next,
+.worker-database-data-pagination .el-pagination .btn-prev {
+  background-color: transparent;
+}
+.worker-database-data-pagination .el-pagination .btn-next,
+.worker-database-data-pagination .el-pagination .btn-prev {
+  color: #929292;
+}
+.worker-database-data-pagination .el-pager li.btn-quicknext,
+.worker-database-data-pagination .el-pager li.btn-quickprev {
+  color: #929292;
+}
+.worker-database-data-pagination .el-pager li {
+  background: transparent;
 }
 </style>
