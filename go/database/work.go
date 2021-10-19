@@ -196,6 +196,7 @@ type datasRequest struct {
 
 type datasResponse struct {
 	Sql    string                   `json:"sql"`
+	Total  string                   `json:"total"`
 	Params []interface{}            `json:"params"`
 	Datas  []map[string]interface{} `json:"datas"`
 }
@@ -226,6 +227,7 @@ func datasWork(req interface{}) (res interface{}, err error) {
 	}
 	response.Sql = datasRequest.Sql
 	response.Params = datasRequest.Params
+	response.Total = datasRequest.Total
 	response.Datas = datasRequest.Datas
 	res = response
 	return

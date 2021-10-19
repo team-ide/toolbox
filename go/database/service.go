@@ -114,6 +114,7 @@ type DatasParam struct {
 
 type DatasResult struct {
 	Sql    string                   `json:"sql"`
+	Total  string                   `json:"total"`
 	Params []interface{}            `json:"params"`
 	Datas  []map[string]interface{} `json:"datas"`
 }

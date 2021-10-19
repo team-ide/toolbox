@@ -223,37 +223,80 @@ func (service *MysqlService) TableIndexs(database string, table string) (indexs 
 
 func (service *MysqlService) Datas(datasParam DatasParam) (datasResult DatasResult, err error) {
 
-	sql_ := "select "
+	sql_ := "SELECT "
+	countSql := "SELECT "
 	params_ := []interface{}{}
 
 	columnMap := make(map[string]TableColumnInfo)
 
 	for _, column := range datasParam.Columns {
 		columnMap[column.Name] = column
-		sql_ += column.Name + ","
+		sql_ += "`" + column.Name + "`,"
 	}
 	sql_ = sql_[0 : len(sql_)-1]
 
-	sql_ += " from `" + datasParam.Database + "`.`" + datasParam.Table + "` "
+	sql_ += " FROM `" + datasParam.Database + "`.`" + datasParam.Table + "` "
+	countSql += " COUNT(1) AS total FROM `" + datasParam.Database + "`.`" + datasParam.Table + "` "
 
 	if len(datasParam.Wheres) > 0 {
-		sql_ += " where "
+		whereSql := "WHERE "
 		for index, where := range datasParam.Wheres {
-			sql_ += where.Name + " "
-			sql_ += where.SqlConditionalOperation + " ? "
-			params_ = append(params_, where.Value)
+			value := where.Value
+			whereSql += "`" + where.Name + "` "
+			switch where.SqlConditionalOperation {
+			case "like":
+				whereSql += "LIKE '%" + value + "%' "
+			case "not like":
+				whereSql += "NOT LIKE '%" + value + "%' "
+			case "like start":
+				whereSql += "LIKE '" + value + "%' "
+			case "not like start":
+				whereSql += "NOT LIKE '" + value + "%' "
+			case "like end":
+				whereSql += "LIKE '%" + value + "' "
+			case "not like end":
+				whereSql += "NOT LIKE '%" + value + "' "
+			case "is null":
+				whereSql += "IS NULL "
+			case "is not null":
+				whereSql += "IS NOT NULL "
+			case "is empty":
+				whereSql += "= '' "
+			case "is not empty":
+				whereSql += "<> '' "
+			case "between":
+				whereSql += "BETWEEN " + "'" + where.Before + "' AND '" + where.After + "' "
+			case "not between":
+				whereSql += "NOT BETWEEN " + "'" + where.Before + "' AND '" + where.After + "' "
+			case "in":
+				whereSql += "IN " + "(" + value + ") "
+			case "not in":
+				whereSql += "NOT IN " + "(" + value + ") "
+			default:
+				whereSql += where.SqlConditionalOperation + " '" + value + "' "
+			}
+			// params_ = append(params_, where.Value)
 			if index < len(datasParam.Wheres)-1 {
-				sql_ += " " + where.AndOr + " "
+				whereSql += " " + where.AndOr + " "
 			}
 		}
+		sql_ += whereSql
+		countSql += whereSql
 	}
-	sql_ = fmt.Sprint(sql_, " limit ", (datasParam.PageIndex-1)*datasParam.PageSize, ",", datasParam.PageSize)
+	sql_ = fmt.Sprint(sql_, " LIMIT ", (datasParam.PageIndex-1)*datasParam.PageSize, ",", datasParam.PageSize)
 
-	sqlParam := SqlParam{
+	totalRes, err := service.Query(SqlParam{
+		Sql:    countSql,
+		Params: params_,
+	})
+	if err != nil {
+		return
+	}
+	total := string(totalRes[0]["total"])
+	res, err := service.Query(SqlParam{
 		Sql:    sql_,
 		Params: params_,
-	}
-	res, err := service.Query(sqlParam)
+	})
 	if err != nil {
 		return
 	}
@@ -275,6 +318,7 @@ func (service *MysqlService) Datas(datasParam DatasParam) (datasResult DatasResu
 		datas = append(datas, data)
 	}
 	datasResult.Sql = sql_
+	datasResult.Total = total
 	datasResult.Params = params_
 	datasResult.Datas = datas
 	return

@@ -341,6 +341,9 @@ export default {
   ~ .el-table__fixed {
   border-right: 1px solid #404040;
 }
+.worker-box .el-table--border th.el-table__cell.gutter:last-of-type {
+  border-bottom: 1px solid #404040;
+}
 .worker-box .el-divider {
   background-color: #404040;
 }
@@ -351,12 +354,14 @@ export default {
 .part-box {
   line-height: 20px;
   font-size: 12px;
+  overflow: auto;
+  width: 100%;
+  height: 100%;
 }
 .part-box,
 .part-box li {
   padding: 0px;
   margin: 0px;
-  width: 100%;
   list-style: none;
 }
 .part-box li {

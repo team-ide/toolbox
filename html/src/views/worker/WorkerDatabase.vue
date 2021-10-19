@@ -12,7 +12,7 @@
       <tm-layout-bar bottom></tm-layout-bar>
       <tm-layout height="auto">
         <tm-layout height="100%" width="100%">
-          <tm-layout width="350px">
+          <tm-layout width="300px">
             <tm-layout height="40px">
               <div class="pdlr-10">
                 <div class="worker-panel-title" v-if="connect.open">
