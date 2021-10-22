@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"sort"
 	"strings"
 	"time"
 
@@ -36,12 +37,19 @@ func (service *RedisClusterService) init() (err error) {
 }
 
 func (service *RedisClusterService) Keys(pattern string, size int) (count int, keys []string, err error) {
-	cmd := service.redisCluster.Keys(context.TODO(), pattern)
 	var list []string
-	list, err = cmd.Result()
-	if err != nil {
+	service.redisCluster.ForEachMaster(context.TODO(), func(ctx context.Context, client *redis.Client) (err error) {
+		cmd := client.Keys(ctx, pattern)
+		var ls []string
+		ls, err = cmd.Result()
+		if err != nil {
+			return
+		}
+		list = append(list, ls...)
 		return
-	}
+	})
+	sor := sort.StringSlice(list)
+	sor.Sort()
 	count = len(list)
 	if count <= size {
 		keys = list

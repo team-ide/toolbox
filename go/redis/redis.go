@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"sort"
 	"time"
 
 	redigo "github.com/gomodule/redigo/redis"
@@ -60,6 +61,10 @@ func (service *RedisService) Keys(pattern string, size int) (count int, keys []s
 	if reply != nil {
 		var list []string
 		list, err = redigo.Strings(reply, err)
+
+		sor := sort.StringSlice(list)
+		sor.Sort()
+
 		count = len(list)
 		if count <= size || size <= 0 {
 			keys = list
