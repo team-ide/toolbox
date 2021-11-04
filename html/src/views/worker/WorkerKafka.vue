@@ -267,12 +267,41 @@
                     </el-row>
                   </template>
                 </div>
+
+                <el-form-item
+                  label="key类型"
+                  :show-message="false"
+                  class="mgb-0"
+                >
+                  <el-select
+                    v-model="oneForm.keyType"
+                    placeholder="keyType"
+                    style="width: 80px"
+                  >
+                    <el-option label="String" value="String"> </el-option>
+                    <el-option label="Long" value="Long"> </el-option>
+                  </el-select>
+                </el-form-item>
                 <el-form-item label="key">
                   <el-input
                     v-model="oneForm.key"
                     placeholder="key"
                     :readonly="readonlyOne || updateOne"
                   ></el-input>
+                </el-form-item>
+                <el-form-item
+                  label="value类型"
+                  :show-message="false"
+                  class="mgb-0"
+                >
+                  <el-select
+                    v-model="oneForm.valueType"
+                    placeholder="valueType"
+                    style="width: 80px"
+                  >
+                    <el-option label="String" value="String"> </el-option>
+                    <el-option label="Long" value="Long"> </el-option>
+                  </el-select>
                 </el-form-item>
                 <el-form-item label="value">
                   <el-input
@@ -370,6 +399,8 @@ export default {
       insertOne: true,
       updateOne: true,
       oneForm: {
+        keyType: "String",
+        valueType: "String",
         topic: null,
         key: null,
         value: null,
@@ -695,6 +726,8 @@ export default {
       this.oneForm.partition = null;
       this.oneForm.offset = null;
       this.oneForm.headers = [];
+      this.oneForm.keyType = this.searchForm.keyType;
+      this.oneForm.valueType = this.searchForm.valueType;
       this.updateOne = false;
       this.insertOne = true;
       this.readonlyOne = false;
@@ -718,6 +751,8 @@ export default {
       this.oneForm.partition = data.partition;
       this.oneForm.offset = data.offset;
       this.oneForm.headers = data.headers || [];
+      this.oneForm.keyType = this.searchForm.keyType;
+      this.oneForm.valueType = this.searchForm.valueType;
 
       this.insertOne = false;
       this.readonlyOne = false;
@@ -730,6 +765,8 @@ export default {
       this.oneForm.partition = data.partition;
       this.oneForm.offset = data.offset;
       this.oneForm.headers = data.headers || [];
+      this.oneForm.keyType = this.searchForm.keyType;
+      this.oneForm.valueType = this.searchForm.valueType;
 
       this.insertOne = false;
       this.readonlyOne = true;

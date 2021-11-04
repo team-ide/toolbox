@@ -2,6 +2,8 @@ package kafka
 
 import (
 	"base"
+	"encoding/binary"
+	"strconv"
 
 	"github.com/Shopify/sarama"
 )
@@ -83,11 +85,23 @@ func pullWork(req interface{}) (res interface{}, err error) {
 		var value interface{}
 		if request.KeyType == "String" {
 			key = sarama.StringEncoder(kafkaMsg.Key)
+		} else if request.KeyType == "Long" {
+			if len(kafkaMsg.Key) == 8 {
+				key = uint64(binary.BigEndian.Uint64(kafkaMsg.Key))
+			} else {
+				key = sarama.StringEncoder(kafkaMsg.Key)
+			}
 		} else {
 			key = sarama.ByteEncoder(kafkaMsg.Key)
 		}
 		if request.ValueType == "String" {
 			value = sarama.StringEncoder(kafkaMsg.Value)
+		} else if request.ValueType == "Long" {
+			if len(kafkaMsg.Value) == 8 {
+				value = uint64(binary.BigEndian.Uint64(kafkaMsg.Value))
+			} else {
+				value = sarama.StringEncoder(kafkaMsg.Value)
+			}
 		} else {
 			value = sarama.ByteEncoder(kafkaMsg.Value)
 		}
@@ -140,15 +154,37 @@ func pushWork(req interface{}) (res interface{}, err error) {
 
 	var key sarama.Encoder
 	var value sarama.Encoder
-	if request.KeyType == "String" {
-		key = sarama.StringEncoder(request.Key)
-	} else {
-		key = sarama.ByteEncoder(request.Key)
+	if request.Key != "" {
+		if request.KeyType == "String" {
+			key = sarama.StringEncoder(request.Key)
+		} else if request.KeyType == "Long" {
+			longV, err := strconv.ParseInt(request.Key, 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			uintV := uint64(longV)
+			bytes := make([]byte, 8)
+			binary.BigEndian.PutUint64(bytes, uintV)
+			key = sarama.ByteEncoder(bytes)
+		} else {
+			key = sarama.ByteEncoder(request.Key)
+		}
 	}
-	if request.ValueType == "String" {
-		value = sarama.StringEncoder(request.Value)
-	} else {
-		value = sarama.ByteEncoder(request.Value)
+	if request.Value != "" {
+		if request.ValueType == "String" {
+			value = sarama.StringEncoder(request.Value)
+		} else if request.ValueType == "Long" {
+			longV, err := strconv.ParseInt(request.Value, 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			uintV := uint64(longV)
+			bytes := make([]byte, 8)
+			binary.BigEndian.PutUint64(bytes, uintV)
+			value = sarama.ByteEncoder(bytes)
+		} else {
+			value = sarama.ByteEncoder(request.Value)
+		}
 	}
 
 	kafkaMsg := &sarama.ProducerMessage{}

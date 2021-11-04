@@ -12,7 +12,10 @@
               >https://github.com/team-ide/toolbox</a
             >
           </h2>
-          <div style="float: right; margin-top: -37px; margin-right: 10px">
+          <div
+            style="float: right; margin-top: -37px; margin-right: 10px"
+            v-if="source.login_user != null"
+          >
             <el-dropdown
               @command="checkUserBtn"
               trigger="click"

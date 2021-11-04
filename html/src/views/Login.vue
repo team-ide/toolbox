@@ -101,6 +101,7 @@ export default {
   width: 100%;
   height: 100%;
   background-color: #ddd;
+  z-index: 100000;
 }
 .login-page .login-content {
   width: 500px;
