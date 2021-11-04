@@ -45,3 +45,4 @@ func getService(address string) (service *ZKService, err error) {
 	service = automaticShutdown.Service.(*ZKService)
 	return
 }
+

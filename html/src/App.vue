@@ -1,12 +1,10 @@
 <template>
   <div class="app">
     <template v-if="source.served">
-      <template v-if="source.login_user != null">
-        <router-view></router-view>
-      </template>
-      <template v-else>
+      <template v-if="source.login_user == null">
         <Login></Login>
       </template>
+      <router-view></router-view>
     </template>
     <template v-else>
       <div class="text-center pdtb-100 ft-20 color-grey">

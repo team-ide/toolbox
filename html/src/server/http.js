@@ -39,17 +39,11 @@ axiosInstance.interceptors.response.use(function (response) {
 		switch (code) {
 			case "0":
 				return response.data;
-			case "10001":
-				tool.error('客户端会话失效，请刷新浏览器！');
-				return response.data;
-			case "10002":
-				tool.error('客户端会话失效，请刷新浏览器！');
-				return response.data;
-			case "10101":
+			case "100":
 				tool.error('暂无登录信息，请先登录！');
 				source.login_user = null;
 				return response.data;
-			case "10102":
+			case "101":
 				tool.error('暂无权限执行此次操作！');
 				return response.data;
 		}
