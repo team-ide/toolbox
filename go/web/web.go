@@ -40,6 +40,22 @@ func handleIndex(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(200)
 }
 
+func handleDownloadResource(rw http.ResponseWriter, r *http.Request) {
+	relPath := r.FormValue("relPath")
+	if relPath == "" {
+		rw.WriteHeader(404)
+		return
+	}
+	downloadResource(relPath, rw, r)
+	return
+}
+
+func handleUploadResource(rw http.ResponseWriter, r *http.Request) {
+	relPath := r.FormValue("relPath")
+	uploadResource(relPath, rw, r)
+	return
+}
+
 func StartServer() {
 
 	context := config.Config.Server.Context
@@ -54,6 +70,8 @@ func StartServer() {
 	r.HandleFunc(context+"/server/session", handleSession)
 	r.HandleFunc(context+"/server/login", handleLogin)
 	r.HandleFunc(context+"/server/logout", handleLogout)
+	r.HandleFunc(context+"/server/download/resource", handleDownloadResource)
+	r.HandleFunc(context+"/server/upload/resource", handleUploadResource)
 
 	workerCache := worker.WorkerCache
 	for workerName, oneWorker := range workerCache {

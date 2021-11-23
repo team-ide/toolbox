@@ -111,6 +111,18 @@ export default {
             },
           ],
         },
+        {
+          name: "资源文件分享",
+          key: "resource",
+          children: [
+            {
+              name: "default",
+              title: "资源文件分享",
+              workerType: "resource",
+              key: "resource/default",
+            },
+          ],
+        },
       ],
       defaultProps: {
         children: "children",

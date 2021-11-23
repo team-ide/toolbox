@@ -28,6 +28,9 @@
           <template v-if="tab.workerType == 'mongo'">
             <WorkerMongo :workerKey="tab.key"></WorkerMongo>
           </template>
+          <template v-if="tab.workerType == 'resource'">
+            <WorkerResource :workerKey="tab.key"></WorkerResource>
+          </template>
         </el-tab-pane>
       </template>
     </el-tabs>
@@ -46,6 +49,7 @@ import WorkerKafka from "@/views/worker/WorkerKafka";
 import WorkerDatabase from "@/views/worker/WorkerDatabase";
 import WorkerRabbit from "@/views/worker/WorkerRabbit";
 import WorkerMongo from "@/views/worker/WorkerMongo";
+import WorkerResource from "@/views/worker/WorkerResource";
 
 export default {
   components: {
@@ -56,6 +60,7 @@ export default {
     WorkerDatabase,
     WorkerRabbit,
     WorkerMongo,
+    WorkerResource,
   },
   data() {
     return {
