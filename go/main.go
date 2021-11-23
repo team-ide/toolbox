@@ -8,6 +8,7 @@ import (
 	"kafka"
 	"mongo"
 	"redis"
+	"resource"
 	"web"
 	"worker"
 	"zookeeper"
@@ -21,9 +22,10 @@ func init() {
 	kafka.Init()
 	mongo.Init()
 	redis.Init()
+	zookeeper.Init()
+	resource.Init()
 	web.Init()
 	worker.Init()
-	zookeeper.Init()
 }
 func main() {
 	web.StartServer()
